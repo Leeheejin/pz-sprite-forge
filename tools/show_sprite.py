@@ -9,6 +9,7 @@ Run with:
 from __future__ import annotations
 
 import io
+import os
 import sys
 from pathlib import Path
 
@@ -17,7 +18,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from pzforge.packfile import TexturePack
 
-PZ = Path(r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media\texturepacks")
+PZ = Path(os.environ.get("PZ_MEDIA", r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media")) / "texturepacks"
 PX_PER_M = 78.38367176906169   # cos(30) * 128 / sqrt(2)
 CELL_W, CELL_H = 128, 256
 

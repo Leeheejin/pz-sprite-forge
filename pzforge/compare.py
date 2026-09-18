@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import colorsys
 import io
+import os
 from pathlib import Path
 
 from PIL import Image
@@ -20,7 +21,8 @@ from .packfile import TexturePack
 from .style import measure
 
 DEFAULT_GAME_MEDIA = Path(
-    r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media")
+    os.environ.get("PZ_MEDIA")
+    or r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media")
 
 #: Low on purpose: near-grey sprites sit around 0.03 saturation, and a 0.08 cut-off
 #: reports them as having no hue at all.
