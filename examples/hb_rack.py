@@ -82,13 +82,19 @@ SHEET, OUT_DIR = PARTS[PART]
 OUT = ROOT / "build" / OUT_DIR
 
 #: Deck tops, in metres.
-DECK_TOPS = (0.12, 1.04, 1.96)
+#: Measured on the reference cellar row (2560x1080 screenshot at zoom 2.6, 43 px/m):
+#: deck front edges 75 px apart at the corner post = 0.67 m per tier, top deck
+#: 170 px above the floor = 1.52 m, bottom deck about 0.15 m up. The first build
+#: (0.12 / 1.04 / 1.96, posts 2.0 m) was a head taller with 0.92 m tiers, and a
+#: 0.6 m cask filled only two thirds of its bay; the reference cask fills its bay
+#: almost to the deck above.
+DECK_TOPS = (0.15, 0.82, 1.49)
 DECK_THICK = 0.055
 DECK_DEPTH = 0.92          # along Y; the open side is -Y
 FRONT_EDGE = 0.030         # the deck's front edge strip, kept with its deck
 POST_W = 0.040             # a half post: two bays make an 0.08 m divider at the seam
 POST_D = 0.085
-POST_TOP = 2.00
+POST_TOP = 1.55
 PLANKS = 3
 
 

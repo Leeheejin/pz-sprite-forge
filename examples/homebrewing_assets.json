@@ -41,7 +41,7 @@
       "sheet": "hb_rack_01",
       "png": "build/hb_rack_png",
       "build": ["--preset", "furniture", "--tileset-id", "1", "--tiledef-id", "2002",
-                "--prop", "IsTable=", "--prop", "Surface=5", "--prop", "Material=Wood",
+                "--prop", "IsTable=", "--prop", "Surface=6", "--prop", "Material=Wood",
                 "--prop", "CanScrap=", "--prop", "IsMoveAble=", "--prop", "PickUpWeight=90",
                 "--prop", "CustomName=Barrel Rack", "--prop", "GroupName=Home Brewing",
                 "--prop", "PickUpTool=Hammer", "--prop", "PlaceTool=Hammer"]
@@ -108,14 +108,14 @@
   "previews": [
     {
       "name": "rack_column",
-      "_layers": "the game's draw order on the square: base, tier-1 barrel (+5), deck2, tier-2 barrel (+45), deck3, (tier-3 barrel +84,) front -- HB_Brewing.TIER_OFFSET",
+      "_layers": "the game's draw order on the square: base, tier-1 barrel (+6), deck2, tier-2 barrel (+35), deck3, (tier-3 barrel +64,) front -- HB_Brewing.TIER_OFFSET = deck tops 0.15 / 0.82 / 1.49 m at 43 px/m",
       "out": "build/hb_rack_column.png",
       "scale": 3,
       "layers": [
         {"png": "build/hb_rack_png", "sheet": "hb_rack_01"},
-        {"png": "build/hb_barrel_racked_png", "sheet": "hb_barrel_racked_01", "offset": 5},
+        {"png": "build/hb_barrel_racked_png", "sheet": "hb_barrel_racked_01", "offset": 6},
         {"png": "build/hb_rackdeck2_png", "sheet": "hb_rackdeck2_01"},
-        {"png": "build/hb_barrel_racked_png", "sheet": "hb_barrel_racked_01", "offset": 45},
+        {"png": "build/hb_barrel_racked_png", "sheet": "hb_barrel_racked_01", "offset": 35},
         {"png": "build/hb_rackdeck3_png", "sheet": "hb_rackdeck3_01"},
         {"png": "build/hb_rackfront_png", "sheet": "hb_rackfront_01"}
       ]
@@ -135,12 +135,12 @@
   "measures": [
     {
       "name": "rack_bay",
-      "_reference": "theindiestone forum cellar screenshot (2022-01-08), right row, 3x crop: head boards 75, flank 42, deck plank 73 -> flank/head 0.56, head/deck 1.03. First build measured 1.10 and 0.82 (flank brighter than the lid: read as a body facing out). Boxes sit on the tier-1 bay of the S facing: head boards inside the rim, the shaded flank right of the near post, the lit deck-1 planks right of the barrel; they were re-pinned when the cask was refitted to the bay (0.80 scale, 0.05 m set back) and read 0.59 / 0.95.",
+      "_reference": "theindiestone forum cellar screenshot (2022-01-08), right row, 3x crop: head boards 75, flank 42, deck plank 73 -> flank/head 0.56, head/deck 1.03. First build measured 1.10 and 0.82 (flank brighter than the lid: read as a body facing out). Boxes sit on the tier-1 bay of the S facing: head boards inside the rim, the shaded flank right of the near post, the lit deck-1 planks right of the barrel; they were re-pinned when the cask was refitted to the bay (0.80 scale, 0.05 m set back) and again when the rack took the reference heights (0.15 / 0.82 / 1.49 m, posts 1.55 m); they read 0.57 / 0.99.",
       "image": "build/hb_rack_column.png",
       "patches": {
-        "head": [128, 890, 162, 940],
-        "flank": [231, 863, 301, 933],
-        "deck": [260, 935, 340, 975]
+        "head": [120, 816, 165, 866],
+        "flank": [235, 796, 300, 856],
+        "deck": [260, 881, 340, 921]
       },
       "expect": [
         {"ratio": "flank/head", "min": 0.45, "max": 0.70},
