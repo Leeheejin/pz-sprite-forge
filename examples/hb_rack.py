@@ -163,6 +163,12 @@ def build_rack(part: str) -> list[bpy.types.Object]:
         posts("front", "SE")    # near pair, drawn over the barrels
         posts("back", "NW")
 
+    # Tile geometry (Build 42 depth): each deck is one slab, each half-post
+    # its own thin box -- exactly the shapes the game needs to decide that a
+    # cask sits under a deck and behind a post.
+    for part in parts:
+        if part.name.startswith("deck"):
+            F.tag_geometry(part, part.name.split("_")[0])
     return parts
 
 

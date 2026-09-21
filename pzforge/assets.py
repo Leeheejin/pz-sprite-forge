@@ -16,7 +16,9 @@ The spec is JSON (see ``examples/homebrewing_assets.json``) with four lists:
     one entry per sheet: the recipe Blender runs, the cells directory it
     renders into, the ``build`` arguments (mod id, tiledef id, tile props,
     style flags -- exactly what the ``build`` command takes) and the folder
-    the finished sprites are extracted into for previews.
+    the finished sprites are extracted into for previews. A sheet's Build 42
+    tile geometry (its depth; see :mod:`pzforge.geometry`) is built with it
+    and merged into the mod's one ``tileGeometry.txt`` on install.
 ``previews``
     stacked composites: layers drawn in the game's draw order, each shifted
     up by its render y offset, for every facing side by side -- the view a
@@ -216,6 +218,10 @@ def tiles_path(spec: Spec, asset: Asset) -> Path:
     return Path(spec.out) / asset.mod_id / spec.build_dir / "media" / f"{asset.sheet_name()}.tiles"
 
 
+def geometry_path(spec: Spec, asset: Asset) -> Path:
+    return Path(spec.out) / asset.mod_id / spec.build_dir / "media" / "tileGeometry.txt"
+
+
 # --------------------------------------------------------------------------- #
 # the run
 # --------------------------------------------------------------------------- #
@@ -277,6 +283,14 @@ class Harness:
                     continue
                 shutil.copy2(src, dst / src.name)
                 self.log(f"  installed {src.name} -> {dst}")
+            geo = geometry_path(self.spec, asset)
+            if geo.exists():
+                # one tileGeometry.txt per mod: this sheet's block replaces
+                # its namesake, every other sheet's block stays
+                from . import geometry as geom
+
+                geom.merge_into(media / "tileGeometry.txt", geo.read_text(encoding="utf-8"))
+                self.log(f"  merged tile geometry of {asset.sheet_name()} -> {media / 'tileGeometry.txt'}")
         return ok
 
     def preview(self, entry: dict) -> bool:

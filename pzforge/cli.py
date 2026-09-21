@@ -434,6 +434,19 @@ def cmd_build(args: argparse.Namespace) -> int:
     (layout.media / f"{sheet_name}.tiles.txt").write_text(tdefs.to_text(), encoding="utf-8")
     sheet.image().save(layout.media / f"{sheet_name}.png")
 
+    # --- Build 42 tile geometry (the depth the game draws the tile with) ---
+    from . import geometry as geom
+
+    geo_tiles = geom.tiles_from_manifest(
+        manifest, sheet.cells,
+        {k: props[k] for k in geom.ECHOED_PROPERTIES if k in props})
+    if geo_tiles:
+        geo_path = layout.media / "tileGeometry.txt"
+        geo_path.write_text(geom.file_text([geom.tileset_text(sheet_name, geo_tiles, sheet.cols)]),
+                            encoding="utf-8")
+        print(f"tile geometry: {sum(len(t['boxes']) for t in geo_tiles)} box(es) over "
+              f"{len(geo_tiles)} sprite(s) -> {geo_path.name}")
+
     info = modgen.ModInfo(
         id=args.mod_id,
         name=args.mod_name or args.mod_id,

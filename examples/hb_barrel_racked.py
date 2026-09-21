@@ -204,6 +204,12 @@ def main() -> None:
     head_furniture(parts, mats, 0.0, -1.0)
 
     lay_down(parts)
+    # Tile geometry: one block round the whole cask (depth is only sampled
+    # where the sprite has pixels, so a box is as good as a cylinder).
+    F.tag_geometry(parts, "cask")
+    # The spigot points down once the vat lies on its side; it must not push
+    # the depth block 7 cm under the deck.
+    F.tag_geometry([p for p in parts if "spigot" in p.name], "-")
     subject = bpy.data.objects[F.SUBJECT_NAME]
     for part in parts:
         part.parent = subject

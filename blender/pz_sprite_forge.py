@@ -841,6 +841,51 @@ def _facing_hidden(part, facing: str) -> bool:
     return bool(gate) and facing not in str(gate)
 
 
+def tag_geometry(objs, group: str):
+    """Group parts for the Build 42 tile geometry export.
+
+    Every rendered part contributes its bounding box to the tile's geometry
+    (the depth the game draws the sprite with; see pzforge.geometry). Parts
+    sharing a group merge into one box -- a deck's planks and edge strip are
+    one slab, a cask's staves, hoops and heads one block -- while untagged
+    parts each get their own. Group "-" leaves a part out (paint-only
+    detail that must not claim depth)."""
+    seq = objs if hasattr(objs, "__iter__") else (objs,)
+    for o in seq:
+        o["pz_geometry"] = group
+    return objs
+
+
+def _tile_geometry(parts, i: int, j: int) -> list:
+    """Tile-local bounding boxes of the visible parts on tile (i, j), in the
+    game's frame: x east, y up, z south, metres. Blender's +Y is north, so
+    z = -y; the tile's centre is at world (i*TILE, -j*TILE)."""
+    groups: dict = {}
+    for part in parts:
+        if part.hide_render or part.type != "MESH" or not part.data.vertices:
+            continue
+        group = str(part.get("pz_geometry", part.name))
+        if group == "-":
+            continue
+        corners = [part.matrix_world @ Vector(c) for c in part.bound_box]
+        cx = sum(v.x for v in corners) / 8.0
+        cy = sum(v.y for v in corners) / 8.0
+        if (int(math.floor(cx + 0.5)), int(math.floor(-cy + 0.5))) != (i, j):
+            continue
+        lo = [min(v.x for v in corners) - i * TILE, min(v.z for v in corners),
+              min(-v.y for v in corners) - j * TILE]
+        hi = [max(v.x for v in corners) - i * TILE, max(v.z for v in corners),
+              max(-v.y for v in corners) - j * TILE]
+        if group in groups:
+            g = groups[group]
+            g["min"] = [min(a, b) for a, b in zip(g["min"], lo)]
+            g["max"] = [max(a, b) for a, b in zip(g["max"], hi)]
+        else:
+            groups[group] = {"group": group, "min": lo, "max": hi}
+    return [{"group": k, "min": [round(v, 4) for v in g["min"]],
+             "max": [round(v, 4) for v in g["max"]]} for k, g in groups.items()]
+
+
 def tag_family(objs, family: str):
     """Mark parts as one family (foliage / fruit / wood / flower / soil) for the style
     pass. Accepts one object or any iterable of them; returns what it was given."""
@@ -1371,7 +1416,8 @@ def render_cells(context, report=None) -> dict:
 
                     record = {"file": name, "facing": facing, "x": i, "y": j,
                               "normal": normal_name, "element": element_name,
-                              "light": light_name}
+                              "light": light_name,
+                              "geometry": _tile_geometry(parts, i, j)}
                     if multi_tile:
                         record["tile"] = tile_name
                     cells.append(record)

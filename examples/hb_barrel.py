@@ -201,6 +201,8 @@ def main() -> None:
     subject = bpy.data.objects[F.SUBJECT_NAME]
     for part in build_barrel():
         part.parent = subject
+        # Tile geometry (Build 42 depth): the whole vat is one block.
+        F.tag_geometry(part, "barrel")
 
     manifest = F.render_cells(bpy.context)
     print(f"rendered {len(manifest['cells'])} cell(s) to {OUT}")

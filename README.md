@@ -626,6 +626,21 @@ the N and W facings drew a post at the FAR corner over the barrels. Both are now
 the measure band on `build/hb_rack_column.png`, and the per-facing post split in the
 recipe.
 
+### Tile geometry: the depth Build 42 draws a tile with
+
+Build 42 no longer paints a square's objects in list order. Every tile is drawn with
+per-pixel depth from `media/tileGeometry.txt` (boxes, cylinders, planes per tile, in
+1/10000 m, x east / y up / z south), and a tile with no entry gets a default that,
+measured on the barrel rack, lets a sprite drawn with a render y offset (a cask on an
+upper tier) win over the deck above it -- the cask looked as if it broke through the
+shelf, while the same objects stacked in list order looked right. So the rig now exports
+every visible part's tile-local bounding box per facing into the cells manifest
+(`F.tag_geometry(parts, "deck1")` merges parts into one box; `"-"` leaves a part out),
+`build` writes the sheet's `tileGeometry.txt` next to its `.tiles`, and the asset harness
+merges every sheet's block into the mod's one file on `--install`. Depth is only sampled
+where the sprite has pixels, so a box round a cask is as good as a cylinder; what matters
+is a thin slab per deck at its own height and a thin box per post on the tile's corners.
+
 ### Facing-gated parts
 
 `F.tag_facings(part, "SE")` renders a part only for those facings. Draw order inside a
@@ -643,6 +658,7 @@ python tools/validate_formats.py                                   # 65 files, b
 python tests/test_geometry.py                                      # projection maths
 uv run --python 3.12 --with pillow python tests/test_pipeline.py   # cells -> mod -> read back
 uv run --python 3.12 --with pillow python tests/test_assets.py     # harness: stack, measure, spec, run
+uv run --python 3.12 --with pillow python tests/test_tilegeometry.py  # B42 tile geometry writer + merger
 blender -b -P tests/test_blender_render.py                         # renders and measures
 ```
 
