@@ -135,12 +135,12 @@
   "measures": [
     {
       "name": "rack_bay",
-      "_reference": "theindiestone forum cellar screenshot (2022-01-08), right row, 3x crop: head boards 75, flank 42, deck plank 73 -> flank/head 0.56, head/deck 1.03. First build measured 1.10 and 0.82 (flank brighter than the lid: read as a body facing out).",
+      "_reference": "theindiestone forum cellar screenshot (2022-01-08), right row, 3x crop: head boards 75, flank 42, deck plank 73 -> flank/head 0.56, head/deck 1.03. First build measured 1.10 and 0.82 (flank brighter than the lid: read as a body facing out). Boxes sit on the tier-1 bay of the S facing: head boards inside the rim, the shaded flank right of the near post, the lit deck-1 planks right of the barrel; they were re-pinned when the cask was refitted to the bay (0.80 scale, 0.05 m set back) and read 0.59 / 0.95.",
       "image": "build/hb_rack_column.png",
       "patches": {
-        "head": [95, 860, 150, 920],
-        "flank": [220, 830, 300, 900],
-        "deck": [120, 980, 200, 1010]
+        "head": [128, 890, 162, 940],
+        "flank": [231, 863, 301, 933],
+        "deck": [260, 935, 340, 975]
       },
       "expect": [
         {"ratio": "flank/head", "min": 0.45, "max": 0.70},

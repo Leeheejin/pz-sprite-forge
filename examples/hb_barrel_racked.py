@@ -71,6 +71,16 @@ STAVE_SHADE = 0.45
 HEAD_BOARD_LIFT = 1.20
 IRON_SHADE = 0.60
 
+#: Fit. The upright barrel (0.88 x 0.75 m) laid in the 0.92 x 1.0 m bay had
+#: its heads flush with the deck edges and its sprite across 52 of the tile's
+#: 64 px: it read as hanging out of the rack. The reference cask is about
+#: 0.6 m across in a 1 m bay, with a strip of deck showing in front of the
+#: head -- so the racked cask is the barrel at 0.80 (0.70 x 0.60 m) and lies
+#: 0.05 m back from the bay's centre (head 0.16 m behind the front edge, far
+#: head 0.06 m inside the back one).
+RACK_SCALE = 0.80
+SET_BACK = 0.05
+
 
 def head_furniture(parts, mats, z_head: float, outward: float) -> None:
     """Dress one head at height ``z_head``; ``outward`` is +1 for the top head,
@@ -129,16 +139,18 @@ def head_furniture(parts, mats, z_head: float, outward: float) -> None:
 
 
 def lay_down(parts: list[bpy.types.Object]) -> None:
-    """Turn the upright barrel onto its side (axis along Y) and rest it on z=0.
+    """Turn the upright barrel onto its side (axis along Y), shrink it to the
+    bay (RACK_SCALE), set it back (SET_BACK) and rest it on z=0.
 
     Pivoting about mid-height and dropping the bilge radius onto the floor keeps
     the widest stave tangent to the ground, which is where a real barrel touches.
     """
     bpy.context.view_layer.update()
     pivot_up = Matrix.Translation((0.0, 0.0, -hb_barrel.BARREL_H / 2))
+    shrink = Matrix.Scale(RACK_SCALE, 4)
     roll = Matrix.Rotation(math.radians(90.0), 4, "X")
-    rest = Matrix.Translation((0.0, 0.0, hb_barrel.BILGE_R))
-    xform = rest @ roll @ pivot_up
+    rest = Matrix.Translation((0.0, SET_BACK, hb_barrel.BILGE_R * RACK_SCALE))
+    xform = rest @ roll @ shrink @ pivot_up
     for part in parts:
         part.matrix_world = xform @ part.matrix_world
 
