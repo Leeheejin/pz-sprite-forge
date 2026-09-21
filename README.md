@@ -582,6 +582,8 @@ python -m pzforge.cli ids                                  # tiledef ids already
 python -m pzforge.cli assets <spec.json> [--install]       # a whole tile set, repeatably
 python -m pzforge.cli stack --layer <png>/<sheet>[:off]... # draw-order composite, all facings
 python -m pzforge.cli measure <image> name:x0,y0,x1,y1 ... # patch luminance, PASS/FAIL bands
+python -m pzforge.cli depthmap calibrate --tileset <vanilla>  # fit the B42 depth-map encoding
+python -m pzforge.cli depthmap render --cells <cells-dir>     # DEPTH_<sheet>.png from the manifest
 ```
 
 `compare` is the one to reach for when copying an existing tile; it is the only view that
@@ -641,6 +643,18 @@ merges every sheet's block into the mod's one file on `--install`. Depth is only
 where the sprite has pixels, so a box round a cask is as good as a cylinder; what matters
 is a thin slab per deck at its own height and a thin box per post on the tile's corners.
 
+The geometry is the *source*, though; what the renderer samples is the tileset's
+**depth map**, `media/depthmaps/DEPTH_<sheet>.png` -- a grey image laid out like the 2x
+sheet whose value is the distance of the surface seen at each pixel along the view
+direction, alpha 0 where there is no surface. A sheet without one is drawn as a
+billboard, and two overlapping billboards on one square get staggered against each
+other: that is the checkerboard of a cask showing through the deck above it that the
+geometry alone did not cure. `pzforge.depthmap` measures the encoding instead of guessing
+it (`depthmap calibrate` ray-casts a vanilla tileset's boxes at every pixel of its shipped
+map and fits `value = 103.8 * depth + 190.3`, 1.6 units rms on `furniture_storage_02`;
+`reference/depth_calibration.json`), and `build` writes `DEPTH_<sheet>.png` from the same
+exported boxes next to the geometry; the harness installs it into the mod's `depthmaps`.
+
 ### Facing-gated parts
 
 `F.tag_facings(part, "SE")` renders a part only for those facings. Draw order inside a
@@ -659,6 +673,7 @@ python tests/test_geometry.py                                      # projection 
 uv run --python 3.12 --with pillow python tests/test_pipeline.py   # cells -> mod -> read back
 uv run --python 3.12 --with pillow python tests/test_assets.py     # harness: stack, measure, spec, run
 uv run --python 3.12 --with pillow python tests/test_tilegeometry.py  # B42 tile geometry writer + merger
+uv run --python 3.12 --with pillow python tests/test_depthmap.py     # B42 depth maps: projection, ray cast, fit
 blender -b -P tests/test_blender_render.py                         # renders and measures
 ```
 

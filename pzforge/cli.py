@@ -7,6 +7,8 @@
     pzforge assets <spec.json> [--install]     # render, build, extract, preview, measure a whole set
     pzforge stack --layer <png-dir>/<sheet>[:offset] ... --out <png>
     pzforge measure <image> name:x0,y0,x1,y1 ... [--expect a/b=min,max]
+    pzforge depthmap calibrate --tileset furniture_storage_02   # fit the B42 depth encoding on vanilla
+    pzforge depthmap render --cells <cells-dir>                 # DEPTH_<sheet>.png from the manifest's boxes
 """
 
 from __future__ import annotations
@@ -446,6 +448,16 @@ def cmd_build(args: argparse.Namespace) -> int:
                             encoding="utf-8")
         print(f"tile geometry: {sum(len(t['boxes']) for t in geo_tiles)} box(es) over "
               f"{len(geo_tiles)} sprite(s) -> {geo_path.name}")
+        # ... and the depth map the renderer actually samples (pzforge.depthmap)
+        from . import depthmap as dm
+
+        cal = dm.load_calibration()
+        depth_tiles = dm.tiles_from_manifest(manifest, sheet.cells)
+        depth_dir = layout.media / "depthmaps"
+        depth_dir.mkdir(parents=True, exist_ok=True)
+        depth_png = depth_dir / f"DEPTH_{sheet_name}.png"
+        dm.render(depth_tiles, cal["scale"], cal["offset"], sheet.cols).save(depth_png)
+        print(f"depth map: {len(depth_tiles)} sprite(s) -> depthmaps/{depth_png.name}")
 
     info = modgen.ModInfo(
         id=args.mod_id,
@@ -726,6 +738,34 @@ def cmd_assets(args: argparse.Namespace) -> int:
     return 1 if failures else 0
 
 
+def cmd_depthmap(args: argparse.Namespace) -> int:
+    from . import depthmap as dm
+
+    if args.action == "calibrate":
+        from .compare import DEFAULT_GAME_MEDIA
+        media = Path(args.game_media) if args.game_media else DEFAULT_GAME_MEDIA
+        text = (media / "tileGeometry.txt").read_text(encoding="utf-8")
+        for ts in args.tileset:
+            r = dm.calibrate(text, media / "depthmaps" / f"DEPTH_{ts}.png", ts, step=args.step)
+            print(f"{ts:28s} n={r['samples']:6d} scale={r['scale']:.3f} offset={r['offset']:.3f} "
+                  f"rms={r['rms']:.2f} max={r['max_abs']:.1f}")
+        return 0
+    # render: from a cells manifest
+    from .sheet import DEFAULT_COLUMNS, build_sheet, load_cells
+
+    cells_dir = Path(args.cells)
+    manifest = json.loads((cells_dir / "manifest.json").read_text(encoding="utf-8"))
+    cells = load_cells(cells_dir, manifest)
+    sheet = build_sheet(args.sheet or manifest["sheet"], cells, tuple(manifest["cell"]), DEFAULT_COLUMNS)
+    cal = dm.load_calibration()
+    tiles = dm.tiles_from_manifest(manifest, sheet.cells)
+    out = Path(args.out) if args.out else Path("build") / f"DEPTH_{sheet.name}.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    dm.render(tiles, cal["scale"], cal["offset"], sheet.cols).save(out)
+    print(f"wrote {out}  ({len(tiles)} sprite(s) with geometry)")
+    return 0
+
+
 def cmd_stack(args: argparse.Namespace) -> int:
     from . import assets as assetsmod
 
@@ -938,6 +978,19 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--install", action="store_true",
                    help="copy each built .pack/.tiles into the spec's install folders")
     a.set_defaults(func=cmd_assets)
+
+    dp = sub.add_parser("depthmap",
+                        help="Build 42 depth maps: calibrate the encoding on vanilla, or "
+                             "render DEPTH_<sheet>.png from a cells manifest's geometry")
+    dp.add_argument("action", choices=["calibrate", "render"])
+    dp.add_argument("--tileset", action="append", default=[],
+                    help="calibrate: vanilla tileset name(s), e.g. furniture_storage_02")
+    dp.add_argument("--step", type=int, default=3, help="calibrate: sample every Nth pixel")
+    dp.add_argument("--cells", default="", help="render: cells directory with manifest.json")
+    dp.add_argument("--sheet", default="", help="render: sheet name override")
+    dp.add_argument("--out", default="")
+    dp.add_argument("--game-media", default="")
+    dp.set_defaults(func=cmd_depthmap)
 
     st = sub.add_parser("stack",
                         help="compose extracted sprites in draw order, every facing side "

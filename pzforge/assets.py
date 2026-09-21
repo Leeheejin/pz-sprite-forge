@@ -222,6 +222,11 @@ def geometry_path(spec: Spec, asset: Asset) -> Path:
     return Path(spec.out) / asset.mod_id / spec.build_dir / "media" / "tileGeometry.txt"
 
 
+def depthmap_path(spec: Spec, asset: Asset) -> Path:
+    return (Path(spec.out) / asset.mod_id / spec.build_dir / "media" / "depthmaps"
+            / f"DEPTH_{asset.sheet_name()}.png")
+
+
 # --------------------------------------------------------------------------- #
 # the run
 # --------------------------------------------------------------------------- #
@@ -291,6 +296,11 @@ class Harness:
 
                 geom.merge_into(media / "tileGeometry.txt", geo.read_text(encoding="utf-8"))
                 self.log(f"  merged tile geometry of {asset.sheet_name()} -> {media / 'tileGeometry.txt'}")
+            depth = depthmap_path(self.spec, asset)
+            if depth.exists():
+                (media / "depthmaps").mkdir(parents=True, exist_ok=True)
+                shutil.copy2(depth, media / "depthmaps" / depth.name)
+                self.log(f"  installed {depth.name} -> {media / 'depthmaps'}")
         return ok
 
     def preview(self, entry: dict) -> bool:
