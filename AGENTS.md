@@ -130,6 +130,18 @@ to one of those measurements.
   deliberate changes may differ, and you should be able to name them.
 - Bold check: view output at 1x and 0.5x -- if the material read washes out,
   features need `texture.bolden()` treatment, not more contrast at 2x.
+- A mod is verified in the engine, not by reading it: `pzh check` (names
+  resolve), `pzh server` (server logic on real objects), `pzh client` (real
+  build / transfer / cancel actions, loot window reach, UI rows, item counts
+  across inventory + container + floor). Tests live in the mod's `tests/`,
+  written on the `PZH` library (`harness/templates/`). A claim such as
+  "nothing is lost on cancel" is a `PZH.count` before and after, in the log,
+  and the runner's exit status is the verdict. Store screenshots come from the
+  same runner, never from a staged scene. Isolated `-cachedir` only; the
+  user's Zomboid folder and live server are never touched, and a process is
+  found by its cachedir, never killed by name (other sessions run their own).
+  Run `pzh selftest` first on a new machine. `harness/README.md` lists the
+  engine pitfalls the tool already absorbs.
 
 ## Pitfalls (each cost a debugging session)
 
@@ -164,3 +176,7 @@ to one of those measurements.
   `retouch.py`, `spec.py`/`recipe.py` (measurement).
 - `examples/` -- recipes. `tools/` -- measurement scripts that produced
   `reference/`. `tests/` -- run them.
+- `harness/` -- `pzh`, the in-engine test tool: `install.sh`,
+  `run_client.sh`, `run_server.sh`, `pzwin.ps1` (window driver),
+  `crosscheck.js`, `make_promo.ps1`, the `PZH` Lua libraries under `lua/`,
+  `selftest/` (the tool on vanilla objects) and `templates/`.
