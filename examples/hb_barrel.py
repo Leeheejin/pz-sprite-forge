@@ -50,10 +50,78 @@ def _r_at(z: float) -> float:
     return BILGE_R - (BILGE_R - HEAD_R) * (u * u)
 
 
-def build_barrel(stave_scale: float = 1.0) -> list[bpy.types.Object]:
+#: Head furniture, sized to read at 1x. Measured on the reference cellar
+#: cask's head (6x crop): a dark iron ring at the very edge, a lighter rim
+#: band inside it, then three head boards with drawn seams.
+CHIME_PROUD = 0.014      # iron ring standing proud of the stave ends
+CHIME_DEPTH = 0.045
+RIM_MINOR = 0.024        # the lighter wooden rim band inside the iron ring
+BOARDS = 3
+BOARD_GAP = 0.016        # drawn seam between head boards
+BUNG_R = 0.052
+
+
+def head_furniture(parts, mats, z_head: float, outward: float) -> None:
+    """Dress one head at height ``z_head``; ``outward`` is +1 for the top head,
+    -1 for the bottom, so proud parts stand off the barrel, not into it."""
+    r_edge = _r_at(z_head) if 0.0 < z_head < BARREL_H else HEAD_R
+
+    def add(name, material, do_smooth=False):
+        obj = bpy.context.active_object
+        obj.name = name
+        obj.data.materials.append(material)
+        if do_smooth:
+            bpy.ops.object.shade_smooth()
+        parts.append(obj)
+        return obj
+
+    # Iron chime hoop at the very edge, half proud of the head plane.
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=48, radius=r_edge + CHIME_PROUD, depth=CHIME_DEPTH,
+        location=(0, 0, z_head + outward * (CHIME_DEPTH / 2 - 0.012)),
+        end_fill_type="NOTHING")
+    add("chime_hoop", mats["dark"])
+
+    # Wooden rim band just inside the iron, standing a little proud.
+    bpy.ops.mesh.primitive_torus_add(
+        major_radius=r_edge - RIM_MINOR - 0.006, minor_radius=RIM_MINOR,
+        major_segments=48, minor_segments=8,
+        location=(0, 0, z_head + outward * 0.006))
+    add("head_rim", mats["chime"])
+
+    # Head boards: three slabs across the head with seam gaps between them.
+    inner = r_edge - 2 * RIM_MINOR - 0.004
+    span = 2 * inner
+    board_w = (span - BOARD_GAP * (BOARDS - 1)) / BOARDS
+    board_z = z_head + outward * 0.004
+    for k in range(BOARDS):
+        x = -inner + board_w / 2 + k * (board_w + BOARD_GAP)
+        # chord length of the disc at this x keeps the slab inside the rim
+        half_len = math.sqrt(max(inner * inner - x * x, 0.0)) * 0.98
+        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(x, 0, board_z))
+        obj = bpy.context.active_object
+        obj.scale = (board_w, half_len * 2, 0.012)
+        obj.name = f"head_board_{k}"
+        obj.data.materials.append(mats["lid"])
+        parts.append(obj)
+    # Dark backing behind the boards so the seams read as drawn lines.
+    bpy.ops.mesh.primitive_cylinder_add(vertices=48, radius=inner + 0.004, depth=0.010,
+                                        location=(0, 0, z_head - outward * 0.004))
+    add("head_backing", mats["dark"])
+
+    # Bung, off-centre on the top head only.
+    if outward > 0:
+        bpy.ops.mesh.primitive_cylinder_add(
+            vertices=16, radius=BUNG_R, depth=0.026,
+            location=(0.09, -0.11, z_head + 0.012))
+        add("head_bung", mats["bung"])
+
+
+def build_barrel(stave_scale: float = 1.0, mats: dict | None = None) -> list[bpy.types.Object]:
     """Build the barrel; stave_scale multiplies the stave paint (the racked
-    variant lies in the shadow of the deck above it and paints its body darker)."""
-    mats = wood_drum.wood_drum_materials()
+    variant lies in the shadow of the deck above it and paints its body darker),
+    and ``mats`` lets a variant hand in its own wood-drum material set."""
+    mats = mats or wood_drum.wood_drum_materials()
     # STAVES, not one log: the body carries eight vertical planks, each with
     # its own tone (the table's alternating-plank formula bent around the
     # bow) and a hand-built cylindrical UV so the grain runs down every
@@ -140,20 +208,9 @@ def build_barrel(stave_scale: float = 1.0) -> list[bpy.types.Object]:
     body.data.materials.append(seam_mat)
     parts.append(body)
 
-    # Head: recessed lid inside a stave-end rim, the wood drum's top formula.
-    bpy.ops.mesh.primitive_torus_add(major_radius=HEAD_R - 0.012,
-                                     minor_radius=0.014, major_segments=48,
-                                     minor_segments=8,
-                                     location=(0, 0, BARREL_H))
-    add("barrel_rim", mats["chime"], do_smooth=False)
-    bpy.ops.mesh.primitive_cylinder_add(vertices=48, radius=HEAD_R - 0.022,
-                                        depth=0.012,
-                                        location=(0, 0, BARREL_H - 0.008))
-    add("barrel_lid", mats["lid"], do_smooth=False)
-    bpy.ops.mesh.primitive_cylinder_add(vertices=16, radius=0.034, depth=0.02,
-                                        location=(0.08, -0.10,
-                                                  BARREL_H + 0.004))
-    add("barrel_bung", mats["bung"], do_smooth=False)
+    # Head: the same dressed head the racked cask shows (the earlier thin rim,
+    # flat lid and small bung read as a different, poorer barrel next to it).
+    head_furniture(parts, mats, BARREL_H, +1.0)
 
     # Iron hoops near the heads, riding the bow's local radius.
     for i, z in enumerate((0.10, BARREL_H - 0.10)):

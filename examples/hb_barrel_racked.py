@@ -49,13 +49,7 @@ import wood_drum  # noqa: E402
 
 OUT = ROOT / "build" / "hb_barrel_racked_cells"
 
-#: Head furniture, sized to read at 1x when the head faces the camera.
-CHIME_PROUD = 0.014      # iron ring standing proud of the stave ends
-CHIME_DEPTH = 0.045
-RIM_MINOR = 0.024        # the lighter wooden rim band inside the iron ring
-BOARDS = 3
-BOARD_GAP = 0.016        # drawn seam between head boards
-BUNG_R = 0.052
+#: The head furniture lives in hb_barrel now (both poses share it).
 
 #: Bay lighting, measured on the reference cellar row (right-row 3x crop,
 #: head boards / flank / deck plank luminance 75 / 42 / 73): the head is as
@@ -86,62 +80,6 @@ IRON_SHADE = 0.60
 #: length 0.76 m (0.08 m to each deck edge, 0.14 m to each post).
 RACK_SCALE = 0.86
 SET_BACK = 0.0
-
-
-def head_furniture(parts, mats, z_head: float, outward: float) -> None:
-    """Dress one head at height ``z_head``; ``outward`` is +1 for the top head,
-    -1 for the bottom, so proud parts stand off the barrel, not into it."""
-    r_edge = hb_barrel._r_at(z_head) if 0.0 < z_head < hb_barrel.BARREL_H else hb_barrel.HEAD_R
-
-    def add(name, material, do_smooth=False):
-        obj = bpy.context.active_object
-        obj.name = name
-        obj.data.materials.append(material)
-        if do_smooth:
-            bpy.ops.object.shade_smooth()
-        parts.append(obj)
-        return obj
-
-    # Iron chime hoop at the very edge, half proud of the head plane.
-    bpy.ops.mesh.primitive_cylinder_add(
-        vertices=48, radius=r_edge + CHIME_PROUD, depth=CHIME_DEPTH,
-        location=(0, 0, z_head + outward * (CHIME_DEPTH / 2 - 0.012)),
-        end_fill_type="NOTHING")
-    add("chime_hoop", mats["dark"])
-
-    # Wooden rim band just inside the iron, standing a little proud.
-    bpy.ops.mesh.primitive_torus_add(
-        major_radius=r_edge - RIM_MINOR - 0.006, minor_radius=RIM_MINOR,
-        major_segments=48, minor_segments=8,
-        location=(0, 0, z_head + outward * 0.006))
-    add("head_rim", mats["chime"])
-
-    # Head boards: three slabs across the head with seam gaps between them.
-    inner = r_edge - 2 * RIM_MINOR - 0.004
-    span = 2 * inner
-    board_w = (span - BOARD_GAP * (BOARDS - 1)) / BOARDS
-    board_z = z_head + outward * 0.004
-    for k in range(BOARDS):
-        x = -inner + board_w / 2 + k * (board_w + BOARD_GAP)
-        # chord length of the disc at this x keeps the slab inside the rim
-        half_len = math.sqrt(max(inner * inner - x * x, 0.0)) * 0.98
-        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(x, 0, board_z))
-        obj = bpy.context.active_object
-        obj.scale = (board_w, half_len * 2, 0.012)
-        obj.name = f"head_board_{k}"
-        obj.data.materials.append(mats["lid"])
-        parts.append(obj)
-    # Dark backing behind the boards so the seams read as drawn lines.
-    bpy.ops.mesh.primitive_cylinder_add(vertices=48, radius=inner + 0.004, depth=0.010,
-                                        location=(0, 0, z_head - outward * 0.004))
-    add("head_backing", mats["dark"])
-
-    # Bung, off-centre on the top head only.
-    if outward > 0:
-        bpy.ops.mesh.primitive_cylinder_add(
-            vertices=16, radius=BUNG_R, depth=0.026,
-            location=(0.09, -0.11, z_head + 0.012))
-        add("head_bung", mats["bung"])
 
 
 def lay_down(parts: list[bpy.types.Object]) -> None:
@@ -183,25 +121,18 @@ def main() -> None:
     scene.cycles.samples = 512
     scene.cycles.use_denoising = True
 
-    parts = hb_barrel.build_barrel(stave_scale=STAVE_SHADE)
-    # The upright recipe's thin head furniture is replaced, not stacked.
-    for name in ("barrel_rim", "barrel_lid", "barrel_bung"):
-        for part in list(parts):
-            if part.name == name:
-                parts.remove(part)
-                bpy.data.objects.remove(part, do_unlink=True)
+    # The cask's own paints: dimmer iron, lifted head boards (measured on the
+    # reference bay; see the constants above), handed to the shared builder so
+    # hoops and the top head come out in them; the bottom head is added here.
     mats = wood_drum.wood_drum_materials()
     iron_paint = (0.150, 0.152, 0.146)  # wood_drum "dark" (the drum's iron)
     mats["dark"] = F.forge_material("hbracked_iron", "metal",
                                     tuple(c * IRON_SHADE for c in iron_paint))
-    for part in parts:
-        if part.name.startswith("hoop_"):
-            part.data.materials[0] = mats["dark"]
     lid_paint = (0.356, 0.193, 0.066)   # wood_drum "lid"
     mats["lid"] = F.forge_material("hbracked_head_board", "wood",
                                    tuple(min(1.0, c * HEAD_BOARD_LIFT) for c in lid_paint))
-    head_furniture(parts, mats, hb_barrel.BARREL_H, +1.0)
-    head_furniture(parts, mats, 0.0, -1.0)
+    parts = hb_barrel.build_barrel(stave_scale=STAVE_SHADE, mats=mats)
+    hb_barrel.head_furniture(parts, mats, 0.0, -1.0)
 
     lay_down(parts)
     # Tile geometry: one block round the whole cask (depth is only sampled

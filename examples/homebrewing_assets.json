@@ -27,10 +27,9 @@
       "sheet": "hb_barrel_01",
       "png": "build/hb_barrel_png",
       "build": ["--preset", "appliance", "--tileset-id", "1", "--tiledef-id", "2001",
-                "--stroke-amplitude", "0.05", "--grounding", "2.0", "--contour-top", "0.77", "--contour", "1.8",
+                "--stroke-amplitude", "0.05", "--grounding", "2.0", "--ground-shadow", "1.0", "--contour-top", "0.77", "--contour", "1.8",
                 "--prop", "IsTableTop=", "--prop", "Material=Wood"],
-      "install": false,
-      "note": "props reproduced from the shipped .tiles (IsTableTop was patched in when the rack arrived); style flags carried over from the racked barrel -- compare against the shipped sheet before installing"
+      "note": "the upright vat, rebuilt with the racked cask's head and build flags so both poses read as one barrel (1.2.0); props as shipped (IsTableTop lets it sit in the rack)"
     },
     {
       "name": "rack_base",
