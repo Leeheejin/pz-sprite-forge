@@ -50,7 +50,9 @@ def _r_at(z: float) -> float:
     return BILGE_R - (BILGE_R - HEAD_R) * (u * u)
 
 
-def build_barrel() -> list[bpy.types.Object]:
+def build_barrel(stave_scale: float = 1.0) -> list[bpy.types.Object]:
+    """Build the barrel; stave_scale multiplies the stave paint (the racked
+    variant lies in the shadow of the deck above it and paints its body darker)."""
     mats = wood_drum.wood_drum_materials()
     # STAVES, not one log: the body carries eight vertical planks, each with
     # its own tone (the table's alternating-plank formula bent around the
@@ -63,7 +65,7 @@ def build_barrel() -> list[bpy.types.Object]:
     # NEAR-FLAT tone with grain as a whisper; the plank read comes from the
     # tone steps and the dark seam columns between them.
     stave_mats = [F.forge_material(f"hbbarrel_stave_{k}", "wood",
-                                   tuple(c * t for c in base),
+                                   tuple(c * t * stave_scale for c in base),
                                    texture_path=str(wood_drum.GRAIN_PATH),
                                    projection="UV", swing=(0.70, 1.30))
                   for k, t in enumerate(stave_tones)]

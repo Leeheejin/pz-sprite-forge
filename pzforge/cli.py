@@ -4,6 +4,9 @@
     pzforge inspect <file.pack|file.tiles>
     pzforge extract <file.pack> <out-dir>
     pzforge ids
+    pzforge assets <spec.json> [--install]     # render, build, extract, preview, measure a whole set
+    pzforge stack --layer <png-dir>/<sheet>[:offset] ... --out <png>
+    pzforge measure <image> name:x0,y0,x1,y1 ... [--expect a/b=min,max]
 """
 
 from __future__ import annotations
@@ -688,6 +691,65 @@ def cmd_ids(args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------------------- #
+# assets: the harness
+# --------------------------------------------------------------------------- #
+
+def cmd_assets(args: argparse.Namespace) -> int:
+    from . import assets as assetsmod
+
+    spec = assetsmod.load_spec(args.spec)
+    if args.list:
+        for a in spec.assets:
+            print(f"  {a.name:18s} {a.sheet_name():22s} {a.recipe} {' '.join(a.args)}"
+                  f"{'' if a.install else '   (not installed by default)'}")
+        print(f"  previews: {', '.join(p['name'] for p in spec.previews) or '-'}")
+        print(f"  measures: {', '.join(m['name'] for m in spec.measures) or '-'}")
+        return 0
+    only = set(args.only.split(",")) if args.only else None
+    failures = assetsmod.Harness(spec).run(
+        only=only, render=not args.no_render, build=not args.no_build,
+        extract=not args.no_extract, previews=not args.no_previews,
+        measures=not args.no_measures, install=args.install)
+    return 1 if failures else 0
+
+
+def cmd_stack(args: argparse.Namespace) -> int:
+    from . import assets as assetsmod
+
+    layers = [assetsmod.Layer.parse(text) for text in args.layer]
+    image = assetsmod.stack(layers, facings=args.facings, scale=args.scale)
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    image.save(out)
+    print(f"wrote {out}  ({image.width}x{image.height}); layers bottom-up: "
+          + ", ".join(f"{l.sheet}+{l.offset}" for l in layers))
+    return 0
+
+
+def cmd_measure(args: argparse.Namespace) -> int:
+    from . import assets as assetsmod
+
+    patches = {}
+    for spec in args.patch:
+        name, box = spec.split(":")
+        patches[name] = tuple(int(v) for v in box.split(","))
+    measured = assetsmod.measure(args.image, patches)
+    for name, m in measured.items():
+        r, g, b = m["rgb"]
+        print(f"{name:14s} rgb=({r:5.1f},{g:5.1f},{b:5.1f}) lum={m['lum']:5.1f}  n={m['n']}")
+    expectations = []
+    for text in args.expect or []:
+        key, band = text.split("=")
+        lo, hi = (float(v) for v in band.split(","))
+        expectations.append({"ratio" if "/" in key else "patch": key, "min": lo, "max": hi})
+    failed = 0
+    for label, ok, detail in assetsmod.check_expectations(measured, expectations):
+        print(f"  {'PASS' if ok else 'FAIL'}  {label}  -- {detail}")
+        failed += 0 if ok else 1
+    return 1 if failed else 0
+
+
+# --------------------------------------------------------------------------- #
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -848,6 +910,39 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--game-media", default="",
                    help="path to the game's media folder")
     p.set_defaults(func=cmd_preview)
+
+    a = sub.add_parser("assets",
+                       help="run an asset spec: render, build, extract, preview and "
+                            "measure a whole tile set, optionally installing it")
+    a.add_argument("spec", help="spec JSON, e.g. examples/homebrewing_assets.json")
+    a.add_argument("--only", default="", help="comma-separated asset names to run")
+    a.add_argument("--list", action="store_true", help="list the spec's assets and stop")
+    a.add_argument("--no-render", action="store_true", help="reuse the rendered cells")
+    a.add_argument("--no-build", action="store_true")
+    a.add_argument("--no-extract", action="store_true")
+    a.add_argument("--no-previews", action="store_true")
+    a.add_argument("--no-measures", action="store_true")
+    a.add_argument("--install", action="store_true",
+                   help="copy each built .pack/.tiles into the spec's install folders")
+    a.set_defaults(func=cmd_assets)
+
+    st = sub.add_parser("stack",
+                        help="compose extracted sprites in draw order, every facing side "
+                             "by side (layered objects: racks, shelves, their contents)")
+    st.add_argument("--layer", action="append", required=True, metavar="PNGDIR/SHEET[:OFFSET]",
+                    help="bottom-up; OFFSET is the object's render y offset in 1x px")
+    st.add_argument("--out", default="build/stack.png")
+    st.add_argument("--scale", type=int, default=3)
+    st.add_argument("--facings", type=int, default=4)
+    st.set_defaults(func=cmd_stack)
+
+    me = sub.add_parser("measure",
+                        help="mean colour/luminance of image patches, with optional "
+                             "PASS/FAIL bands (the compare step for art with no vanilla twin)")
+    me.add_argument("image")
+    me.add_argument("patch", nargs="+", metavar="NAME:x0,y0,x1,y1")
+    me.add_argument("--expect", action="append", metavar="A/B=min,max or NAME=min,max")
+    me.set_defaults(func=cmd_measure)
 
     d = sub.add_parser("ids", help="list tiledef ids already claimed by installed mods")
     d.add_argument("--limit", type=int, default=30)

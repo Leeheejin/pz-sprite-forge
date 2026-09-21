@@ -1,0 +1,151 @@
+{
+  "_about": "Home Brewing (Workshop 3782769048) tile set. Run from the repo root: python -m pzforge.cli assets examples/homebrewing_assets.json [--only rack_base,...] [--install]",
+  "blender": "C:/Program Files/Blender Foundation/Blender 5.0/blender.exe",
+  "out": "dist",
+  "build_dir": "42",
+  "install": [
+    "C:/Users/leina/Zomboid/Workshop/HomeBrewing/Contents/mods/HomeBrewing/common/media"
+  ],
+  "assets": [
+    {
+      "name": "still",
+      "recipe": "examples/hb_still.py",
+      "cells": "build/hb_still_cells",
+      "mod_id": "HomeBrewingTiles",
+      "sheet": "hb_still_01",
+      "png": "build/hb_still_png",
+      "build": ["--preset", "appliance", "--tileset-id", "1", "--tiledef-id", "2000",
+                "--prop", "Material=Metal_Light"],
+      "install": false,
+      "note": "props reproduced from the shipped .tiles (BlocksPlacement, CanScrap, Material=Metal_Light, IsMoveAble); its style flags predate this spec -- compare against the shipped sheet before installing"
+    },
+    {
+      "name": "barrel",
+      "recipe": "examples/hb_barrel.py",
+      "cells": "build/hb_barrel_cells",
+      "mod_id": "HomeBrewingBarrel",
+      "sheet": "hb_barrel_01",
+      "png": "build/hb_barrel_png",
+      "build": ["--preset", "appliance", "--tileset-id", "1", "--tiledef-id", "2001",
+                "--stroke-amplitude", "0.05", "--grounding", "2.0", "--contour-top", "0.77", "--contour", "1.8",
+                "--prop", "IsTableTop=", "--prop", "Material=Wood"],
+      "install": false,
+      "note": "props reproduced from the shipped .tiles (IsTableTop was patched in when the rack arrived); style flags carried over from the racked barrel -- compare against the shipped sheet before installing"
+    },
+    {
+      "name": "rack_base",
+      "recipe": "examples/hb_rack.py",
+      "args": ["base"],
+      "cells": "build/hb_rack_cells",
+      "mod_id": "HomeBrewingRack",
+      "sheet": "hb_rack_01",
+      "png": "build/hb_rack_png",
+      "build": ["--preset", "furniture", "--tileset-id", "1", "--tiledef-id", "2002",
+                "--prop", "IsTable=", "--prop", "Surface=5", "--prop", "Material=Wood",
+                "--prop", "CanScrap=", "--prop", "IsMoveAble=", "--prop", "PickUpWeight=90",
+                "--prop", "CustomName=Barrel Rack", "--prop", "GroupName=Home Brewing",
+                "--prop", "PickUpTool=Hammer", "--prop", "PlaceTool=Hammer"]
+    },
+    {
+      "name": "rack_deck2",
+      "recipe": "examples/hb_rack.py",
+      "args": ["deck2"],
+      "cells": "build/hb_rackdeck2_cells",
+      "mod_id": "HomeBrewingRackDeck2",
+      "sheet": "hb_rackdeck2_01",
+      "png": "build/hb_rackdeck2_png",
+      "build": ["--tileset-id", "1", "--tiledef-id", "2004",
+                "--prop", "Material=Wood", "--prop", "solidtrans="]
+    },
+    {
+      "name": "rack_deck3",
+      "recipe": "examples/hb_rack.py",
+      "args": ["deck3"],
+      "cells": "build/hb_rackdeck3_cells",
+      "mod_id": "HomeBrewingRackDeck3",
+      "sheet": "hb_rackdeck3_01",
+      "png": "build/hb_rackdeck3_png",
+      "build": ["--tileset-id", "1", "--tiledef-id", "2005",
+                "--prop", "Material=Wood", "--prop", "solidtrans="]
+    },
+    {
+      "name": "rack_front",
+      "recipe": "examples/hb_rack.py",
+      "args": ["front"],
+      "cells": "build/hb_rackfront_cells",
+      "mod_id": "HomeBrewingRackFront",
+      "sheet": "hb_rackfront_01",
+      "png": "build/hb_rackfront_png",
+      "build": ["--tileset-id", "1", "--tiledef-id", "2006",
+                "--prop", "Material=Wood", "--prop", "solidtrans="]
+    },
+    {
+      "name": "barrel_racked",
+      "recipe": "examples/hb_barrel_racked.py",
+      "cells": "build/hb_barrel_racked_cells",
+      "mod_id": "HomeBrewingBarrelRacked",
+      "sheet": "hb_barrel_racked_01",
+      "png": "build/hb_barrel_racked_png",
+      "build": ["--preset", "appliance", "--tileset-id", "1", "--tiledef-id", "2003",
+                "--stroke-amplitude", "0.05", "--grounding", "2.0", "--contour-top", "0.77", "--contour", "1.8",
+                "--prop", "IsTableTop=", "--prop", "IsMoveAble=", "--prop", "CanScrap=", "--prop", "Material=Wood",
+                "--prop", "CustomName=Brewing Barrel", "--prop", "GroupName=Home Brewing"]
+    },
+    {
+      "name": "barrel_racked_up",
+      "recipe": "examples/hb_barrel_racked.py",
+      "cells": "build/hb_barrel_racked_cells",
+      "mod_id": "HomeBrewingBarrelRackedUp",
+      "sheet": "hb_barrel_racked_02",
+      "png": "build/hb_barrel_racked_png",
+      "build": ["--sheet", "hb_barrel_racked_02", "--tileset-id", "1", "--tiledef-id", "2007",
+                "--stroke-amplitude", "0.05", "--grounding", "2.0", "--contour-top", "0.77", "--contour", "1.8",
+                "--prop", "CanScrap=", "--prop", "Material=Wood",
+                "--prop", "CustomName=Brewing Barrel", "--prop", "GroupName=Home Brewing"],
+      "note": "same cells as barrel_racked; the upper tiers' sheet carries no IsTableTop/IsMoveAble so a raised barrel cannot be picked up (rack it down first)"
+    }
+  ],
+  "previews": [
+    {
+      "name": "rack_column",
+      "_layers": "the game's draw order on the square: base, tier-1 barrel (+5), deck2, tier-2 barrel (+45), deck3, (tier-3 barrel +84,) front -- HB_Brewing.TIER_OFFSET",
+      "out": "build/hb_rack_column.png",
+      "scale": 3,
+      "layers": [
+        {"png": "build/hb_rack_png", "sheet": "hb_rack_01"},
+        {"png": "build/hb_barrel_racked_png", "sheet": "hb_barrel_racked_01", "offset": 5},
+        {"png": "build/hb_rackdeck2_png", "sheet": "hb_rackdeck2_01"},
+        {"png": "build/hb_barrel_racked_png", "sheet": "hb_barrel_racked_01", "offset": 45},
+        {"png": "build/hb_rackdeck3_png", "sheet": "hb_rackdeck3_01"},
+        {"png": "build/hb_rackfront_png", "sheet": "hb_rackfront_01"}
+      ]
+    },
+    {
+      "name": "rack_empty",
+      "out": "build/hb_rack_empty.png",
+      "scale": 3,
+      "layers": [
+        {"png": "build/hb_rack_png", "sheet": "hb_rack_01"},
+        {"png": "build/hb_rackdeck2_png", "sheet": "hb_rackdeck2_01"},
+        {"png": "build/hb_rackdeck3_png", "sheet": "hb_rackdeck3_01"},
+        {"png": "build/hb_rackfront_png", "sheet": "hb_rackfront_01"}
+      ]
+    }
+  ],
+  "measures": [
+    {
+      "name": "rack_bay",
+      "_reference": "theindiestone forum cellar screenshot (2022-01-08), right row, 3x crop: head boards 75, flank 42, deck plank 73 -> flank/head 0.56, head/deck 1.03. First build measured 1.10 and 0.82 (flank brighter than the lid: read as a body facing out).",
+      "image": "build/hb_rack_column.png",
+      "patches": {
+        "head": [95, 860, 150, 920],
+        "flank": [220, 830, 300, 900],
+        "deck": [120, 980, 200, 1010]
+      },
+      "expect": [
+        {"ratio": "flank/head", "min": 0.45, "max": 0.70},
+        {"ratio": "head/deck", "min": 0.85, "max": 1.15}
+      ]
+    }
+  ]
+}

@@ -821,6 +821,26 @@ def forge_material(name: str, material: str, paint=None, *, texture_path=None,
         shading=shading, **terms, **kwargs)
 
 
+def tag_facings(objs, facings: str):
+    """Render these parts only for the given facings ("S", "SE", "NW" ...).
+
+    The game's draw order inside a square is fixed, but which side of a tile
+    is NEAR the camera turns with the facing. An open 1x1 rack whose barrels
+    sit between its posts needs its near posts in the sprite drawn last and
+    its far posts in the one drawn first -- and for the N and W facings the
+    near pair is the rack's own BACK pair. Gating parts per facing lets one
+    recipe render both answers without a second geometry."""
+    seq = objs if hasattr(objs, "__iter__") else (objs,)
+    for o in seq:
+        o["pz_facings"] = facings
+    return objs
+
+
+def _facing_hidden(part, facing: str) -> bool:
+    gate = part.get("pz_facings")
+    return bool(gate) and facing not in str(gate)
+
+
 def tag_family(objs, family: str):
     """Mark parts as one family (foliage / fruit / wood / flower / soil) for the style
     pass. Accepts one object or any iterable of them; returns what it was given."""
@@ -1228,6 +1248,9 @@ def render_cells(context, report=None) -> dict:
     try:
         for f in range(n_facings):
             facing = FACING_ORDER[f]
+            for part in parts:
+                if part.get("pz_facings"):
+                    part.hide_render = _facing_hidden(part, facing)
             # The key light is fixed in world space, exactly as it is in vanilla art,
             # so turning the subject is what makes an E-facing side read darker
             # than an S-facing one -- matching the game's own S/E contrast.
@@ -1267,7 +1290,8 @@ def render_cells(context, report=None) -> dict:
                             cy = sum(v.y for v in corners) / 8.0
                             tile = (int(math.floor(cx + 0.5)),
                                     int(math.floor(-cy + 0.5)))
-                            part.hide_render = tile != (i, j)
+                            part.hide_render = (tile != (i, j)
+                                                or _facing_hidden(part, facing))
                             if tile == (i, j):
                                 # A part may sit on this tile and still HANG OVER
                                 # it. The packer cuts every cell to its own tile

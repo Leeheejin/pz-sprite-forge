@@ -579,6 +579,9 @@ python -m pzforge.cli preview <file.pack>                  # mock scene with van
 python -m pzforge.cli inspect <file.pack|file.tiles>       # describe a file
 python -m pzforge.cli extract <file.pack> <out-dir>        # every sprite as a PNG
 python -m pzforge.cli ids                                  # tiledef ids already claimed
+python -m pzforge.cli assets <spec.json> [--install]       # a whole tile set, repeatably
+python -m pzforge.cli stack --layer <png>/<sheet>[:off]... # draw-order composite, all facings
+python -m pzforge.cli measure <image> name:x0,y0,x1,y1 ... # patch luminance, PASS/FAIL bands
 ```
 
 `compare` is the one to reach for when copying an existing tile; it is the only view that
@@ -589,12 +592,57 @@ is too bright or too saturated but will happily pass a featureless one.
 `build` picks a free tiledef id automatically by scanning installed mods, because two
 enabled mods sharing an id fight over the same tile range and one loses its sprites.
 
+## The asset harness: a whole tile set from one spec
+
+A tile set is never one sprite, and the commands above drift apart when they are typed
+thirty times. The Home Brewing barrel rack is six sheets (a four-part rack, the racked
+barrel twice with different tile props) and every one of them is a render, a build with
+its own property list, an extract, and a check. `assets` runs all of that from one JSON
+spec and reports it like a test run:
+
+```bash
+python -m pzforge.cli assets examples/homebrewing_assets.json --list
+python -m pzforge.cli assets examples/homebrewing_assets.json --only rack_base,rack_front --no-render
+python -m pzforge.cli assets examples/homebrewing_assets.json --install
+```
+
+The spec has four lists. `assets` name the recipe Blender runs (with its `--` arguments,
+so one recipe can render several parts), the cells directory, and the exact `build`
+arguments -- mod id, tiledef id, tile properties, style flags. `previews` stack the
+extracted sprites in the game's draw order, each layer lifted by its render y offset,
+for every facing side by side (the `stack` command on its own); that is the only view in
+which a layered object can be judged, because a rack, its decks and the barrels between
+them are separate objects on the square and the game draws them in list order.
+`measures` pin luminance patches on a preview and the ratios the reference imposes on
+them (the `measure` command on its own) -- the compare step for art that has no vanilla
+twin: the numbers come from the reference screenshot, measured the same way. `install`
+lists the mod media folders the `.pack`/`.tiles` pairs go into, and only `--install`
+touches them.
+
+The rack spec is a worked example of what the harness is for. Its first build painted
+the racked barrel's flank brighter than its lid (flank/head 1.10 against the reference's
+0.56), and put the rack's front posts in the sprite drawn last for every facing, which on
+the N and W facings drew a post at the FAR corner over the barrels. Both are now pinned:
+the measure band on `build/hb_rack_column.png`, and the per-facing post split in the
+recipe.
+
+### Facing-gated parts
+
+`F.tag_facings(part, "SE")` renders a part only for those facings. Draw order inside a
+square is fixed, but which side of a tile is NEAR the camera turns with the facing: a
+1x1 rack whose barrels sit between its posts needs its near posts in the sprite drawn
+last and its far posts in the one drawn first, and for N and W the near pair is the
+rack's own back pair. Gating lets one recipe render both answers without a second
+geometry -- `examples/hb_rack.py` puts both pairs in both parts, each gated to the two
+facings it is right for.
+
 ## Tests
 
 ```bash
 python tools/validate_formats.py                                   # 65 files, byte-exact
 python tests/test_geometry.py                                      # projection maths
 uv run --python 3.12 --with pillow python tests/test_pipeline.py   # cells -> mod -> read back
+uv run --python 3.12 --with pillow python tests/test_assets.py     # harness: stack, measure, spec, run
 blender -b -P tests/test_blender_render.py                         # renders and measures
 ```
 
