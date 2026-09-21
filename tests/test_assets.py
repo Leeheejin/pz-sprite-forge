@@ -93,8 +93,10 @@ def test_spec() -> None:
     check("previews only stack sheets the spec builds", layered <= sheets, str(layered - sheets))
     check("measures point at a preview",
           all(m["image"] in {p["out"] for p in spec.previews} for m in spec.measures))
-    check("shipped sheets of unknown style flags are not installed by default",
-          not any(a.install for a in spec.assets if a.name in ("still", "barrel")))
+    check("the still, whose style flags predate the spec, is not installed by default",
+          not any(a.install for a in spec.assets if a.name == "still"))
+    check("every rack-era sheet installs",
+          all(a.install for a in spec.assets if a.name != "still"))
 
 
 def test_run(tmp: Path) -> None:
