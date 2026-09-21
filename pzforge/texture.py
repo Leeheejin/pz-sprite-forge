@@ -348,6 +348,23 @@ def material_spec(material: str, seed: int = 7) -> "SurfaceSpec":
                            vertical_stretch=1.1, contrast=1.15,
                            daub_count=170, daub_radius=36,
                            daub_depth=0.28, seed=seed)
+    if material == "foliage":
+        # Leaves: crisp small mottle (local gradient 0.020, above wood) with no
+        # direction and no strokes; the tone economy is 8-10 per window, so the map
+        # carries two or three plateaus per leaf-sized patch, not a gradient. Sized
+        # for ~12 texels per sprite px at the class's scale: 18-40 texel features land
+        # as the 1.5-3 px facets a painted leaf shows.
+        return SurfaceSpec(octaves=[(72, 0.30), (38, 0.80), (20, 1.00), (11, 0.35)],
+                           vertical_stretch=1.0, contrast=1.7, seed=seed)
+    if material == "soil":
+        # Turned earth: the highest local gradient of any class (0.035) -- a dense
+        # per-pixel stipple of bright specks against near-black pockets, with only
+        # weak large-scale patches. Dabs supply the specks; the fine octaves the
+        # pockets. Contrast is high because the bed's p10-p90 is 0.29 with 6-8 tones
+        # per window, i.e. almost no smooth shading.
+        return SurfaceSpec(octaves=[(120, 0.25), (44, 0.70), (22, 1.00), (12, 0.75)],
+                           vertical_stretch=1.0, contrast=2.1,
+                           daub_count=900, daub_radius=9, daub_depth=0.42, seed=seed)
     raise ValueError(f"unknown material {material!r}")
 
 

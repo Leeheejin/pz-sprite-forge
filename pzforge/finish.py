@@ -94,7 +94,7 @@ def tile_pass_color(i: int, j: int) -> tuple[float, float, float]:
     the addon must stay a self-contained single file, so the formula lives on
     both sides of the render contract.
     """
-    return (0.15 + 0.25 * i, 0.15 + 0.25 * j, 0.5)
+    return (0.05 + 0.055 * i, 0.05 + 0.055 * j, 0.5)
 
 
 def tile_keep_mask(tile_png: Image.Image, own: str,
