@@ -14,6 +14,7 @@ from __future__ import annotations
 import io
 import random
 from dataclasses import dataclass
+import os
 from pathlib import Path
 
 from PIL import Image
@@ -21,7 +22,8 @@ from PIL import Image
 from .packfile import TexturePack
 
 DEFAULT_GAME_MEDIA = Path(
-    r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media")
+    os.environ.get("PZ_MEDIA")
+    or r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media")
 
 CELL_W, CELL_H = 128, 256
 STEP_X, STEP_Y = CELL_W // 2, CELL_W // 4
