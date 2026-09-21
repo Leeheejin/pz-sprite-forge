@@ -243,6 +243,14 @@ class PZForgeProps(PropertyGroup):
                      "vanilla's average; higher walks toward the hand-painted sprites "
                      "that carry more side-to-side contrast than the lighting gives"),
     )
+    soft_edge: FloatProperty(
+        name="Silhouette feather", default=0.9, min=0.1, max=3.0,
+        description=("Render pixel-filter width, the ONLY legal place to set silhouette "
+                     "softness (the style pass must leave alpha untouched). 0.9 matches "
+                     "hard-surface vanilla, whose soft-edge share is 0.037; foliage is "
+                     "drawn far softer -- vegetation_farming_01b_70 measures 0.677 -- so "
+                     "plant recipes raise it"),
+    )
     show_guide: BoolProperty(name="Tile guide", default=True)
     reference_image: StringProperty(
         name="Reference", subtype="FILE_PATH", default="",
@@ -425,7 +433,7 @@ def apply_render_settings(context) -> None:
     # feather -- and alpha cannot be tightened after the fact (the style pass
     # must preserve it exactly; trimmed sprite offsets depend on it). So the
     # feather is narrowed at the only legal place: the render filter.
-    scene.render.filter_size = 0.9
+    scene.render.filter_size = props.soft_edge
     scene.render.film_transparent = True
     scene.render.image_settings.file_format = "PNG"
     scene.render.image_settings.color_mode = "RGBA"
@@ -539,7 +547,7 @@ TOON_STOPS = [0.085, 0.095, 0.167, 0.300, 0.384]  # N | W | E | S | top
 
 
 def toon_ramp_group(soft: bool = False, levels: dict | None = None,
-                    tints: dict | None = None):
+                    tints: dict | None = None, ao: tuple | None = None):
     """The shared light ramp: capture shading, snap it to the measured levels.
 
     White diffuse -> Shader to RGB -> luminance -> constant ColorRamp whose stop
@@ -560,6 +568,8 @@ def toon_ramp_group(soft: bool = False, levels: dict | None = None,
               if levels else "")
     if tints:
         suffix += "_t" + "_".join(f"{c:.3f}" for c in (*lit_tint, *shade_tint))
+    if ao is not None:
+        suffix += f"_ao{ao[0]:.2f}x{ao[1]:.2f}"
     name = ("PZ_ToonRampSoft" if soft else "PZ_ToonRamp") + suffix
     group = bpy.data.node_groups.get(name)
     if group is not None:
@@ -623,12 +633,13 @@ def toon_ramp_group(soft: bool = False, levels: dict | None = None,
     # Contact shading: the ramp output darkens toward tight corners by the
     # measured pocket factor. Applied AFTER quantisation so the pocket is the
     # soft gradient vanilla paints, not a level jump.
+    ao_dist, ao_str = ao if ao is not None else (AO_DISTANCE, AO_STRENGTH)
     ao = nodes.new("ShaderNodeAmbientOcclusion")
-    ao.inputs["Distance"].default_value = AO_DISTANCE
+    ao.inputs["Distance"].default_value = ao_dist
     ao_scale = nodes.new("ShaderNodeMath")
     ao_scale.operation = "MULTIPLY_ADD"
-    ao_scale.inputs[1].default_value = AO_STRENGTH
-    ao_scale.inputs[2].default_value = 1.0 - AO_STRENGTH
+    ao_scale.inputs[1].default_value = ao_str
+    ao_scale.inputs[2].default_value = 1.0 - ao_str
     pocket = nodes.new("ShaderNodeMix")
     pocket.data_type = "RGBA"
     pocket.blend_type = "MULTIPLY"
@@ -674,6 +685,14 @@ def _hue_wood(p):
     return (r, b2 + 0.87 * (g - b), b2)
 
 
+def _hue_foliage(p):
+    """Foliage hue correction. Set from a render-vs-reference measurement in the
+    same way as steel and wood: the first crop render is compared with
+    vegetation_farming_01b_70 on green pixels only and the per-channel transfer
+    ratio goes here. Identity until that measurement exists."""
+    return p
+
+
 #: Stage 1 of the two-stage forge workflow: the measured grammar of each
 #: MATERIAL CLASS, independent of any object built from it. An object recipe
 #: (stage 2) decides shape and per-part paint; the class supplies everything
@@ -708,13 +727,62 @@ MATERIAL_CLASSES = {
         "hue": None, "swing": (0.797, 1.0), "ramp_range": (0.08, 0.92),
         "projection": "BOX", "texture_scale": 1.13, "texture": "brick",
     },
+    "foliage": {
+        # Measured on vanilla farming crops at fullGrown (green pixels of BellPepper,
+        # Tomato, Cabbages, Corn, SweetPotato, Greenpeas; reference/material_signatures
+        # .json "foliage"): p10-p90 spread 0.25, median saturation 0.375, local
+        # gradient 0.020 (crisper than wood's 0.016), 8-10 tones per 12 px window
+        # (a canopy is many small elements, against 4 for one object), and a FLAT
+        # saturation-vs-value curve (0.42/0.38/0.36 across the value tiers on
+        # BellPepper) -- foliage keeps its saturation in shadow like wood, it does
+        # not desaturate like dyed cloth. Leaves are flat-painted faces (a 3x3
+        # window inside a leaf varies by <0.05 on 31% of BellPepper's interior),
+        # so the ramp steps. The swing is the within-canopy p10-p90 of 0.25 around
+        # the median, hue left uncorrected until a render has been measured against
+        # the reference (see _hue_foliage).
+        "shading": "step", "hue": _hue_foliage, "swing": (0.74, 1.26),
+        "ramp_range": (0.20, 0.80), "projection": "WORLD", "texture_scale": 2.2,
+        "texture": "foliage",
+        # painter's terms: every blade split light/dark across its own midrib (the
+        # reference's leaves read as two halves whichever way they face); plant-
+        # scale occlusion so leaves darken each other and stems pocket into the bed
+        # (the couch-corner AO at 0.7 m sees nothing 1 cm wide)
+        "split": (1.16, 0.80), "ao": (0.08, 0.85),
+    },
+    "soil": {
+        # The tilled bed, measured on the same sprites plus the bare beds
+        # vegetation_farming_01b_64 / _01b_0 ("soil" in material_signatures.json):
+        # spread 0.29, saturation 0.77-0.88 (the most saturated class), local
+        # gradient 0.035 -- the highest of any class, a per-pixel stipple -- and
+        # 6-8 tones per window. Saturation FALLS into the lit tier on the two-ridge
+        # beds (0.77 -> 0.55 on BellPepper's bare bed, 0.85 -> 0.34 on Corn's) so the
+        # light stop is pulled toward neutral; the dark stop stays saturated.
+        # Painted as a flat bank with a hard cross-ridge tone ramp (see the crop
+        # recipe), so the class supplies stipple and paint, not relief.
+        "shading": "step", "hue": None, "swing": (0.52, 1.48),
+        "ramp_range": (0.30, 0.70), "projection": "WORLD", "texture_scale": 2.2,
+        "texture": "soil",
+    },
+    "fruit": {
+        # A crop's fruit: flat-painted, posterised chips. Measured on BellPepper /
+        # Tomato / Strawberry fruit blobs: centre-to-rim luminance +0.00..+0.03 (no
+        # radial falloff at all), so the ramp steps and there is no texture; the
+        # paint is the spec inversion of the fruit's brightest common shade
+        # (Tomato: (1.000, 0.175, 0.107) on S).
+        "shading": "step", "hue": None, "swing": (0.80, 1.20),
+        "ramp_range": (0.08, 0.92), "projection": "BOX", "texture_scale": 1.0,
+        "texture": None,
+        # the drawn outline round every fruit and its highlight dot
+        "rim": (0.30, 0.64), "gloss": (0.22, 0.30), "ao": (0.08, 0.85),
+    },
 }
 
 
 def forge_material(name: str, material: str, paint=None, *, texture_path=None,
                    dark=None, light=None, accent=None, accent_position=None,
                    swing=None, hue=None, shading=None, ramp_range=None,
-                   projection=None, texture_scale=None):
+                   projection=None, texture_scale=None, split=None, rim=None,
+                   gloss=None, ao=None):
     """Express a MATERIAL CLASS on one part -- stage 1 of the forge workflow.
 
     With only ``paint``, the part gets a flat class-corrected paint. With
@@ -728,8 +796,12 @@ def forge_material(name: str, material: str, paint=None, *, texture_path=None,
     cls = MATERIAL_CLASSES[material]
     correct = hue if hue is not None else (cls.get("hue") or (lambda p: p))
     shading = shading if shading is not None else cls["shading"]
+    terms = dict(split=split if split is not None else cls.get("split"),
+                 rim=rim if rim is not None else cls.get("rim"),
+                 gloss=gloss if gloss is not None else cls.get("gloss"),
+                 ao=ao if ao is not None else cls.get("ao"))
     if texture_path is None:
-        return toon_material(name, correct(paint), shading=shading)
+        return toon_material(name, correct(paint), shading=shading, **terms)
     lo, hi = swing or cls["swing"]
     if dark is None:
         dark = tuple(c * lo for c in paint)
@@ -746,13 +818,22 @@ def forge_material(name: str, material: str, paint=None, *, texture_path=None,
         projection=projection or cls["projection"],
         texture_scale=texture_scale or cls["texture_scale"],
         ramp_range=ramp_range or cls["ramp_range"],
-        shading=shading, **kwargs)
+        shading=shading, **terms, **kwargs)
+
+
+def tag_family(objs, family: str):
+    """Mark parts as one family (foliage / fruit / wood / flower / soil) for the style
+    pass. Accepts one object or any iterable of them; returns what it was given."""
+    seq = objs if hasattr(objs, "__iter__") else (objs,)
+    for o in seq:
+        o["pz_family"] = family
+    return objs
 
 
 def toon_material(name: str, paint=None, texture_path=None, dark=None, light=None,
                   rust=None, rust_position=0.32, projection="UV",
                   texture_scale=1.0, ramp_range=(0.08, 0.92), shading=None,
-                  material=None):
+                  material=None, split=None, rim=None, gloss=None, ao=None):
     """A stylised material: flat paint times the shared toon light ramp.
 
     ``paint`` is the flat paint colour; alternatively ``texture_path`` with
@@ -781,7 +862,7 @@ def toon_material(name: str, paint=None, texture_path=None, dark=None, light=Non
     ramp_node = nodes.new("ShaderNodeGroup")
     ramp_node.node_tree = toon_ramp_group(soft=(shade_mode == "soft"),
                                           levels=shade_levels,
-                                          tints=shade_tints)
+                                          tints=shade_tints, ao=ao)
 
     if texture_path is not None:
         tex = nodes.new("ShaderNodeTexImage")
@@ -789,13 +870,24 @@ def toon_material(name: str, paint=None, texture_path=None, dark=None, light=Non
         tex.image.colorspace_settings.name = "Non-Color"
         tex.interpolation = "Cubic"
         tex.extension = "REPEAT"
-        if projection == "BOX":
+        if projection in ("BOX", "WORLD"):
             tex.projection = "BOX"
             tex.projection_blend = 0.2
-            coords = nodes.new("ShaderNodeTexCoord")
             mapping = nodes.new("ShaderNodeMapping")
             mapping.inputs["Scale"].default_value = (texture_scale,) * 3
-            links.new(coords.outputs["Object"], mapping.inputs["Vector"])
+            if projection == "WORLD":
+                # World position, not object space. Object coordinates are LOCAL, so a
+                # surface built from many small parts -- a bank of soil clods, a pile, a
+                # rubble heap -- samples the same patch of the map in every one of them and
+                # they all come out painted identically. Measured on the crop bed: 46 clods,
+                # one texture. The map then carries no structure larger than a single part,
+                # and the whole assembly reads as moulded repeats. World coordinates make one
+                # continuous field across every part, which is what a tilled bed needs.
+                geo = nodes.new("ShaderNodeNewGeometry")
+                links.new(geo.outputs["Position"], mapping.inputs["Vector"])
+            else:
+                coords = nodes.new("ShaderNodeTexCoord")
+                links.new(coords.outputs["Object"], mapping.inputs["Vector"])
             links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
         # ramp_range narrows how much of the map's 0-1 field spans dark-to-light.
         # Texture sampling averages ~4 texels per sprite pixel, pulling extremes
@@ -825,6 +917,82 @@ def toon_material(name: str, paint=None, texture_path=None, dark=None, light=Non
         rgb.outputs["Color"].default_value = (*paint, 1.0)
         paint_out = rgb.outputs["Color"]
 
+    light_out = ramp_node.outputs["Light"]
+    # --- painter's terms ----------------------------------------------------
+    # These exist because a plant is not lit the way a crate is. A painter shades
+    # each part on its own: the light half of a leaf is on the same side of every
+    # leaf (split), a stem darkens along its underside and a fruit carries a drawn
+    # outline (rim), and a fruit has a highlight dot (gloss). None of that comes
+    # out of one diffuse ramp over 300 parts a few pixels wide.
+    if split is not None:
+        # light/dark halves keyed to the part's OWN width axis (object-local Y):
+        # _leaf builds its blade along +X with the width along Y, so Y's sign is
+        # the half. The reference paints the light half toward the screen's
+        # upper-left on every leaf regardless of how the leaf actually faces.
+        k_light, k_dark = split
+        coord = nodes.new("ShaderNodeTexCoord")
+        sep = nodes.new("ShaderNodeSeparateXYZ")
+        side = nodes.new("ShaderNodeMath")
+        side.operation = "GREATER_THAN"
+        side.inputs[1].default_value = 0.0
+        lerp = nodes.new("ShaderNodeMapRange")
+        lerp.inputs["From Min"].default_value = 0.0
+        lerp.inputs["From Max"].default_value = 1.0
+        lerp.inputs["To Min"].default_value = k_dark
+        lerp.inputs["To Max"].default_value = k_light
+        scale = nodes.new("ShaderNodeVectorMath")
+        scale.operation = "SCALE"
+        links.new(coord.outputs["Object"], sep.inputs["Vector"])
+        links.new(sep.outputs["Y"], side.inputs[0])
+        links.new(side.outputs["Value"], lerp.inputs["Value"])
+        links.new(light_out, scale.inputs[0])
+        links.new(lerp.outputs["Result"], scale.inputs["Scale"])
+        light_out = scale.outputs["Vector"]
+    if rim is not None:
+        # a drawn edge: where the surface grazes the view (Layer Weight facing
+        # above 1-width) the light is multiplied by k. On a 2 px stem this is the
+        # dark underside; on a fruit it is the outline.
+        width, k = rim
+        lw = nodes.new("ShaderNodeLayerWeight")
+        lw.inputs["Blend"].default_value = 0.5
+        edge = nodes.new("ShaderNodeMath")
+        edge.operation = "GREATER_THAN"
+        edge.inputs[1].default_value = 1.0 - width
+        dark = nodes.new("ShaderNodeMapRange")
+        dark.inputs["From Min"].default_value = 0.0
+        dark.inputs["From Max"].default_value = 1.0
+        dark.inputs["To Min"].default_value = 1.0
+        dark.inputs["To Max"].default_value = k
+        scale2 = nodes.new("ShaderNodeVectorMath")
+        scale2.operation = "SCALE"
+        links.new(lw.outputs["Facing"], edge.inputs[0])
+        links.new(edge.outputs["Value"], dark.inputs["Value"])
+        links.new(light_out, scale2.inputs[0])
+        links.new(dark.outputs["Result"], scale2.inputs["Scale"])
+        light_out = scale2.outputs["Vector"]
+    if gloss is not None:
+        # the highlight dot: a tight glossy lobe captured to RGB and added to the
+        # light, so it lands where the key's reflection is -- upper left of a
+        # fruit, as the reference paints it
+        strength, rough = gloss if isinstance(gloss, (tuple, list)) else (gloss, 0.22)
+        gl = nodes.new("ShaderNodeBsdfGlossy")
+        gl.inputs["Roughness"].default_value = rough
+        cap = nodes.new("ShaderNodeShaderToRGB")
+        bw = nodes.new("ShaderNodeRGBToBW")
+        gain = nodes.new("ShaderNodeMath")
+        gain.operation = "MULTIPLY"
+        gain.inputs[1].default_value = strength
+        addv = nodes.new("ShaderNodeVectorMath")
+        addv.operation = "ADD"
+        tovec = nodes.new("ShaderNodeCombineXYZ")
+        links.new(gl.outputs["BSDF"], cap.inputs["Shader"])
+        links.new(cap.outputs["Color"], bw.inputs["Color"])
+        links.new(bw.outputs["Val"], gain.inputs[0])
+        for axis in ("X", "Y", "Z"):
+            links.new(gain.outputs["Value"], tovec.inputs[axis])
+        links.new(light_out, addv.inputs[0])
+        links.new(tovec.outputs["Vector"], addv.inputs[1])
+        light_out = addv.outputs["Vector"]
     mix = nodes.new("ShaderNodeMix")
     mix.data_type = "RGBA"
     mix.blend_type = "MULTIPLY"
@@ -832,7 +1000,7 @@ def toon_material(name: str, paint=None, texture_path=None, dark=None, light=Non
     emission = nodes.new("ShaderNodeEmission")
     out = nodes.new("ShaderNodeOutputMaterial")
     links.new(paint_out, mix.inputs["A"])
-    links.new(ramp_node.outputs["Light"], mix.inputs["B"])
+    links.new(light_out, mix.inputs["B"])
     links.new(mix.outputs["Result"], emission.inputs["Color"])
     links.new(emission.outputs["Emission"], out.inputs["Surface"])
     return mat
@@ -941,10 +1109,19 @@ def _tile_pass_material():
     snap.operation = "FLOOR"
     scale = nodes.new("ShaderNodeVectorMath")
     scale.operation = "MULTIPLY"
-    scale.inputs[1].default_value = (0.25, 0.25, 0.0)
+    # 0.055 per tile from a 0.05 base, NOT 0.25 from 0.15. The old spacing ran
+    # off the end of the colour range at the fourth tile (0.15 + 0.25*4 = 1.15),
+    # so every tile from 4 on rendered clamped white and decoded back to tile 3.
+    # A wall set never noticed -- they are two or three tiles wide -- but an
+    # eight-cell growth strip had its last four cells cut along tile 3's seam
+    # planes, slicing spheres into crescents and ridges into gravel. This spacing
+    # holds 16 tiles per axis inside [0,1] and is still 35x the 8-bit sRGB
+    # quantisation step at that end of the curve, so the nearest-colour decode is
+    # unambiguous.
+    scale.inputs[1].default_value = (0.055, 0.055, 0.0)
     lift = nodes.new("ShaderNodeVectorMath")
     lift.operation = "ADD"
-    lift.inputs[1].default_value = (0.15, 0.15, 0.5)
+    lift.inputs[1].default_value = (0.05, 0.05, 0.5)
     emission = nodes.new("ShaderNodeEmission")
     out = nodes.new("ShaderNodeOutputMaterial")
     links.new(geo.outputs["Position"], flip.inputs[0])
@@ -959,7 +1136,7 @@ def _tile_pass_material():
 
 #: Linear colour a tile-pass pixel renders for footprint tile (i, j).
 def tile_pass_color(i: int, j: int) -> tuple[float, float, float]:
-    return (0.15 + 0.25 * i, 0.15 + 0.25 * j, 0.5)
+    return (0.05 + 0.055 * i, 0.05 + 0.055 * j, 0.5)
 
 
 #: Channel levels for element id colours -- 5 per channel, 125 distinct parts.
@@ -1011,10 +1188,42 @@ def render_cells(context, report=None) -> dict:
     original_part_colors = {p.name: tuple(p.color) for p in parts}
     original_hidden = {p.name: p.hide_render for p in parts}
     element_colors = {}
-    for k, part in enumerate(parts):
-        colour = _id_color(k)
+    # Part FAMILIES ride along with the element ids. A recipe tags a part with
+    # ``part["pz_family"] = "foliage"`` (or fruit, wood, flower, soil ...) and the
+    # style pass can then treat a whole canopy as one thing -- ramp its light from
+    # crown to skirt, rim its leaves -- which per-element passes cannot see. Set
+    # with ``tag_family``; untagged parts export an empty string.
+    families = {}
+    # 125 ids for however many parts there are. A canopy of forty clusters, their
+    # leaf shells, two dozen fruit with outline shells and a trunk runs past that,
+    # and round-robin ids then hand one colour to a leaf AND a fruit, so the family
+    # passes light fruit as foliage and rim leaves as fruit. So when parts exceed the
+    # budget, ids are dealt out in FAMILY BLOCKS: each family gets a contiguous range
+    # sized to its share, and its parts cycle inside it. Two parts may then share an
+    # id, but never two families -- which is the only thing the family passes need.
+    by_family: dict = {}
+    for part in parts:
+        by_family.setdefault(str(part.get("pz_family", "")), []).append(part)
+    budget = len(_ID_LEVELS) ** 3
+    ids: dict = {}
+    if len(parts) <= budget or len(by_family) <= 1:
+        for k, part in enumerate(parts):
+            ids[part.name] = k % budget
+    else:
+        start = 0
+        fams = sorted(by_family.items(), key=lambda kv: -len(kv[1]))
+        for n, (fam, members) in enumerate(fams):
+            block = (max(1, round(budget * len(members) / len(parts)))
+                     if n < len(fams) - 1 else budget - start)
+            block = max(1, min(block, budget - start - (len(fams) - 1 - n)))
+            for j, part in enumerate(members):
+                ids[part.name] = start + (j % block)
+            start += block
+    for part in parts:
+        colour = _id_color(ids[part.name])
         part.color = (*colour, 1.0)
         element_colors[part.name] = list(colour)
+        families[part.name] = str(part.get("pz_family", ""))
 
     try:
         for f in range(n_facings):
@@ -1040,6 +1249,7 @@ def render_cells(context, report=None) -> dict:
             spin = Matrix.Rotation(math.radians(90.0 * f), 4, "Z")
             subject.location = original_location + c1 - (spin @ c0)
 
+            overhang: list[tuple[str, float]] = []
             for j in range(fy):
                 for i in range(fx):
                     aim = Vector((i * TILE, -j * TILE, aim_height(cw, ch)))
@@ -1058,6 +1268,33 @@ def render_cells(context, report=None) -> dict:
                             tile = (int(math.floor(cx + 0.5)),
                                     int(math.floor(-cy + 0.5)))
                             part.hide_render = tile != (i, j)
+                            if tile == (i, j):
+                                # A part may sit on this tile and still HANG OVER
+                                # it. The packer cuts every cell to its own tile
+                                # with the tile pass, so the overhang is sliced
+                                # off mid-object: spheres come out as crescents
+                                # and ridges as fragments. The cut is correct --
+                                # a wall-set piece must not bleed into its
+                                # neighbour -- so the recipe has to stay inside,
+                                # and the only thing missing was being told.
+                                lo_x = min(v.x for v in corners)
+                                hi_x = max(v.x for v in corners)
+                                lo_y = min(v.y for v in corners)
+                                hi_y = max(v.y for v in corners)
+                                over = max(i * TILE - 0.5 * TILE - lo_x,
+                                           hi_x - (i * TILE + 0.5 * TILE),
+                                           (-j * TILE - 0.5 * TILE) - lo_y,
+                                           hi_y - (-j * TILE + 0.5 * TILE))
+                                if over > 0.004:
+                                    overhang.append((part.name, over))
+                    if overhang:
+                        overhang.sort(key=lambda kv: -kv[1])
+                        print(f"pz_sprite_forge: WARNING {len(overhang)} part(s) "
+                              f"hang over tile ({i},{j}) and will be cut by the "
+                              f"packer; worst: "
+                              + ", ".join(f"{n} +{o * 100:.1f}% of a tile"
+                                          for n, o in overhang[:5]))
+                        overhang.clear()
                     name = f"{props.sheet_name}_{facing}_x{i}_y{j}.png"
                     scene.render.filepath = os.path.join(out_dir, name)
                     bpy.ops.render.render(write_still=True)
@@ -1125,6 +1362,7 @@ def render_cells(context, report=None) -> dict:
 
     manifest = {
         "elements": element_colors,
+        "families": families,
         "toon": bool(props.toon_shading),
         # Unit vector from the aim point toward the camera, so image-space passes
         # (edge-turn shading) can tell which surfaces graze the view.

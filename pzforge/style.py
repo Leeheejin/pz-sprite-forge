@@ -150,6 +150,17 @@ class StyleOptions:
     #: sat 0.71 lit -> 0.33 at value 0.26). Fabric-class materials only;
     #: 0 disables.
     shadow_desat_strength: float = 0.0
+    #: Crown-to-skirt light ramp over the FOLIAGE family: the top third of a canopy is
+    #: lighter than its bottom third by this much value. Measured on painted fruit-tree
+    #: sheets at +0.09..+0.23 (median +0.11) and on vanilla farming crops at +0.05;
+    #: a per-leaf toon ramp gives 0.03-0.04 because each leaf is lit on its own and
+    #: nothing darkens the underside of the mass as a whole. 0 disables.
+    canopy_ramp: float = 0.0
+    #: Dark rim where a foliage or fruit element meets anything else: boundary pixels
+    #: are pulled to this ratio of their element's interior value. Painted sheets
+    #: measure 0.68-0.91 (boundary/interior), vanilla 0.97-1.00, ours 0.90-0.97 with
+    #: only the outline shell. 1.0 disables.
+    rim_ratio: float = 1.0
     enabled: bool = True
 
 
@@ -1104,12 +1115,101 @@ def ground_shadow(img: Image.Image, strength: float = 1.0,
     return shadow
 
 
+def _family_mask(labels, families, wanted: tuple[str, ...]) -> list[bool]:
+    return [lab is not None and families.get(lab, "") in wanted for lab in labels]
+
+
+def _clamp8(v: float) -> int:
+    return max(0, min(255, int(v + 0.5)))
+
+
+def canopy_ramp(img: Image.Image, labels: list, families: dict,
+                delta: float) -> Image.Image:
+    """Lighten the crown and darken the skirt of the foliage mass as one body.
+
+    The ramp runs over the foliage family's own vertical extent (top row to bottom
+    row of every foliage pixel), linear, centred so the middle is untouched: a
+    pixel at the very top gains ``delta/2`` in value and one at the very bottom
+    loses it. Applied multiplicatively so dark leaves stay darker than light ones.
+    """
+    if delta <= 0 or not families:
+        return img
+    img = img.convert("RGBA")
+    w, h = img.size
+    mask = _family_mask(labels, families, ("foliage",))
+    rows = [i // w for i, m in enumerate(mask) if m]
+    if not rows:
+        return img
+    y0, y1 = min(rows), max(rows)
+    span = max(1, y1 - y0)
+    px = img.load()
+    for i, m in enumerate(mask):
+        if not m:
+            continue
+        x, y = i % w, i // w
+        r, g, b, a = px[x, y]
+        if a == 0:
+            continue
+        t = 0.5 - (y - y0) / span          # +0.5 at the crown, -0.5 at the skirt
+        k = 1.0 + delta * t / max(0.05, max(r, g, b) / 255.0)
+        px[x, y] = (_clamp8(r * k), _clamp8(g * k), _clamp8(b * k), a)
+    return img
+
+
+def family_rim(img: Image.Image, labels: list, families: dict,
+               ratio: float) -> Image.Image:
+    """Darken the boundary pixels of foliage and fruit elements to ``ratio`` of their
+    element's interior median value -- the drawn edge a painter puts round every leaf
+    and every fruit, which a renderer only produces by accident."""
+    if ratio >= 1.0 or not families:
+        return img
+    img = img.convert("RGBA")
+    w, h = img.size
+    px = img.load()
+    wanted = _family_mask(labels, families, ("foliage", "fruit"))
+    interior_vals: dict[str, list[float]] = {}
+    boundary: list[int] = []
+    for i, m in enumerate(wanted):
+        if not m:
+            continue
+        x, y = i % w, i // w
+        if px[x, y][3] == 0:
+            continue
+        lab = labels[i]
+        edge = False
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if not (0 <= nx < w and 0 <= ny < h):
+                continue
+            if labels[ny * w + nx] != lab or px[nx, ny][3] == 0:
+                edge = True
+                break
+        if edge:
+            boundary.append(i)
+        else:
+            interior_vals.setdefault(lab, []).append(max(px[x, y][:3]) / 255.0)
+    medians = {lab: sorted(v)[len(v) // 2] for lab, v in interior_vals.items()}
+    for i in boundary:
+        target = medians.get(labels[i])
+        if target is None:
+            continue
+        x, y = i % w, i // w
+        r, g, b, a = px[x, y]
+        v = max(r, g, b) / 255.0
+        if v <= 1e-4:
+            continue
+        k = min(1.0, (target * ratio) / v)
+        px[x, y] = (_clamp8(r * k), _clamp8(g * k), _clamp8(b * k), a)
+    return img
+
+
 def apply(img: Image.Image, options: StyleOptions | None = None,
           top_mask: list[bool] | None = None,
           element_labels: list | None = None,
           light: Image.Image | None = None,
           normal: Image.Image | None = None,
-          view: tuple[float, float, float] | None = None) -> Image.Image:
+          view: tuple[float, float, float] | None = None,
+          families: dict | None = None) -> Image.Image:
     """Run the full style pass in the order the steps depend on each other.
 
     ``top_mask`` marks pixels whose surface faces up (from the rig's normal pass);
@@ -1145,6 +1245,12 @@ def apply(img: Image.Image, options: StyleOptions | None = None,
         from . import finish as finishmod
         img = finishmod.finish(img, element_labels, options.finish_strength,
                                top_mask=top_mask)
+    if element_labels is not None and families:
+        # Family passes sit after the per-element finish and before the painting
+        # conversion, so the ramp is applied to finished tones and the rim is what
+        # paintify then crisps.
+        img = canopy_ramp(img, element_labels, families, options.canopy_ramp)
+        img = family_rim(img, element_labels, families, options.rim_ratio)
     if options.paint_levels > 0:
         img = paintify(img, options.paint_passes, options.paint_threshold,
                        options.paint_levels, options.paint_sharpen)

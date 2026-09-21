@@ -187,8 +187,11 @@ def cmd_build(args: argparse.Namespace) -> int:
         block_strength=0.0 if toon else args.block_strength,
         paint_flatten=args.paint_flatten,
         light_steps=args.light_steps,
+        canopy_ramp=args.canopy_ramp,
+        rim_ratio=args.rim,
         enabled=not args.no_style,
     )
+    families = manifest.get("families") or {}
     if options.enabled:
         print(f"style pass: match={options.match_strength} "
               f"alpha_floor={options.alpha_floor} bleed={options.bleed_passes}")
@@ -275,7 +278,8 @@ def cmd_build(args: argparse.Namespace) -> int:
             options.shadow_strength = 0.0
             styled = stylemod.apply(canvas, options, top_mask=top_mask,
                                     element_labels=labels, light=light_canvas,
-                                    normal=normal_canvas, view=view)
+                                    normal=normal_canvas, view=view,
+                                    families=families)
             options.shadow_strength = shadow_strength
             styled_px = styled.load()
             for i in group:
@@ -332,6 +336,25 @@ def cmd_build(args: argparse.Namespace) -> int:
     else:
         print("style pass: skipped")
 
+    if args.health_variants:
+        # Vanilla ships unhealthy/dying/dead as hue-keyed transforms of the healthy
+        # art (see pzforge.variants). Rows are stacked below the healthy grid, so a
+        # crop's sprites index as healthy 0..n-1, unhealthy n..2n-1, and so on.
+        from . import variants as varmod
+        from .sheet import Cell
+        lut = varmod.load()
+        rows = max(cl.y for cl in cells) + 1
+        extra = []
+        for k, variant in enumerate(varmod.VARIANTS, start=1):
+            for cell in cells:
+                dup = Cell(varmod.derive(cell.image, variant, lut), cell.facing,
+                           cell.x, cell.y + rows * k,
+                           source=f"{variant}:{cell.source}")
+                dup.facing_order = cell.facing_order
+                extra.append(dup)
+        cells = cells + extra
+        print(f"health variants: {len(extra)} sprite(s) derived "
+              f"({', '.join(varmod.VARIANTS)})")
     sheet = build_sheet(sheet_name, cells, cell_size, cols=args.columns)
     print(f"sheet {sheet_name}: {sheet.cols}x{sheet.rows} grid, "
           f"{len(sheet.cells)} sprite(s)")
@@ -751,6 +774,15 @@ def build_parser() -> argparse.ArgumentParser:
     b.add_argument("--paint-sharpen", type=float, default=0.55)
     b.add_argument("--floor", action="store_true",
                    help="these are floor tiles: skip the grounding gradient")
+    b.add_argument("--canopy-ramp", type=float, default=0.0,
+                   help="crown-to-skirt value ramp over the foliage family "
+                        "(painted fruit trees measure 0.09-0.23, vanilla crops 0.05)")
+    b.add_argument("--rim", type=float, default=1.0,
+                   help="boundary/interior value ratio on foliage and fruit elements "
+                        "(painted sheets 0.68-0.91; 1.0 = off)")
+    b.add_argument("--health-variants", action="store_true",
+                   help="append unhealthy/dying/dead rows derived with the measured "
+                        "vanilla hue transform (reference/health_lut.json)")
     b.add_argument("--no-style", action="store_true", help="skip the style pass entirely")
     b.set_defaults(func=cmd_build)
 
