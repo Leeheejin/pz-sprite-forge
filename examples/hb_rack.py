@@ -88,13 +88,15 @@ OUT = ROOT / "build" / OUT_DIR
 #: (0.12 / 1.04 / 1.96, posts 2.0 m) was a head taller with 0.92 m tiers, and a
 #: 0.6 m cask filled only two thirds of its bay; the reference cask fills its bay
 #: almost to the deck above.
-DECK_TOPS = (0.15, 0.82, 1.49)
+#: Tiers opened to 0.70 m (the reading was 75 +/- 3 px) so a 0.60 m-headed,
+#: 0.63 m-bilged cask fits the 0.65 m clear bay the way the reference's does.
+DECK_TOPS = (0.15, 0.85, 1.55)
 DECK_THICK = 0.055
 DECK_DEPTH = 0.92          # along Y; the open side is -Y
 FRONT_EDGE = 0.030         # the deck's front edge strip, kept with its deck
 POST_W = 0.040             # a half post: two bays make an 0.08 m divider at the seam
 POST_D = 0.085
-POST_TOP = 1.55
+POST_TOP = 1.60
 PLANKS = 3
 
 
