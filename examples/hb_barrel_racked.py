@@ -78,15 +78,14 @@ IRON_SHADE = 0.60
 #: head -- so the racked cask is the barrel at 0.80 (0.70 x 0.60 m) and lies
 #: 0.05 m back from the bay's centre (head 0.16 m behind the front edge, far
 #: head 0.06 m inside the back one).
-#: Second fit round: at 0.80 the cask's bilge (0.60 m) fit the bay but its
-#: visible head was only 0.46 m -- the upright barrel's belly (head 0.57 :
-#: bilge 0.75) shrinks the head first, while the reference cask is nearly
-#: straight with a 0.60 m head. So the racked cask carries a head close to
-#: its bilge (RACK_HEAD_R, 0.95 of BILGE_R) and the scale rises to 0.84:
-#: bilge 0.63, head 0.60, length 0.74 m in the rack's 0.65 m clear bay.
-RACK_SCALE = 0.84
-SET_BACK = 0.05
-RACK_HEAD_R = 0.355
+#: Second round: a straighter cask (head 0.95 of the bilge, like the
+#: reference's) put a 0.60 m head in the bay but no longer read as THIS
+#: mod's barrel, and the 0.05 m set-back read as off-centre. So the racked
+#: cask keeps the vat's own belly, sits dead centre in the bay, and takes the
+#: largest scale the 0.65 m clear bay allows: 0.86 -> bilge 0.645, head 0.49,
+#: length 0.76 m (0.08 m to each deck edge, 0.14 m to each post).
+RACK_SCALE = 0.86
+SET_BACK = 0.0
 
 
 def head_furniture(parts, mats, z_head: float, outward: float) -> None:
@@ -184,11 +183,6 @@ def main() -> None:
     scene.cycles.samples = 512
     scene.cycles.use_denoising = True
 
-    # A straighter cask than the fermenting vat: the head radius is swapped
-    # in for the build (build_barrel and head_furniture read the module
-    # attribute at call time) and restored afterwards.
-    upright_head_r = hb_barrel.HEAD_R
-    hb_barrel.HEAD_R = RACK_HEAD_R
     parts = hb_barrel.build_barrel(stave_scale=STAVE_SHADE)
     # The upright recipe's thin head furniture is replaced, not stacked.
     for name in ("barrel_rim", "barrel_lid", "barrel_bung"):
@@ -208,7 +202,6 @@ def main() -> None:
                                    tuple(min(1.0, c * HEAD_BOARD_LIFT) for c in lid_paint))
     head_furniture(parts, mats, hb_barrel.BARREL_H, +1.0)
     head_furniture(parts, mats, 0.0, -1.0)
-    hb_barrel.HEAD_R = upright_head_r
 
     lay_down(parts)
     subject = bpy.data.objects[F.SUBJECT_NAME]
