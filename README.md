@@ -603,6 +603,29 @@ Blender. `tests/test_blender_render.py` renders a floor plane and asserts its tr
 `(0, 192, 126, 64)`, pixel-identical to vanilla's most common floor tile, and runs the
 lighting calibration against the vanilla face-brightness targets.
 
+## Verifying the mod in the engine
+
+The pipeline above ends with a mod folder; `harness/` is the test tool that verifies it in
+the real game rather than by reading its scripts:
+
+```bash
+bash harness/pzh selftest --accept-tos                                  # the tool, on vanilla objects
+bash harness/pzh check  --mod <mod>                                     # names resolve?
+bash harness/pzh server --mod <mod> --id MyMod --test tests/server/t.lua   # real dedicated server
+bash harness/pzh client --mod <mod> --id MyMod --test tests/client/t.lua   # real single-player game
+```
+
+Everything runs on an isolated `-cachedir`, so the user's saves, options and live server
+are never touched, and each process is found by that cachedir rather than by name, so
+several sessions can run side by side. A test is a Lua step machine on `PZH` (see
+[harness/README.md](harness/README.md)) and lives in the mod's own `tests/`: it builds
+through the real build action, moves items with the real transfer actions and cancels,
+opens the loot window, takes screenshots, and prints tagged PASS/FAIL lines that the
+runner reads back as a `RESULT n passed, m failed` line and an exit status. The same
+runner takes store screenshots (`PZH.daylight`, `PZH.wear`, `PZH.zoomIn`) and `pzh promo`
+composes a Workshop header from them. `pzh selftest` proves the tool on a vanilla wooden
+crate and a vanilla barrel oven, with no mod involved.
+
 ## Layout
 
 ```
@@ -613,5 +636,7 @@ tools/                       the measurement scripts behind every number above
 reference/                   their output, consumed at runtime
 tests/                       four suites
 examples/                    crate.py, metal_drum.py, metal_crate.py, wood_floor.py
+harness/                     pzh, the in-engine test tool: isolated client/server runners,
+                             PZH Lua libraries, crosscheck, self-test, promo composer
 ```
 

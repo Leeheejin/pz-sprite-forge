@@ -1,0 +1,5 @@
+name=PZ Harness self-test
+id=PZHarnessSelfTest
+description=An empty mod the harness installs its own Lua into, to prove the tool against vanilla objects. Never ship this.
+author=pz-sprite-forge
+modversion=1.0.0

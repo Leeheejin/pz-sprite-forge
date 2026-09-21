@@ -1,0 +1,7 @@
+# Git Bash runs these; a CRLF checkout (core.autocrlf=true on Windows) would break them.
+pzh   text eol=lf
+*.sh  text eol=lf
+*.lua text eol=lf
+*.js  text eol=lf
+*.ps1 text eol=lf
+*.md  text eol=lf

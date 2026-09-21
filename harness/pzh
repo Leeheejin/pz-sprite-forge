@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# pzh: in-engine tests for Project Zomboid mods. Runs a mod in a real client or dedicated
+# server on an isolated cachedir, driven by a Lua test on the PZH library, and reads the
+# result back out of the console. Git Bash on Windows.
+#
+#   pzh check    --mod <dir> [--icon-prefix X] [--key-marker X] [--langs EN,KO]
+#   pzh client   --mod <dir> --id <ModId> --test <file.lua> [--tag TAG] [--cachedir <dir>] [--out <dir>]
+#                [--park] [--accept-tos] [--timeout <s>] [--lang KO] [--size 1280x720]
+#   pzh server   --mod <dir> --id <ModId> --test <file.lua> [--tag TAG] [--cachedir <dir>] [--port <n>] [--timeout <s>]
+#   pzh selftest [--accept-tos] [--only client|server]      the tool against vanilla objects, no mod needed
+#   pzh promo    <make_promo.ps1 arguments>
+#
+# <dir> is the mod in the B42 layout (<dir>/42/mod.info + <dir>/common/media). The test's
+# tag is read from its PZH.configure({ tag = "[...]" }) line unless --tag is given.
+# Cachedirs default to $PZH_CACHE (or %LOCALAPPDATA%\pzh)/<ModId>-<side>; the last path
+# component is how the runners find their own process, so keep it distinctive.
+# Game locations: $PZ_GAME (client install) and $PZ_SERVER (dedicated server install).
+set -u
+HERE="$(cd "$(dirname "$0")" && pwd)"
+ROOT="${PZH_CACHE:-${LOCALAPPDATA:-$HOME}/pzh}"
+GAME="${PZ_GAME:-C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid}"
+PZSERVER="${PZ_SERVER:-/c/PZServer}"
+
+usage() { sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+tagof() { grep -oE 'tag\s*=\s*"\[[^]]+\]"' "$1" | head -1 | sed -E 's/.*\[([^]]+)\].*/\1/'; }
+need() { for v in "$@"; do [ -n "${!v}" ] || { echo "pzh: --$(echo "$v" | tr 'A-Z_' 'a-z-') is required"; usage; }; done; }
+
+cmd="${1:-help}"; [ $# -gt 0 ] && shift
+MOD=""; ID=""; TEST=""; TAG=""; CACHEDIR=""; OUT=""; PARK=""; TOS=""; TIMEOUT=""; LANG_=""; SIZE=""; PORT=""; ONLY=""
+EXTRA=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --mod) MOD="$2"; shift 2 ;;
+    --id) ID="$2"; shift 2 ;;
+    --test) TEST="$2"; shift 2 ;;
+    --tag) TAG="$2"; shift 2 ;;
+    --cachedir) CACHEDIR="$2"; shift 2 ;;
+    --out) OUT="$2"; shift 2 ;;
+    --park) PARK=1; shift ;;
+    --accept-tos) TOS=1; shift ;;
+    --timeout) TIMEOUT="$2"; shift 2 ;;
+    --lang) LANG_="$2"; shift 2 ;;
+    --size) SIZE="$2"; shift 2 ;;
+    --port) PORT="$2"; shift 2 ;;
+    --only) ONLY="$2"; shift 2 ;;
+    *) EXTRA+=("$1"); shift ;;
+  esac
+done
+
+run_client() {   # MOD ID TEST [TAG CACHEDIR OUT PARK TOS TIMEOUT LANG SIZE]
+  local tag="${TAG:-$(tagof "$TEST")}"; [ -n "$tag" ] || { echo "pzh: no tag in $TEST; pass --tag"; exit 2; }
+  local cache="${CACHEDIR:-$ROOT/$ID-client}"
+  local args=(--mod-dir "$MOD" --mod-id "$ID" --cachedir "$cache" --side client --test "$TEST")
+  [ -n "$TOS" ] && args+=(--accept-tos); [ -n "$LANG_" ] && args+=(--lang "$LANG_"); [ -n "$SIZE" ] && args+=(--size "$SIZE")
+  bash "$HERE/install.sh" "${args[@]}" || return 1
+  local rargs=(--cachedir "$(cygpath -w "$cache")" --tag "$tag" --exe "$GAME/ProjectZomboid64.exe")
+  [ -n "$OUT" ] && rargs+=(--out "$OUT"); [ -n "$PARK" ] && rargs+=(--park); [ -n "$TIMEOUT" ] && rargs+=(--timeout "$TIMEOUT")
+  bash "$HERE/run_client.sh" "${rargs[@]}"
+}
+run_server() {   # MOD ID TEST [TAG CACHEDIR PORT TIMEOUT]
+  local tag="${TAG:-$(tagof "$TEST")}"; [ -n "$tag" ] || { echo "pzh: no tag in $TEST; pass --tag"; exit 2; }
+  local cache="${CACHEDIR:-$ROOT/$ID-server}"
+  bash "$HERE/install.sh" --mod-dir "$MOD" --mod-id "$ID" --cachedir "$cache" --side server --test "$TEST" || return 1
+  local rargs=(--cachedir "$cache" --servername "pzh_$ID" --mod "$ID" --tag "$tag" --pzserver "$PZSERVER")
+  [ -n "$PORT" ] && rargs+=(--port "$PORT"); [ -n "$TIMEOUT" ] && rargs+=(--timeout "$TIMEOUT")
+  bash "$HERE/run_server.sh" "${rargs[@]}"
+}
+
+case "$cmd" in
+  check)
+    need MOD
+    node "$HERE/crosscheck.js" --mod "$(cygpath -m "$MOD")/common/media" --game "$GAME/media" ${EXTRA[@]+"${EXTRA[@]}"} ;;
+  client)
+    need MOD ID TEST; run_client ;;
+  server)
+    need MOD ID TEST; run_server ;;
+  selftest)
+    # the tool proving itself on vanilla objects: a built wooden crate and a lit barrel oven
+    MOD="$HERE/selftest/mod"; ID="PZHarnessSelfTest"; rc=0
+    if [ "$ONLY" != client ]; then TEST="$HERE/selftest/server.lua"; TAG=""; run_server || rc=1; fi
+    if [ "$ONLY" != server ]; then TEST="$HERE/selftest/client.lua"; TAG=""; OUT="${OUT:-$ROOT/selftest-shots}"; PARK=1; run_client || rc=1; fi
+    [ $rc -eq 0 ] && echo "pzh selftest: OK" || echo "pzh selftest: FAILED"; exit $rc ;;
+  promo)
+    powershell -NoProfile -ExecutionPolicy Bypass -File "$HERE/make_promo.ps1" ${EXTRA[@]+"${EXTRA[@]}"} ;;
+  *) usage ;;
+esac
