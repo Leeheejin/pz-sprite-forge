@@ -16,11 +16,11 @@ pzh promo    <make_promo.ps1 arguments>
 
 | stage | what runs | what it proves |
 |---|---|---|
-| `check` | node, seconds | every item, model, icon, timed action, category, sprite and translation key the mod names exists (B42 boots into an error on any that does not) |
+| `check` | node, seconds | every item, model, icon, timed action, category, sprite and translation key the mod names exists (B42 boots into an error on any that does not); every `getText("ContextMenu_/IGUI_/UI_/Tooltip_…")` literal is defined by the mod or by the game; the mod's translation tables have the same keys in every language |
 | `server` | dedicated server, no players, ~3 min | server-side logic on real objects: containers, cooking, fuel, modData, save/load-time flags |
 | `client` | single-player client, ~5-8 min | the player's paths: real build action, real transfer actions and cancels, loot window reach, UI rows and tooltips, item counts across inventory + container + floor |
 | `client` with a shot list | same | store screenshots: clothed survivor, noon, clear sky, zoomed, no chatter, no zombies |
-| `selftest` | both, on vanilla objects | the tool itself: a built wooden crate, a lit barrel oven, transfers, cancels, the loot window, a picture |
+| `selftest` | both, on vanilla objects | the tool itself: a built wooden crate, a lit barrel oven, transfers, cancels, the loot window, a picture, a vanilla recipe crafted through `PZH.handcraft` (refused and allowed exactly as the crafting window does, food carried over exactly) |
 
 Tests live with the mod, not here: `<mod>/tests/client/*.lua`, `<mod>/tests/server/*.lua`.
 `templates/` has a skeleton of each; `selftest/` is a complete, mod-independent pair.
@@ -109,6 +109,29 @@ rect, hideInventory)`, `PZH.showTooltip`, `PZH.deselectLoot(obj)`, `PZH.hideUI(o
 `PZH.godMode` and the `housekeeping` option (`zombies`, `devicesRadius`) make a shot
 presentable. `selftest/client.lua` uses all of them on a vanilla crate.
 
+`PZH.handcraft(player, "Module.Recipe")` crafts the way the crafting window does
+(`HandcraftLogic` in manual-select mode, inputs auto-populated, `ISHandcraftAction.FromLogic`)
+and returns nil when the window would refuse. Use it to test recipes by measurement: snapshot
+the inputs' food (`getHungChange() * 100`, `getCalories()`, ...) and counts, craft, compare.
+That is how a B42 trap shows up that no reading of the script reveals:
+
+- A food input line without `ItemCount` (or `mode:destroy`/`mode:keep`) is paid in **uses**,
+  and a food item's uses are its hunger points (`|hunger| x 100`). `item 4 [Base.FishFillet]`
+  takes 4 hunger points from ONE fillet, leaves the rest, and the recipe can be crafted again
+  from what is left. Salt is food too (hunger -10 = 10 uses); vanilla spends it that way on
+  purpose (`item 1 [Base.Salt]` per jar).
+- `InheritFood` on an input copies the FIRST flagged input onto every output, divided by the
+  output count (`Food.copyFoodFromSplit`: nutrition, age, cooked state, poison, temperature).
+  It is exact for one input -> N outputs (vanilla HalveFillet, SliceHam) and wrong for
+  several inputs. `InheritWeight` always halves (made for HalveFillet).
+- A food item's weight follows its hunger at the script's weight per hunger point (a -25,
+  0.2 kg fillet set to -150 weighs 1.2 kg); `setActualWeight` does not change
+  `getActualWeight()` on food. To make a big or small piece in a test, set its hunger
+  (`setBaseHunger` and `setHungChange`); outputs that inherit food get their weight the same way.
+- A recipe's `OnCreate` is called as `fn(craftRecipeData, character)` after the outputs exist,
+  by hand-crafting and also by drying racks / furnaces / craft logic (character nil there);
+  `craftRecipeData:getAllConsumedItems()` / `getAllCreatedItems()` are what it can read.
+
 ## Writing a server test
 
 ```lua
@@ -166,6 +189,23 @@ Client
 - Zoom: `doZoomScroll(0, -1)` steps closer; `getZoom` still reads the old value on that
   frame.
 - Context-menu options sit at `options[1 .. numOptions-1]`; read them with `ipairs`.
+- `ISHandcraftAction:new` cannot be called without manual inputs: it converts them with
+  `convertToPZNetTable` (nil -> NPE, false -> type error). `PZH.handcraft` goes through
+  `FromLogic` like the crafting window.
+- A craft queued on the world's first frames was refused by the crafting logic; a few seconds
+  in, the same craft goes through. Let a test settle (~300 ticks) before its first craft.
+- Racks, furnaces and other entity crafts do not run on the world clock: each entity tick adds
+  `EntitySimulation.getGameSecondsPerTick()` (a constant 2.4 game seconds per 100 ms of
+  `GameTime.getTimeDelta()`), so a two-day drying recipe takes two real hours at 1x whatever
+  the day length. `GameTime:setMinutesPerDay` moves the world clock but not that one. The
+  fast-forward multiplier scales both: `getGameTime():setMultiplier(40)` is what the 40x button
+  does (`SetCurrentGameSpeed(n)` only changes the speed index and leaves the multiplier at 1),
+  and `IsoPlayer.updateLOS` drops it back to 1 whenever zombies are visible unless the player
+  is in ghost mode (`setGhostMode(true)`).
+  A drying rack outdoors also slows in rain (`DryingCraftLogic` reads precipitation); pin the
+  weather with `PZH.daylight()`. Racks are `StartMode = Manual`: open the entity window
+  (`ISEntityUI.OpenWindow`, which marks it in use) and start it with
+  `ISEntityUI.GenericCraftStart` as its Start button does.
 - `getTimestampMs()` is not available at OnMainMenuEnter; `PZH.bootSandbox` names the
   world with `getTimestamp()`/`ZombRand` so a killed run never contaminates the next.
 

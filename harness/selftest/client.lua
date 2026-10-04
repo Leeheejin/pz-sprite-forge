@@ -95,7 +95,48 @@ steps.picture = function(S)
     if S.ticks == 90 then PZH.deselectLoot(T.obj); PZH.shot("pzh_selftest_world.png") end
     if S.ticks >= 100 then
         PZH.report("screenshots taken (see Screenshots/pzh_selftest_*.png)", true)
+        PZH.phase("halving")
+    end
+end
+
+--- PZH.handcraft on a vanilla recipe: HalveFillet (1 fillet -> 2, InheritFood + InheritWeight,
+--- OnTest cutFillet: only fillets over 1 kg). A food item's weight follows its hunger (the
+--- script's weight per hunger point: a -25 fillet weighs 0.2 kg, so a -150 one weighs 1.2 kg;
+--- setActualWeight does not change getActualWeight on food). A small fillet must be refused
+--- the way the crafting window refuses it; a -150 one must become two halves carrying exactly
+--- its food.
+local isFillet = PZH.byType("Base.FishFillet")
+steps.halving = function(S)
+    if S.ticks == 1 then
+        T.small = T.inv:AddItem("Base.FishFillet")
+        T.inv:AddItem("Base.KitchenKnife")
+    elseif S.ticks == 30 then
+        local action, why = PZH.handcraft(T.player, "Base.HalveFillet")
+        PZH.try("PZH.handcraft refuses what the crafting window refuses (a 0.2 kg fillet)", function()
+            return action == nil, "action=" .. tostring(action) .. " why=" .. tostring(why)
+        end)
+    elseif S.ticks == 31 then
+        T.inv:Remove(T.small)
+    elseif S.ticks == 60 then
+        local big = T.inv:AddItem("Base.FishFillet")
+        big:setBaseHunger(-1.5); big:setHungChange(-1.5); big:setCalories(1230)
+    elseif S.ticks == 90 then
+        local action, why = PZH.handcraft(T.player, "Base.HalveFillet")
+        T.halfAction = action
+        PZH.try("PZH.handcraft queues a craft the window allows (a -150, 1.2 kg fillet)", function()
+            return action ~= nil, "why=" .. tostring(why)
+        end)
+    elseif S.ticks > 90 and #PZH.collect(T.inv, isFillet) >= 2 then
+        local halves = PZH.collect(T.inv, isFillet)
+        local h, k = 0, 0
+        for _, f in ipairs(halves) do h = h + f:getHungChange() * 100; k = k + f:getCalories() end
+        PZH.try("the halves carry exactly the fillet's food (InheritFood: first input split over 2)", function()
+            return #halves == 2 and math.abs(h + 150) < 0.05 and math.abs(k - 1230) < 0.05,
+                   string.format("n=%d hunger=%.2f kcal=%.2f", #halves, h, k)
+        end)
         PZH.phase("finished")
+    elseif S.ticks > 1200 then
+        PZH.report("the fillet was halved", false, "fillets=" .. #PZH.collect(T.inv, isFillet)); PZH.phase("finished")
     end
 end
 

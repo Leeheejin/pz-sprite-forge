@@ -119,7 +119,17 @@ for (const p of modScripts) {
 const trPath = (lang, file) => `${MOD}/lua/shared/Translate/${lang}/${file}`;
 const tr = (lang, file) => fs.existsSync(trPath(lang, file)) ? JSON.parse(read(trPath(lang, file))) : null;
 const [BASE, ...OTHERS] = LANGS;
-for (const file of ['ItemName.json', 'Recipes.json', 'Tooltip.json', 'IG_UI.json']) {
+// a mod may getText() the game's own strings (a vanilla tooltip, a vanilla menu label);
+// those resolve from vanilla's tables and are not the mod's to define
+const vanKeys = new Set();
+{
+  const dir = `${VAN}/lua/shared/Translate/${BASE}`;
+  if (fs.existsSync(dir))
+    for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.json'))) {
+      try { for (const k of Object.keys(JSON.parse(read(`${dir}/${f}`)))) vanKeys.add(k); } catch (e) { /* not a key table */ }
+    }
+}
+for (const file of ['ItemName.json', 'Recipes.json', 'Tooltip.json', 'IG_UI.json', 'ContextMenu.json', 'Moveables.json']) {
   const base = tr(BASE, file);
   if (!base) continue;
   for (const lang of OTHERS) {
@@ -146,7 +156,20 @@ for (const file of ['ItemName.json', 'Recipes.json', 'Tooltip.json', 'IG_UI.json
         if (m[1].startsWith('Tooltip_')) used.add(m[1]);
         else if (KEY_MARKER && m[1].indexOf(KEY_MARKER) !== -1 && !(m[1] in ig)) note(`${BASE}/IG_UI.json is missing ${m[1]}`);
       }
-  for (const k of used) if (!(k in tips)) note(`${BASE}/Tooltip.json is missing ${k}`);
+  for (const k of used) if (!(k in tips) && !vanKeys.has(k)) note(`${BASE}/Tooltip.json is missing ${k}`);
+  // any other literal key the mod's Lua asks for (a menu label, a UI string) must be defined
+  // by the mod in some table, or be one of the game's own
+  const modKeys = new Set();
+  {
+    const dir = `${MOD}/lua/shared/Translate/${BASE}`;
+    if (fs.existsSync(dir))
+      for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.json')))
+        for (const k of Object.keys(JSON.parse(read(`${dir}/${f}`)))) modKeys.add(k);
+  }
+  if (fs.existsSync(MOD + '/lua'))
+    for (const p of walk(MOD + '/lua').filter(f => f.endsWith('.lua') && !/[\\/]Translate[\\/]/.test(f)))
+      for (const m of read(p).matchAll(/getText\("((?:ContextMenu|IGUI|UI|Tooltip)_[A-Za-z0-9_]+)"/g))
+        if (!modKeys.has(m[1]) && !vanKeys.has(m[1])) note(`${path.basename(p)}: getText("${m[1]}") is defined neither by the mod (${BASE}) nor by the game`);
   for (const k of Object.keys(tips)) if (!used.has(k)) note(`${BASE}/Tooltip.json defines unused ${k}`);
   // the loot window titles a container by its type: IGUI_ContainerTitle_<type> must exist
   for (const v of containerTypes) for (const lang of LANGS) {
