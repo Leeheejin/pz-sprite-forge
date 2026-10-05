@@ -29,10 +29,12 @@ pitfalls that cost the most time to rediscover.
   side needs Pillow.
 - Project Zomboid must be installed; measurements read
   `.../ProjectZomboid/media` (override with `--game-media` where offered).
-- Tests: `tests/test_pipeline.py`, `tests/test_geometry.py` (both plain
-  `python` scripts, expect `ALL PASS`), `tools/validate_formats.py`
-  (round-trip, expects `0 failed`). Run all three after touching
-  `pzforge/` or `blender/`.
+- Tests: `tests/test_pipeline.py`, `tests/test_geometry.py`,
+  `tests/test_assets.py`, `tests/test_tilegeometry.py`,
+  `tests/test_depthmap.py`, `tests/test_workshop.py` (plain `python`
+  scripts, expect `ALL PASS`), `tools/validate_formats.py` (round-trip,
+  expects `0 failed`). Run them all after touching `pzforge/` or
+  `blender/`.
 
 ## The two-stage workflow
 
@@ -112,6 +114,90 @@ it). Rebuild with `build retouch/<name> ... --no-style`. Scripted retouches
 follow the same rule; keep corrections face-coherent (uniform over a
 part x facing), never position-blind pools.
 
+### A mod's tile set: the standard path
+
+Every sheet a mod ships is built from ONE asset spec, never from build
+commands typed by hand (`examples/homebrewing_assets.json` is the worked
+example: eight sheets, previews, measure bands, Workshop images).
+
+1. One `assets` entry per sheet: the recipe (+ `--` args when one recipe
+   renders several parts), its cells dir, and the exact `build` arguments --
+   mod id, tiledef id, every tile property (copied from the shipped `.tiles`
+   or the vanilla twin, never recalled), style flags. Variants of one object
+   share their style flags (see "One object, several poses").
+2. `assets <spec> --list`, then `--only a,b` / `--no-render` while
+   iterating. `--install` is the only step that writes into the mod; the
+   spec's `install` names the mod's media folders.
+3. `build` writes each sheet's `tileGeometry.txt` block and
+   `DEPTH_<sheet>.png` from the rig's per-part boxes; `--install` merges
+   the block into the mod's one file and copies the map (Build 42 depth,
+   below). A sheet shipped without them is drawn as a billboard.
+4. The spec's `previews` and `measures` are the art checks (layered
+   objects, below); its `workshop` section makes the Workshop images
+   (`workshop <spec> [--publish]`) from the very packs it built.
+5. Rebuild proof: after any pipeline change, rebuild with `--no-render`
+   into a scratch copy of the mod's media and `diff -rq` it against the
+   shipped folder. Only deliberate changes may differ, and you name them.
+6. Then the engine: `pzh check`, `pzh client` (a test that places the
+   objects and takes a screenshot is the art's last word, see below).
+
+### Layered object on one square (rack with tiers, shelf with contents)
+
+The game draws a square's objects in list order, each lifted by its render
+y offset, and Build 42 then resolves overlaps per pixel by depth. Model it
+the way the game draws it:
+
+1. One sheet per draw layer (Home Brewing's rack: the base -- rear posts and
+   deck 1 --, deck 2, deck 3, the front dividers), and the contents (a racked
+   barrel) as their own sheet, inserted between the layers in list order.
+2. Heights from the reference, through the game's scale: 43 px per metre at
+   1x (vanilla table: 0.79 m <-> `Surface` 34). Deck tops measured on the
+   reference (0.15 / 0.85 / 1.55 m) give each tier's render y offset; then
+   lower it to where the contents really touch -- a bellied cask rests on
+   its head chimes, 3 px below the deck top, or it floats on its bilge.
+3. Near and far parts per facing: `F.tag_facings` (below). For N and W the
+   near pair of a 1x1 rack is its own back pair.
+4. Tile properties per layer: the base is a table (`IsTable`, `Surface`)
+   so the moveable system can stand an object on it; helpers are
+   `solidtrans`; the contents' bottom-tier sheet is `IsTableTop` +
+   `IsMoveAble`, the upper tiers' sheet neither (nothing is lifted off a
+   top shelf).
+5. Judge the `stack` preview (every facing, layers at their offsets), never
+   one sprite; pin the reference's luminance ratios with `measure` bands
+   (the racked barrel: flank/head 0.56 measured, band 0.45-0.70). Then an
+   in-engine screenshot: the preview shows list order, the game shows depth.
+
+### Build 42 depth (every custom tile)
+
+The rig exports every visible part's tile-local box per facing;
+`F.tag_geometry(parts, "deck1")` merges parts into one box and `"-"` leaves
+a part out. Depth is sampled only where the sprite has pixels, so a box
+round a cask is enough: thin slabs per deck, thin boxes per post. The map's
+encoding is measured, not assumed (`depthmap calibrate` against a vanilla
+tileset: `value = 103.8 * depth + 190.3`, `reference/depth_calibration.json`);
+re-run it after a game update. Two symptoms, two causes: a sprite with a
+render offset drawn over the shelf above it = missing geometry; a
+checkerboard of one sprite through another = missing depth map.
+
+### One object, several poses
+
+A barrel upright and the same barrel racked are ONE object: one geometry
+function per physical part (`hb_barrel.head_furniture` serves both heads),
+the pose passing its own measured paints (the racked cask's flank is
+darker because the deck above shades it), and the same build flags
+(stroke, grounding, ground shadow, contour) on every sheet. Two recipes
+that drift apart read as two different barrels side by side.
+
+### Workshop images
+
+`workshop <spec>` writes the promo (the tiles on a vanilla floor, layered
+columns at their render offsets) and the thumbnail (the house style, see
+`pzforge.workshop.HOUSE_STYLE`: warm radial background, Georgia title,
+stations at whole-number scale, item icons tinted by their fluid's
+ColorReference) from the packs the mod ships; `--publish` copies them into
+the Workshop folder (`preview.png` RGB, under Steam's 1 MB). Store
+screenshots come from `pzh client`, never from a staged scene.
+
 ### New material class
 
 Measure a vanilla reference of that material: per-face medians (S/E/W/top),
@@ -130,6 +216,13 @@ to one of those measurements.
   deliberate changes may differ, and you should be able to name them.
 - Bold check: view output at 1x and 0.5x -- if the material read washes out,
   features need `texture.bolden()` treatment, not more contrast at 2x.
+- Art with no vanilla twin: `measure` bands taken from the reference
+  screenshot, measured the same way, on the `stack` preview.
+- Layered objects: the `stack` preview for every facing, then an in-engine
+  screenshot (`pzh client` + `PZH.shot`). A composite that looks right
+  proves the draw order, not the depth the game draws with.
+- Rebuild proof: `assets <spec> --no-render --install` into a scratch copy
+  of the mod's media, `diff -rq` against the shipped files.
 - A mod is verified in the engine, not by reading it: `pzh check` (names
   resolve), `pzh server` (server logic on real objects), `pzh client` (real
   build / transfer / cancel actions, loot window reach, UI rows, item counts
@@ -165,6 +258,14 @@ to one of those measurements.
   fields operate on the OBJECT (composed canvas), never per cell.
 - If a wall piece renders amputated, a neighbouring piece occluded it:
   `isolate_tiles`.
+- "Right in the composite, wrong in the game": the sheet is missing its
+  tile geometry or its depth map, not a draw-order fix (Build 42 draws by
+  depth; the composite only simulates list order).
+- A part that is right on S and E but drawn over the contents on N and W is
+  a far post in the last-drawn sheet: gate it with `tag_facings`.
+- A contact shadow (`--ground-shadow`) seats an object at game size and
+  reads as a dark tile scaled up; key art drops it
+  (`workshop.strip_contact_shadow`).
 
 ## Layout
 
@@ -172,6 +273,8 @@ to one of those measurements.
   material classes, `forge_material`, `render_cells` (single file on
   purpose; it must import inside Blender with no package).
 - `pzforge/` -- build pipeline: `cli.py` (entry), `style.py`, `finish.py`,
+  `assets.py` (the spec harness), `geometry.py`/`depthmap.py` (Build 42
+  depth), `workshop.py` (Workshop images),
   `texture.py`, `packfile.py`/`tiledef.py` (formats), `preview.py`,
   `retouch.py`, `spec.py`/`recipe.py` (measurement).
 - `examples/` -- recipes. `tools/` -- measurement scripts that produced
