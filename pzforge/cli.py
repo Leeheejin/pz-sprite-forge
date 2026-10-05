@@ -194,6 +194,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         light_steps=args.light_steps,
         canopy_ramp=args.canopy_ramp,
         rim_ratio=args.rim,
+        despeckle=args.despeckle,
         enabled=not args.no_style,
     )
     families = manifest.get("families") or {}
@@ -308,7 +309,19 @@ def cmd_build(args: argparse.Namespace) -> int:
                         r, g, b, _ = styled_px[x + ox, y + oy]
                         out_px[x, y] = (r, g, b, a)
                 if shadow_strength > 0:
-                    out = stylemod.ground_shadow(out, shadow_strength)
+                    if args.ground_shadow_shape == "ellipse":
+                        # sized to the sprite, as the painted trees pool theirs: 0.42 of
+                        # the opaque width, and none under anything narrower than 24 px
+                        bbox = out.getchannel("A").point(lambda v: 255 if v >= 200 else 0).getbbox()
+                        sprite_w = (bbox[2] - bbox[0]) if bbox else 0
+                        if sprite_w >= 24:
+                            out = stylemod.ground_shadow(
+                                out, shadow_strength,
+                                scale=args.ground_shadow_width * sprite_w / out.width,
+                                offset=(0, 2), alpha=args.ground_shadow_alpha,
+                                shape="ellipse")
+                    else:
+                        out = stylemod.ground_shadow(out, shadow_strength)
                 cell.image = out
                 if args.retouch_out:
                     retouch_entries.append({
@@ -404,7 +417,10 @@ def cmd_build(args: argparse.Namespace) -> int:
                 tile_props[key] = value
         if len(manifest.get("facings", [])) > 1:
             tile_props["Facing"] = cell.facing
-        if multi_tile and not sequence:
+        if multi_tile and not sequence and not manifest.get("isolate_tiles"):
+            # isolated cells are independent single-tile sprites rendered side by side
+            # (a crop's growth stages, a wall set), not one object spanning the grid --
+            # vanilla's farming tiles carry no SpriteGridPos
             tile_props["SpriteGridPos"] = f"{cell.x},{cell.y}"
         tiles.append(Tile(tile_props))
     tiles += [Tile() for _ in range(sheet.cols * sheet.rows - len(tiles))]
@@ -439,15 +455,22 @@ def cmd_build(args: argparse.Namespace) -> int:
     # --- Build 42 tile geometry (the depth the game draws the tile with) ---
     from . import geometry as geom
 
-    geo_tiles = geom.tiles_from_manifest(
-        manifest, sheet.cells,
-        {k: props[k] for k in geom.ECHOED_PROPERTIES if k in props})
+    if args.plant_geometry:
+        geo_tiles = geom.plant_tiles(len(sheet.cells))
+    else:
+        geo_tiles = geom.tiles_from_manifest(
+            manifest, sheet.cells,
+            {k: props[k] for k in geom.ECHOED_PROPERTIES if k in props})
     if geo_tiles:
+        # one file per mod: this sheet's tileset replaces its old block and every
+        # other sheet's stays (writing it whole left a multi-sheet mod with only the
+        # last-built sheet's geometry)
         geo_path = layout.media / "tileGeometry.txt"
-        geo_path.write_text(geom.file_text([geom.tileset_text(sheet_name, geo_tiles, sheet.cols)]),
-                            encoding="utf-8")
+        geom.merge_into(geo_path, geom.file_text([geom.tileset_text(sheet_name, geo_tiles, sheet.cols)]))
         print(f"tile geometry: {sum(len(t['boxes']) for t in geo_tiles)} box(es) over "
-              f"{len(geo_tiles)} sprite(s) -> {geo_path.name}")
+              f"{len(geo_tiles)} sprite(s) -> {geo_path.name}"
+              + (" (plant: translucent, no depth)" if args.plant_geometry else ""))
+    if geo_tiles and not args.plant_geometry:
         # ... and the depth map the renderer actually samples (pzforge.depthmap)
         from . import depthmap as dm
 
@@ -869,6 +892,14 @@ def build_parser() -> argparse.ArgumentParser:
     b.add_argument("--ground-shadow", type=float, default=0.0,
                    help="painted floor shadow behind the sprite (measured: black "
                         "at alpha 51); for objects standing on legs. 0 disables")
+    b.add_argument("--ground-shadow-shape", choices=("diamond", "ellipse"), default="diamond",
+                   help="diamond: the furniture floor shadow; ellipse: the pool of shade "
+                        "under a tree trunk (painted sheets, vanilla ornamental trees)")
+    b.add_argument("--ground-shadow-width", type=float, default=0.42,
+                   help="ellipse width as a fraction of the sprite's opaque width "
+                        "(painted trees 0.40-0.45; none under sprites narrower than 24 px)")
+    b.add_argument("--ground-shadow-alpha", type=int, default=64,
+                   help="ellipse alpha (painted 51-92, vanilla hawthorn 77)")
     b.add_argument("--contour", type=float, default=1.0,
                    help="painted contact weight: bottom silhouette rows drop to "
                         "the measured 0.71x of the interior; 0 disables")
@@ -902,6 +933,13 @@ def build_parser() -> argparse.ArgumentParser:
     b.add_argument("--rim", type=float, default=1.0,
                    help="boundary/interior value ratio on foliage and fruit elements "
                         "(painted sheets 0.68-0.91; 1.0 = off)")
+    b.add_argument("--despeckle", type=int, default=0,
+                   help="clear opaque islands of at most N px after the style pass, the "
+                        "residue of thin geometry such as awns (vanilla crops keep 3-7 "
+                        "single-pixel dots each, so keep N small: the crops use 2)")
+    b.add_argument("--plant-geometry", action="store_true",
+                   help="write the sheet's tiles the way vanilla writes growing crops: "
+                        "Translucent, no boxes and no depth texture")
     b.add_argument("--health-variants", action="store_true",
                    help="append unhealthy/dying/dead rows derived with the measured "
                         "vanilla hue transform (reference/health_lut.json)")

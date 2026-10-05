@@ -66,6 +66,14 @@ class SurfaceSpec:
     stroke_length: int = 80
     stroke_width: int = 2
     stroke_amplitude: float = 0.16
+    #: Let strokes wrap top to bottom. Without it a stroke starting low is cut at the
+    #: edge and the top rows get almost none -- the map is then dense at the bottom
+    #: and bare at the top, which bark (world-projected, tiled up a trunk) shows as
+    #: bands. Wood planks keep the cut: their grain runs along U after transposing.
+    stroke_wrap: bool = False
+    #: 0: strokes lighten or darken at random; -1: dark marks only; +1: light only.
+    #: Birch-like bark is pale with dark lenticels -- a light mark on it is invisible.
+    stroke_sign: int = 0
     #: Horizontal drift per step, so streaks waver rather than ruling straight lines.
     stroke_drift: float = 0.18
     #: Knots drawn into the field: dark radial cores with a faint halo, elongated
@@ -168,12 +176,14 @@ def surface_rows(width: int = 512, height: int = 256,
             y = rng.randrange(height)
             length = max(4, round(rng.uniform(0.5, 1.5) * spec.stroke_length))
             delta = (rng.uniform(0.45, 1.0) * spec.stroke_amplitude
-                     * rng.choice((-1.0, 1.0)))
+                     * (rng.choice((-1.0, 1.0)) if not spec.stroke_sign else float(spec.stroke_sign)))
             drift = rng.uniform(-spec.stroke_drift, spec.stroke_drift)
             for step in range(length):
                 yy = y + step
                 if yy >= height:
-                    break
+                    if not spec.stroke_wrap:
+                        break
+                    yy %= height
                 taper = 1.0 - 0.6 * (step / max(1, length - 1))
                 for k in range(spec.stroke_width):
                     xx = (round(fx) + k) % width   # wraps, so the map stays tileable
@@ -348,6 +358,26 @@ def material_spec(material: str, seed: int = 7) -> "SurfaceSpec":
                            vertical_stretch=1.1, contrast=1.15,
                            daub_count=170, daub_radius=36,
                            daub_depth=0.28, seed=seed)
+    if material == "bark":
+        # Tree bark off the painted fruit-tree sheets: thin streaks along the trunk,
+        # 1 px at sprite scale, low contrast, over a few broad vertical bands (bark
+        # plates a few px wide); no knots -- a young fruit tree shows none at 2x. Sized
+        # for UV in world units at texture_scale 1.0: 512 texels per metre of tube, ~5.7
+        # texels per sprite px, so a 6-texel stroke lands as a 1 px line.
+        return SurfaceSpec(octaves=[(56, 0.40), (24, 0.45), (10, 0.20)],
+                           vertical_stretch=8.0, contrast=1.4,
+                           stroke_count=260, stroke_length=260, stroke_width=6,
+                           stroke_amplitude=0.30, stroke_drift=0.0, stroke_wrap=True,
+                           seed=seed)
+    if material == "bark_birch":
+        # The painted olive's trunks: pale silver bark with short dark horizontal marks
+        # (lenticels, 2-4 px long, 1 px tall). Written with grain_axis="u", so the
+        # strokes run round the tube -- across the trunk -- under _sweep's UVs.
+        return SurfaceSpec(octaves=[(48, 0.30), (20, 0.25)],
+                           vertical_stretch=1.5, contrast=1.1,
+                           stroke_count=150, stroke_length=22, stroke_width=6,
+                           stroke_amplitude=0.75, stroke_drift=0.0, stroke_wrap=True,
+                           stroke_sign=-1, seed=seed)
     if material == "foliage":
         # Leaves: crisp small mottle (local gradient 0.020, above wood) with no
         # direction and no strokes; the tone economy is 8-10 per window, so the map
