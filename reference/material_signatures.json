@@ -20,5 +20,21 @@
   "grad": 0.0078,
   "grad_p90": 0.049,
   "window_tones": 4
+ },
+ "foliage": {
+  "spread": 0.255,
+  "sat": 0.375,
+  "grad": 0.0196,
+  "grad_p90": 0.0941,
+  "window_tones": 10,
+  "_measured_on": "vanilla farming crops at fullGrown: BellPepper, Tomato, Cabbages, Barley, Corn, SweetPotato, Greenpeas (green-hue pixels only); tools: scratch sig_foliage.py with the definition in _doc"
+ },
+ "soil": {
+  "spread": 0.294,
+  "sat": 0.818,
+  "grad": 0.0353,
+  "grad_p90": 0.1255,
+  "window_tones": 7,
+  "_measured_on": "the tilled bed of the same sprites plus the bare beds vegetation_farming_01b_64 and _01b_0 (brown-hue pixels below row 150)"
  }
 }

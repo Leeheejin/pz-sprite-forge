@@ -1,0 +1,12 @@
+{
+  "_about": "Build 42 depth-map encoding, fitted by pzforge.depthmap.calibrate on vanilla tilesets: value = scale * depth + offset, depth = -(0.612*x + 0.5*y + 0.612*z) in metres (x east, y up, z south; nearer is smaller). Boxes from media/tileGeometry.txt were ray-cast at every third pixel of media/depthmaps/DEPTH_<tileset>.png. furniture_storage_02 (box-only geometry) fits to 1.6 units rms; the other two carry rotated boxes and polygons the box caster skips, hence their tails, but agree on the slope.",
+  "scale": 103.8,
+  "offset": 190.3,
+  "fits": [
+    {"tileset": "furniture_storage_02", "samples": 11188, "scale": 103.8028, "offset": 190.3415, "rms": 1.5759, "max_abs": 19.6517},
+    {"tileset": "furniture_shelving_01", "samples": 53191, "scale": 102.9233, "offset": 189.9348, "rms": 6.085, "max_abs": 125.612},
+    {"tileset": "furniture_bedding_01", "samples": 104483, "scale": 97.6627, "offset": 188.8163, "rms": 8.98, "max_abs": 161.4211}
+  ],
+  "cross_check": "DEPTH_whole_tile.png: 63 units per metre along x or z at floor level (= 103 * 0.612) and 0 at the tile's near corner at the cell's top (about 2.4 m); the far top corner reads 126 = 2 * 63.",
+  "measured": "2026-09-22, Project Zomboid 42.20"
+}

@@ -4,6 +4,11 @@
     pzforge inspect <file.pack|file.tiles>
     pzforge extract <file.pack> <out-dir>
     pzforge ids
+    pzforge assets <spec.json> [--install]     # render, build, extract, preview, measure a whole set
+    pzforge stack --layer <png-dir>/<sheet>[:offset] ... --out <png>
+    pzforge measure <image> name:x0,y0,x1,y1 ... [--expect a/b=min,max]
+    pzforge depthmap calibrate --tileset furniture_storage_02   # fit the B42 depth encoding on vanilla
+    pzforge depthmap render --cells <cells-dir>                 # DEPTH_<sheet>.png from the manifest's boxes
 """
 
 from __future__ import annotations
@@ -187,8 +192,11 @@ def cmd_build(args: argparse.Namespace) -> int:
         block_strength=0.0 if toon else args.block_strength,
         paint_flatten=args.paint_flatten,
         light_steps=args.light_steps,
+        canopy_ramp=args.canopy_ramp,
+        rim_ratio=args.rim,
         enabled=not args.no_style,
     )
+    families = manifest.get("families") or {}
     if options.enabled:
         print(f"style pass: match={options.match_strength} "
               f"alpha_floor={options.alpha_floor} bleed={options.bleed_passes}")
@@ -275,7 +283,8 @@ def cmd_build(args: argparse.Namespace) -> int:
             options.shadow_strength = 0.0
             styled = stylemod.apply(canvas, options, top_mask=top_mask,
                                     element_labels=labels, light=light_canvas,
-                                    normal=normal_canvas, view=view)
+                                    normal=normal_canvas, view=view,
+                                    families=families)
             options.shadow_strength = shadow_strength
             styled_px = styled.load()
             for i in group:
@@ -332,6 +341,25 @@ def cmd_build(args: argparse.Namespace) -> int:
     else:
         print("style pass: skipped")
 
+    if args.health_variants:
+        # Vanilla ships unhealthy/dying/dead as hue-keyed transforms of the healthy
+        # art (see pzforge.variants). Rows are stacked below the healthy grid, so a
+        # crop's sprites index as healthy 0..n-1, unhealthy n..2n-1, and so on.
+        from . import variants as varmod
+        from .sheet import Cell
+        lut = varmod.load()
+        rows = max(cl.y for cl in cells) + 1
+        extra = []
+        for k, variant in enumerate(varmod.VARIANTS, start=1):
+            for cell in cells:
+                dup = Cell(varmod.derive(cell.image, variant, lut), cell.facing,
+                           cell.x, cell.y + rows * k,
+                           source=f"{variant}:{cell.source}")
+                dup.facing_order = cell.facing_order
+                extra.append(dup)
+        cells = cells + extra
+        print(f"health variants: {len(extra)} sprite(s) derived "
+              f"({', '.join(varmod.VARIANTS)})")
     sheet = build_sheet(sheet_name, cells, cell_size, cols=args.columns)
     print(f"sheet {sheet_name}: {sheet.cols}x{sheet.rows} grid, "
           f"{len(sheet.cells)} sprite(s)")
@@ -407,6 +435,29 @@ def cmd_build(args: argparse.Namespace) -> int:
     tdefs.write(layout.media / f"{sheet_name}.tiles")
     (layout.media / f"{sheet_name}.tiles.txt").write_text(tdefs.to_text(), encoding="utf-8")
     sheet.image().save(layout.media / f"{sheet_name}.png")
+
+    # --- Build 42 tile geometry (the depth the game draws the tile with) ---
+    from . import geometry as geom
+
+    geo_tiles = geom.tiles_from_manifest(
+        manifest, sheet.cells,
+        {k: props[k] for k in geom.ECHOED_PROPERTIES if k in props})
+    if geo_tiles:
+        geo_path = layout.media / "tileGeometry.txt"
+        geo_path.write_text(geom.file_text([geom.tileset_text(sheet_name, geo_tiles, sheet.cols)]),
+                            encoding="utf-8")
+        print(f"tile geometry: {sum(len(t['boxes']) for t in geo_tiles)} box(es) over "
+              f"{len(geo_tiles)} sprite(s) -> {geo_path.name}")
+        # ... and the depth map the renderer actually samples (pzforge.depthmap)
+        from . import depthmap as dm
+
+        cal = dm.load_calibration()
+        depth_tiles = dm.tiles_from_manifest(manifest, sheet.cells)
+        depth_dir = layout.media / "depthmaps"
+        depth_dir.mkdir(parents=True, exist_ok=True)
+        depth_png = depth_dir / f"DEPTH_{sheet_name}.png"
+        dm.render(depth_tiles, cal["scale"], cal["offset"], sheet.cols).save(depth_png)
+        print(f"depth map: {len(depth_tiles)} sprite(s) -> depthmaps/{depth_png.name}")
 
     info = modgen.ModInfo(
         id=args.mod_id,
@@ -665,6 +716,93 @@ def cmd_ids(args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------------------- #
+# assets: the harness
+# --------------------------------------------------------------------------- #
+
+def cmd_assets(args: argparse.Namespace) -> int:
+    from . import assets as assetsmod
+
+    spec = assetsmod.load_spec(args.spec)
+    if args.list:
+        for a in spec.assets:
+            print(f"  {a.name:18s} {a.sheet_name():22s} {a.recipe} {' '.join(a.args)}"
+                  f"{'' if a.install else '   (not installed by default)'}")
+        print(f"  previews: {', '.join(p['name'] for p in spec.previews) or '-'}")
+        print(f"  measures: {', '.join(m['name'] for m in spec.measures) or '-'}")
+        return 0
+    only = set(args.only.split(",")) if args.only else None
+    failures = assetsmod.Harness(spec).run(
+        only=only, render=not args.no_render, build=not args.no_build,
+        extract=not args.no_extract, previews=not args.no_previews,
+        measures=not args.no_measures, install=args.install)
+    return 1 if failures else 0
+
+
+def cmd_depthmap(args: argparse.Namespace) -> int:
+    from . import depthmap as dm
+
+    if args.action == "calibrate":
+        from .compare import DEFAULT_GAME_MEDIA
+        media = Path(args.game_media) if args.game_media else DEFAULT_GAME_MEDIA
+        text = (media / "tileGeometry.txt").read_text(encoding="utf-8")
+        for ts in args.tileset:
+            r = dm.calibrate(text, media / "depthmaps" / f"DEPTH_{ts}.png", ts, step=args.step)
+            print(f"{ts:28s} n={r['samples']:6d} scale={r['scale']:.3f} offset={r['offset']:.3f} "
+                  f"rms={r['rms']:.2f} max={r['max_abs']:.1f}")
+        return 0
+    # render: from a cells manifest
+    from .sheet import DEFAULT_COLUMNS, build_sheet, load_cells
+
+    cells_dir = Path(args.cells)
+    manifest = json.loads((cells_dir / "manifest.json").read_text(encoding="utf-8"))
+    cells = load_cells(cells_dir, manifest)
+    sheet = build_sheet(args.sheet or manifest["sheet"], cells, tuple(manifest["cell"]), DEFAULT_COLUMNS)
+    cal = dm.load_calibration()
+    tiles = dm.tiles_from_manifest(manifest, sheet.cells)
+    out = Path(args.out) if args.out else Path("build") / f"DEPTH_{sheet.name}.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    dm.render(tiles, cal["scale"], cal["offset"], sheet.cols).save(out)
+    print(f"wrote {out}  ({len(tiles)} sprite(s) with geometry)")
+    return 0
+
+
+def cmd_stack(args: argparse.Namespace) -> int:
+    from . import assets as assetsmod
+
+    layers = [assetsmod.Layer.parse(text) for text in args.layer]
+    image = assetsmod.stack(layers, facings=args.facings, scale=args.scale)
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    image.save(out)
+    print(f"wrote {out}  ({image.width}x{image.height}); layers bottom-up: "
+          + ", ".join(f"{l.sheet}+{l.offset}" for l in layers))
+    return 0
+
+
+def cmd_measure(args: argparse.Namespace) -> int:
+    from . import assets as assetsmod
+
+    patches = {}
+    for spec in args.patch:
+        name, box = spec.split(":")
+        patches[name] = tuple(int(v) for v in box.split(","))
+    measured = assetsmod.measure(args.image, patches)
+    for name, m in measured.items():
+        r, g, b = m["rgb"]
+        print(f"{name:14s} rgb=({r:5.1f},{g:5.1f},{b:5.1f}) lum={m['lum']:5.1f}  n={m['n']}")
+    expectations = []
+    for text in args.expect or []:
+        key, band = text.split("=")
+        lo, hi = (float(v) for v in band.split(","))
+        expectations.append({"ratio" if "/" in key else "patch": key, "min": lo, "max": hi})
+    failed = 0
+    for label, ok, detail in assetsmod.check_expectations(measured, expectations):
+        print(f"  {'PASS' if ok else 'FAIL'}  {label}  -- {detail}")
+        failed += 0 if ok else 1
+    return 1 if failed else 0
+
+
+# --------------------------------------------------------------------------- #
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -751,6 +889,15 @@ def build_parser() -> argparse.ArgumentParser:
     b.add_argument("--paint-sharpen", type=float, default=0.55)
     b.add_argument("--floor", action="store_true",
                    help="these are floor tiles: skip the grounding gradient")
+    b.add_argument("--canopy-ramp", type=float, default=0.0,
+                   help="crown-to-skirt value ramp over the foliage family "
+                        "(painted fruit trees measure 0.09-0.23, vanilla crops 0.05)")
+    b.add_argument("--rim", type=float, default=1.0,
+                   help="boundary/interior value ratio on foliage and fruit elements "
+                        "(painted sheets 0.68-0.91; 1.0 = off)")
+    b.add_argument("--health-variants", action="store_true",
+                   help="append unhealthy/dying/dead rows derived with the measured "
+                        "vanilla hue transform (reference/health_lut.json)")
     b.add_argument("--no-style", action="store_true", help="skip the style pass entirely")
     b.set_defaults(func=cmd_build)
 
@@ -816,6 +963,52 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--game-media", default="",
                    help="path to the game's media folder")
     p.set_defaults(func=cmd_preview)
+
+    a = sub.add_parser("assets",
+                       help="run an asset spec: render, build, extract, preview and "
+                            "measure a whole tile set, optionally installing it")
+    a.add_argument("spec", help="spec JSON, e.g. examples/homebrewing_assets.json")
+    a.add_argument("--only", default="", help="comma-separated asset names to run")
+    a.add_argument("--list", action="store_true", help="list the spec's assets and stop")
+    a.add_argument("--no-render", action="store_true", help="reuse the rendered cells")
+    a.add_argument("--no-build", action="store_true")
+    a.add_argument("--no-extract", action="store_true")
+    a.add_argument("--no-previews", action="store_true")
+    a.add_argument("--no-measures", action="store_true")
+    a.add_argument("--install", action="store_true",
+                   help="copy each built .pack/.tiles into the spec's install folders")
+    a.set_defaults(func=cmd_assets)
+
+    dp = sub.add_parser("depthmap",
+                        help="Build 42 depth maps: calibrate the encoding on vanilla, or "
+                             "render DEPTH_<sheet>.png from a cells manifest's geometry")
+    dp.add_argument("action", choices=["calibrate", "render"])
+    dp.add_argument("--tileset", action="append", default=[],
+                    help="calibrate: vanilla tileset name(s), e.g. furniture_storage_02")
+    dp.add_argument("--step", type=int, default=3, help="calibrate: sample every Nth pixel")
+    dp.add_argument("--cells", default="", help="render: cells directory with manifest.json")
+    dp.add_argument("--sheet", default="", help="render: sheet name override")
+    dp.add_argument("--out", default="")
+    dp.add_argument("--game-media", default="")
+    dp.set_defaults(func=cmd_depthmap)
+
+    st = sub.add_parser("stack",
+                        help="compose extracted sprites in draw order, every facing side "
+                             "by side (layered objects: racks, shelves, their contents)")
+    st.add_argument("--layer", action="append", required=True, metavar="PNGDIR/SHEET[:OFFSET]",
+                    help="bottom-up; OFFSET is the object's render y offset in 1x px")
+    st.add_argument("--out", default="build/stack.png")
+    st.add_argument("--scale", type=int, default=3)
+    st.add_argument("--facings", type=int, default=4)
+    st.set_defaults(func=cmd_stack)
+
+    me = sub.add_parser("measure",
+                        help="mean colour/luminance of image patches, with optional "
+                             "PASS/FAIL bands (the compare step for art with no vanilla twin)")
+    me.add_argument("image")
+    me.add_argument("patch", nargs="+", metavar="NAME:x0,y0,x1,y1")
+    me.add_argument("--expect", action="append", metavar="A/B=min,max or NAME=min,max")
+    me.set_defaults(func=cmd_measure)
 
     d = sub.add_parser("ids", help="list tiledef ids already claimed by installed mods")
     d.add_argument("--limit", type=int, default=30)
