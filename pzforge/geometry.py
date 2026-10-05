@@ -132,7 +132,9 @@ def _reindent(block: str) -> str:
         line = raw.strip()
         if line.startswith("}"):
             depth -= 1
-        out.append("    " * depth + line)
+        # blank lines stay bare, as the writer leaves them: a merged block then reads
+        # byte for byte like the sheet's own file
+        out.append("    " * depth + line if line else "")
         if line.endswith("{"):
             depth += 1
         elif line == "{":

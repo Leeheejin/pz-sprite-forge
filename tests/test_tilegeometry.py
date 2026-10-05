@@ -61,6 +61,9 @@ def test_merge() -> None:
     check("other tileset untouched", "max = 6000x6000x7000," in blocks2["hb_barrel_racked_01"])
     check("keyword inside tileGeometry header is not a tileset", "tileGeometry" not in blocks2)
     check("merge into nothing", set(geom.split_tilesets(geom.merge(None, b))) == {"hb_barrel_racked_01"})
+    check("a sheet merged into nothing reads byte for byte as written", geom.merge(None, a) == a)
+    check("no trailing whitespace in a merged file",
+          not any(line != line.rstrip() for line in geom.merge(a, b).splitlines()))
 
 
 def test_manifest_pairing() -> None:
