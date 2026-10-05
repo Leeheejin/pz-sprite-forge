@@ -98,6 +98,23 @@ together), and build with `--preset wall --contour 0` (vanilla walls carry
 no outline; contour erodes the 6 px post). The wall preset assigns
 WallW/WallN/WallNW/WallSE properties cyclically by sprite index.
 
+### Growing crops (one sheet per crop)
+
+A crop's growth stages are independent single-tile sprites in one render, like a
+wall set: `props.isolate_tiles = True`, one stage per tile, and every part tagged
+`part["pz_tile"] = (stage, 0)` so a leaf leaning over the tile edge stays with its
+own plant (the bbox-centre guess handed it to the next stage as a floating dot).
+Build with `--health-variants` (unhealthy/dying/dead rows from the measured vanilla
+transform), `--plant-geometry` (vanilla crops are translucent billboards: no boxes,
+no depth map) and `--despeckle 2`. Bush-like habits take their vanilla twin's
+shading (`--shade-like`, one reference per stage); trees have no vanilla twin, so
+no graft -- measure them off the painted reference and build with
+`--canopy-ramp 0.16 --ground-shadow 1 --ground-shadow-shape ellipse`. A perennial's
+last column is its fruiting plant without the fruit (`ff_crop.AFTER_HARVEST`),
+shown after harvest by the getSpriteName wrapper `examples/ff_wire_mod.py` writes.
+`examples/ff_build.py` runs the whole path per crop; `measure` and `fruitcal`
+close the calibration loop against the painted sheets.
+
 ### Four facings
 
 `props.facings = "4"`. The rig rotates the subject (light stays fixed, so an
@@ -155,7 +172,10 @@ to one of those measurements.
   than that vanish; calibrate `texture_scale` by rendering and measuring,
   not by arithmetic.
 - The style pass must never change alpha. Silhouette softness is fixed at
-  render time (`filter_size`), nowhere else.
+  render time (`filter_size`), nowhere else. The one deliberate exception is
+  the opt-in `--despeckle N`, which deletes opaque islands of at most N px
+  after styling; keep N small (vanilla crops keep 3-7 single-pixel dots) and
+  fix bigger strays at the source (`pz_tile`, part orientation).
 - Fabric: bolden by daub DEPTH and paint-swing width (same hue), never by
   daub size (reads as plastic) or hue rotation across the map (reads as
   marble). Check the paint swing first -- an 8% swing hides any texture.

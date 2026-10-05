@@ -160,7 +160,7 @@ LEAF_PAINTS = (
 LEAF_PAINT = LEAF_PAINTS[0]
 #: The withered sprites replace the green with a dry straw; measured off Barley stage 7
 #: (#8a7a46-ish family) and used for every crop's rot frame.
-DEAD_PAINT = (0.105, 0.088, 0.036)
+DEAD_PAINT = (0.185, 0.200, 0.076)
 #: Stem tone is measured, not guessed. Splitting the reference's green pixels by run
 #: length gives thin runs (the skeleton) at v50 0.349 against the blades' 0.361 -- the
 #: stem is the SAME green as the leaves, a hair darker, not the separate olive we used.
@@ -182,34 +182,34 @@ def _f(v):
 #: saturated pixels; hue is the identity, value is pulled into the tile art's band.
 CROPS = {
     # --- fruit bushes -----------------------------------------------------
-    "apple":      dict(arch="bush", fruit=(0.62, 0.10, 0.05), fruit_r=0.080, leaf=1.00),
-    "pear":       dict(arch="bush", fruit=(0.44, 0.50, 0.12), fruit_r=0.080, leaf=1.00),
-    "peach":      dict(arch="bush", fruit=(0.60, 0.16, 0.07), fruit_r=0.075, leaf=0.95),
-    "cherry":     dict(arch="bush", fruit=(0.88, 0.06, 0.09), fruit_r=0.036, leaf=0.80,
-                       fruit_n=3, fruit_pairs=True, fruit_scale=0.85),
-    "orange":     dict(arch="bush", fruit=(0.78, 0.28, 0.06), fruit_r=0.080, leaf=0.90),
-    "lemon":      dict(arch="bush", fruit=(0.80, 0.66, 0.10), fruit_r=0.072, leaf=0.90),
-    "lime":       dict(arch="bush", fruit=(0.38, 0.58, 0.10), fruit_r=0.067, leaf=0.90),
-    "grapefruit": dict(arch="bush", fruit=(0.55, 0.13, 0.06), fruit_r=0.090, leaf=0.95),
-    "avocado":    dict(arch="bush", fruit=(0.16, 0.26, 0.07), fruit_r=0.080, leaf=1.10,
+    "apple":      dict(arch="tree", shape="apple", fruit=(0.88, 0.03, 0.03), fruit_r=0.080, leaf=1.00),
+    "pear":       dict(arch="tree", shape="pear", fruit=(0.95, 1.00, 0.11), fruit_r=0.078, leaf=1.00),
+    "peach":      dict(arch="tree", shape="peach", blush=(1.00, 0.29, 0.24), blush_z=-0.35, fruit=(1.00, 0.68, 0.28), fruit_r=0.075, leaf=0.95),
+    "cherry":     dict(arch="tree", shape="cherry", fruit=(0.898, 0.012, 0.022), fruit_r=0.036, leaf=0.80,
+                       fruit_n=3),
+    "orange":     dict(arch="tree", shape="citrus", fruit=(1.00, 0.38, 0.003), fruit_r=0.080, leaf=0.90),
+    "lemon":      dict(arch="tree", shape="lemon", fruit=(1.00, 0.69, 0.036), fruit_r=0.070, leaf=0.90),
+    "lime":       dict(arch="tree", shape="lime", fruit=(0.081, 0.41, 0.003), fruit_r=0.066, leaf=0.90),
+    "grapefruit": dict(arch="tree", shape="citrus", fruit=(1.00, 0.18, 0.010), fruit_r=0.090, leaf=0.95),
+    "avocado":    dict(arch="tree", shape="avocado", fruit=(0.045, 0.085, 0.030), fruit_r=0.078, leaf=1.10,
                        fruit_pear=True),
-    "mango":      dict(arch="bush", fruit=(0.52, 0.16, 0.05), fruit_r=0.084, leaf=1.15,
+    "mango":      dict(arch="tree", shape="mango", blush=(1.00, 0.135, 0.105), blush_z=0.25, fruit=(1.00, 0.60, 0.057), fruit_r=0.072, leaf=1.15,
                        fruit_pear=True),
     # Small-fruited crops need MORE and slightly larger berries, not true-to-life ones:
     # at 2x a 0.026-radius olive is under 5 px and disappears into the canopy, which is
     # what made olive/coffee indistinguishable from the stone fruits in the v4 sheet.
-    "olive":      dict(arch="bush", fruit=(0.30, 0.28, 0.05), fruit_r=0.041, leaf=0.70,
+    "olive":      dict(arch="tree", shape="olive", fruit=(0.258, 0.130, 0.195), fruit_r=0.040, leaf=0.70,
                        fruit_n=7),
-    "coffee":     dict(arch="bush", fruit=(0.52, 0.10, 0.12), fruit_r=0.043, leaf=1.05,
+    "coffee":     dict(arch="tree", shape="coffee", fruit=(1.00, 0.083, 0.077), fruit_r=0.040, leaf=1.05,
                        fruit_n=7),
-    "peanut":     dict(arch="bush", fruit=(0.34, 0.26, 0.10), fruit_r=0.038, leaf=0.85,
+    "peanut":     dict(arch="bush", shape="peanut", fruit=(0.62, 0.50, 0.24), fruit_r=0.050, leaf=0.85,
                        height_scale=0.55, fruit_n=5),
     # --- other habits -----------------------------------------------------
-    "banana":     dict(arch="broadleaf", fruit=(0.72, 0.52, 0.08), fruit_r=0.036),
-    "pineapple":  dict(arch="rosette", fruit=(0.62, 0.46, 0.06), fruit_r=0.102),
-    "grape":      dict(arch="trellis", fruit=(0.30, 0.10, 0.16), fruit_r=0.024),
-    "rice":       dict(arch="grain", fruit=(0.46, 0.40, 0.14), fruit_r=0.000),
-    "ginger":     dict(arch="clump", fruit=(0.44, 0.34, 0.22), fruit_r=0.000),
+    "banana":     dict(arch="broadleaf", shape="banana", fruit=(0.72, 0.52, 0.08), fruit_r=0.030),
+    "pineapple":  dict(arch="rosette", shape="pineapple", fruit=(0.62, 0.46, 0.06), fruit_r=0.062),
+    "grape":      dict(arch="trellis", shape="grape", fruit=(0.30, 0.10, 0.16), fruit_r=0.024),
+    "rice":       dict(arch="grain", shape="grain", fruit=(0.50, 0.42, 0.12), fruit_r=0.000),
+    "ginger":     dict(arch="clump", shape="rhizome", fruit=(0.50, 0.40, 0.22), fruit_r=0.040),
 }
 
 
@@ -390,6 +390,31 @@ def _stalk(name, mat, base, height, r0, r1=None, tilt=0.0, yaw=0.0, sides=5, lea
     return obj
 
 
+def _rib(name, mat, base, length, r0, r1, euler, sides=4):
+    """The midrib rod, built along +X -- the blade's axis -- so it takes the blade's own
+    (roll, pitch, yaw) and lies on the midrib whatever the roll. (A +Z rod turned with
+    ``pitch + 90`` only lines up at roll 0: at the broadside roll it swung off the blade
+    and its tip was the lone pixel floating above every rice culm.)"""
+    rings = 3
+    verts, faces = [], []
+    for j in range(rings + 1):
+        u = j / rings
+        rr = r0 + (r1 - r0) * u
+        for k in range(sides):
+            a = math.tau * k / sides
+            verts.append((length * u, rr * math.cos(a), rr * math.sin(a)))
+    for j in range(rings):
+        for k in range(sides):
+            a = j * sides + k
+            b = j * sides + (k + 1) % sides
+            faces.append((a, b, b + sides, a + sides))
+    faces.append(tuple(range(rings * sides, rings * sides + sides)))
+    obj = _mesh_object(name, verts, faces, mat)
+    obj.location = base
+    obj.rotation_euler = euler
+    return obj
+
+
 def _sweep(name, mat, pts, radii, sides=5):
     """A tube swept along a polyline, with a parallel-transport-free frame.
 
@@ -426,7 +451,26 @@ def _sweep(name, mat, pts, radii, sides=5):
             b = i * sides + (s + 1) % sides
             faces.append((a, b, b + sides, a + sides))
     faces.append(tuple(range((n - 1) * sides, n * sides)))
-    return _mesh_object(name, verts, faces, mat)
+    obj = _mesh_object(name, verts, faces, mat)
+    # UVs in world units -- u round the tube, v along it -- so a UV-projected map (bark)
+    # runs its grain along every limb, whatever way the limb leans
+    arc = [0.0]
+    for (x0, y0, z0), (x1, y1, z1) in zip(pts, pts[1:]):
+        arc.append(arc[-1] + math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2 + (z1 - z0) ** 2))
+    circ = math.tau * (sum(radii) / len(radii))
+    me = obj.data
+    uv = me.uv_layers.new(name="UVMap")
+    nquads = (n - 1) * sides
+    for fi, poly in enumerate(me.polygons):
+        loops = list(poly.loop_indices)
+        svals = [me.loops[li].vertex_index % sides for li in loops]
+        wrap = fi < nquads and (sides - 1) in svals and 0 in svals
+        for li, sv in zip(loops, svals):
+            vi = me.loops[li].vertex_index
+            ring = min(n - 1, vi // sides)
+            su = sides if (wrap and sv == 0) else sv
+            uv.data[li].uv = (su / sides * circ, arc[ring])
+    return obj
 
 
 def _cane_path(base, length, yaw, rise_deg, bend_deg, segs=8):
@@ -669,117 +713,329 @@ def _rise(stage, top_px):
 
 
 #: Measured node ladder of the reference plant, in world units (px / 78.4 vertical):
-#: first node 0.22 above the soil, internode 0.11; and the branch fan, from the lowest
-#: node up: angle at the base and at the tip (deg above horizontal). Half the fan
-#: droops -- the lower branches leave below horizontal -- and the whole spans 130 deg.
-NODE0, INTERNODE = 0.20, 0.098
+#: first leaf pair 0.22 above the soil, internode ~0.10 (7-8 px at 2x).
+NODE0, INTERNODE = 0.22, 0.100
 #: Which layer to build (set from the command line: ``-- apple --layer stems``). Each
 #: layer is rendered and read on its own before the next goes on.
 LAYER = "all"
 
-#: THE GROWTH DESIGN, per stage, decided before any geometry: (stems, height px above the
-#: bed, nodes, lean of the three stems in degrees, carries). Heights are the reference's
-#: measured rise; node counts are its node ladder (first node 16-18 px up, 7-10 px apart);
-#: leans are read off vegetation_farming_01b_70's thin runs -- the three plants do NOT stand
-#: parallel: one leans left, one is near upright, one leans right, and all bend at the top.
+#: THE GROWTH DESIGN, per stage, decided before any geometry. Read off
+#: vegetation_farming_01b_64..71 at 6x: a pepper plant is ONE main stem that forks once
+#: at mid-height into two (the middle plant: three) LEADERS, and every leaf sits on the
+#: stem itself on a 1-3 px petiole. Nothing arcs out sideways -- what spreads the plant
+#: is the fork, and the leaders straighten toward vertical as they climb, so each reads
+#: as one smooth outward-convex curve: not a rod, not a wander.
+#:   height   px above the bed silhouette (the reference's measured rise)
+#:   nodes    leaf nodes on the main stem below the fork (NODE0, then INTERNODE apart)
+#:   fork     where the main stem splits, as a fraction of the plant height (None: none)
+#:   spread   leader tilt from vertical at the fork and at the tip, degrees
+#:   carries  what the stage shows
 BUSH_GROWTH = (
-    dict(stems=0, height=0,  nodes=0, lean=(0, 0, 0),      carries="bare bed"),
-    dict(stems=3, height=6,  nodes=0, lean=(-4, 2, 5),     carries="two cotyledons on a hook"),
-    dict(stems=3, height=11, nodes=1, lean=(-6, 3, 7),     carries="first true leaves"),
-    dict(stems=3, height=27, nodes=2, lean=(-9, 4, 10),    carries="a fork, 4-5 leaves"),
-    dict(stems=3, height=64, nodes=7, lean=(-12, 5, 14),   carries="flowers"),
-    dict(stems=3, height=73, nodes=8, lean=(-14, 6, 16),   carries="flowers, small fruit"),
-    dict(stems=3, height=73, nodes=8, lean=(-16, 7, 18),   carries="ripe fruit"),
-    dict(stems=3, height=69, nodes=8, lean=(-22, 10, 24),  carries="withered, drooping"),
+    dict(height=0,  nodes=0, fork=None, spread=(0, 0),   carries="bare bed"),
+    dict(height=6,  nodes=0, fork=None, spread=(0, 0),   carries="a hook with two cotyledons"),
+    dict(height=11, nodes=1, fork=None, spread=(0, 0),   carries="cotyledons under the first true pair"),
+    dict(height=27, nodes=2, fork=None, spread=(0, 0),   carries="two leaf pairs under a spear tip"),
+    dict(height=64, nodes=2, fork=0.50, spread=(22, 7),  carries="forked; flowers at the top"),
+    dict(height=73, nodes=2, fork=0.46, spread=(22, 7),  carries="flowers and small fruit"),
+    dict(height=73, nodes=2, fork=0.46, spread=(22, 7),  carries="ripe fruit at the middle nodes"),
+    dict(height=69, nodes=2, fork=0.46, spread=(19, 15), carries="withered: leaders drooping, leaves hanging"),
 )
-FAN = ((16, -34), (22, -24), (30, -10), (38, 2), (46, 12), (54, 22), (60, 32), (66, 42), (70, 50))
+#: The three plants are not clones. Feet sit ON the ridge crowns (two on the front
+#: ridge, one on the back, where the reference's stand -- ours used to stand in the
+#: furrow, which is why the bed and the plants never read as one thing). Then: the fork
+#: height factor, the leader count, which leader is the tallest (-1 left, 0 middle,
+#: +1 right: each plant's tallest leader leans in toward the group's centre), and the
+#: main stem's settled lean in degrees.
+BUSH_PLANTS = (
+    dict(foot=(-0.24, -0.235), fork_k=1.00, leaders=2, tallest=+1, lean=-2.0),
+    dict(foot=(0.20, -0.235),  fork_k=0.82, leaders=3, tallest=0,  lean=1.0),
+    dict(foot=(0.19, 0.235),   fork_k=0.92, leaders=2, tallest=-1, lean=3.0),
+)
+#: Unit vectors of the picture plane: across the screen (right) and toward the viewer.
+_ACROSS = (0.707, 0.707, 0.0)
+_NEAR = (0.707, -0.707, 0.0)
 
 
-def _stem_path(base, height, lean_deg, node_zs, rng, kink_deg=11.0):
-    """A main stem drawn the way the reference draws one: it LEANS as a whole (the three
-    plants lean differently), it kinks a few degrees at every node -- a joint, not a
-    wave -- and it bows over at the top under its own crown. Returned as points at every
-    node plus midpoints so the branch bases sit exactly on the joints."""
+def _axis(base, length, tilt0_deg, tilt1_deg, bow=0.0, near=0.0, segs=None):
+    """A stem axis: a polyline climbing from ``base`` whose tilt from vertical (across
+    the screen, signed, + = screen-right) runs from ``tilt0`` to ``tilt1`` over its
+    length. ``bow`` adds one gentle half-wave across (the main stem's slight S, a
+    couple of px), ``near`` drifts it toward the viewer so two leaders never share a
+    depth. Points are ~0.03 apart so the sweep is smooth."""
+    segs = segs or max(6, int(length / 0.03))
     pts = [tuple(base)]
-    x, y, z = base
-    heading = math.radians(lean_deg)          # tilt of the stem in the screen plane
-    zs = sorted(set([nz for nz in node_zs if nz < height] + [height]))
-    prev = 0.0
-    for i, nz in enumerate(zs):
-        seg = nz - prev
-        # the kink alternates sides and grows toward the crown; the last segment bows
-        kink = math.radians(kink_deg) * (1 if i % 2 else -1) * (0.6 + 0.4 * nz / height)
-        heading += kink
-        if nz == height:
-            heading += math.radians(lean_deg) * 0.6
-        dx = math.sin(heading) * seg
-        x += dx * 0.707
-        y += dx * 0.707
-        z = nz
-        pts.append((x, y, z))
-        prev = nz
+    lat, z = 0.0, base[2]
+    step = length / segs
+    for i in range(segs):
+        t = math.radians(tilt0_deg + (tilt1_deg - tilt0_deg) * ((i + 0.5) / segs))
+        lat += math.sin(t) * step
+        z += math.cos(t) * step
+        u = (i + 1) / segs
+        s = lat + bow * length * math.sin(math.pi * u)
+        n = near * length * u
+        pts.append((base[0] + _ACROSS[0] * s + _NEAR[0] * n,
+                    base[1] + _ACROSS[1] * s + _NEAR[1] * n, z))
     return pts
 
 
-def _serpentine(base, height, r0, r1, rng, reversals=3, amp=0.075):
-    """Kept for the other habits; the bush uses _stem_path."""
-    pts = []
-    segs = 4 * reversals
-    ph = rng.uniform(0, math.tau)
-    for i in range(segs + 1):
-        u = i / segs
-        w = amp * height * math.sin(u * math.pi * reversals + ph) * (0.4 + 0.6 * u)
-        pts.append((base[0] + w * 0.707, base[1] - w * 0.707, base[2] + height * u))
-    return pts, [r0 + (r1 - r0) * i / segs for i in range(segs + 1)]
+def _arc_len(pts):
+    return sum(math.dist(a, b) for a, b in zip(pts, pts[1:]))
 
 
-def _branch(name, leaf_mats, stem_mat, base, length, yaw, rise_deg, bend_deg, leaf_size,
-            rng, dead=False, fork=True, depth=0, leaves=True):
-    """A cane with simple leaves on short bare petioles, forking once.
+def _along(pts, dist):
+    """Point on a polyline at arc length ``dist`` from its start (clamped to the tip)."""
+    acc = 0.0
+    for a, b in zip(pts, pts[1:]):
+        seg = math.dist(a, b)
+        if acc + seg >= dist:
+            u = 0.0 if seg == 0.0 else (dist - acc) / seg
+            return tuple(a[k] + (b[k] - a[k]) * u for k in range(3))
+        acc += seg
+    return tuple(pts[-1])
 
-    The reference builds its foliage this way: 3.3-5 forks per plant, ~200 px of bare
-    branch showing, and every blade a single lanceolate unit on a 3-5 px petiole, fanned
-    over the whole elevation range. Blades are spaced so each has dark on both sides.
-    """
+
+def _taper(pts, r0, r1):
+    n = max(1, len(pts) - 1)
+    return [r0 + (r1 - r0) * i / n for i in range(len(pts))]
+
+
+def _node_leaf(name, leaf_mats, stem_mat, at, side, rise_deg, size, rng, dead=False,
+               mat_i=0, yaw_jitter=0.42):
+    """One leaf at a node, the way the reference attaches every leaf: a 1-3 px petiole
+    leaving the stem toward ``side`` (+1 screen-right), and a blade rising ``rise_deg``
+    above horizontal, drawn broadside -- one in six turned near edge-on so the canopy is
+    not a wall of billboards. The midrib is a thin rod in the stem paint."""
     parts = []
-    pts = _cane_path(base, length, yaw, rise_deg, bend_deg, segs=6)
-    r0 = 0.0060 * (0.85 ** depth)
-    parts.append(_sweep(name, stem_mat, pts, [r0 * (1.0 - 0.5 * i / 6) for i in range(7)], sides=5))
-    n_leaf = (2 if length > 0.22 else 1) if leaves else 0
-    for j in range(n_leaf):
-        tt = 0.42 + 0.58 * j / max(1, n_leaf - 1)
-        idx = min(6, max(1, int(round(tt * 6))))
-        px_, py_, pz_ = pts[idx]
-        side = -1 if j % 2 else 1
-        lyaw = yaw + side * math.radians(rng.uniform(34.0, 62.0))
-        pet = rng.uniform(0.035, 0.055)                    # the 3-5 px bare petiole
-        lx, ly = px_ + math.cos(lyaw) * pet, py_ + math.sin(lyaw) * pet
-        pitch = math.radians(rng.uniform(-64.0, 65.0)) if not dead else math.radians(rng.uniform(20.0, 50.0))
-        parts.append(_stalk(f"{name}_pet{j}", stem_mat, (px_, py_, pz_), pet, 0.0032, 0.0026,
-                            yaw=lyaw, lean=0.0))
-        parts.extend(_leaf(f"{name}_lf{j}", leaf_mats[(j + depth) % len(leaf_mats)],
-                           (lx, ly, pz_ + pet * 0.25), leaf_size * rng.uniform(0.80, 1.15), lyaw,
-                           pitch, curl=rng.uniform(0.10, 0.42),
-                           midrib=rng.uniform(0.45, 0.90),
-                           width_ratio=rng.uniform(0.17, 0.27), droop=(0.22 if dead else 0.0),
-                           roll=_broadside_roll(lyaw, rng.uniform(-28.0, 14.0))))
-    tx, ty, tz = pts[-1]
-    if leaves:
-      parts.extend(_leaf(f"{name}_tip", leaf_mats[0], (tx, ty, tz), leaf_size * 0.9, yaw,
-                       math.radians(-24.0 if not dead else 40.0), curl=0.22, width_ratio=0.27,
-                       droop=(0.22 if dead else 0.0), roll=_broadside_roll(yaw, -8.0)))
-    if fork and depth == 0 and length > 0.20:
-        fi = 3
-        fx, fy, fz = pts[fi]
-        parts.extend(_branch(f"{name}_f", leaf_mats, stem_mat, (fx, fy, fz), length * 0.62,
-                             yaw + math.radians(rng.choice((-1, 1)) * rng.uniform(28.0, 46.0)),
-                             rise_deg + 22, bend_deg + 10, leaf_size * 0.9, rng, dead=dead,
-                             fork=False, depth=1, leaves=leaves))
+    yaw = SCREEN_YAW + (0.0 if side > 0 else math.pi) + rng.uniform(-yaw_jitter, yaw_jitter)
+    pet = rng.uniform(0.018, 0.034)
+    tip = (at[0] + math.cos(yaw) * pet, at[1] + math.sin(yaw) * pet, at[2] + pet * 0.35)
+    parts.append(_sweep(f"{name}_pet", stem_mat, [tuple(at), tip], [0.0036, 0.0028], sides=4))
+    pitch = math.radians(rng.uniform(25.0, 45.0)) if dead else -math.radians(rise_deg)
+    edge_on = rng.random() < 0.20
+    roll = _broadside_roll(yaw, rng.uniform(-24.0, 12.0) + (58.0 if edge_on else 0.0))
+    parts.extend(_leaf(f"{name}_lf", leaf_mats[mat_i % len(leaf_mats)], tip, size, yaw, pitch,
+                       curl=rng.uniform(0.04, 0.12), midrib=rng.uniform(0.25, 0.45),
+                       width_ratio=rng.uniform(0.17, 0.27), droop=0.0, roll=roll))
+    if not edge_on:
+        parts.append(_rib(f"{name}_rib", stem_mat, tip, size * 0.82, 0.0038, 0.0020, (roll, pitch, yaw)))
     return parts
 
 
+def _spear(name, leaf_mats, stem_mat, tip, size, rng, dead=False):
+    """The apex of every leader: a pair of small blades pointing up and apart -- the
+    little spear the reference tops each stem with."""
+    parts = []
+    for k, side in enumerate((-1, 1)):
+        parts.extend(_node_leaf(f"{name}_{k}", leaf_mats, stem_mat, tip, side,
+                                rng.uniform(56.0, 68.0), size, rng, dead=dead, mat_i=k + 1,
+                                yaw_jitter=0.18))
+    return parts
+
+
+#: THE FRUIT DESIGN. A fruit is not a ball: each crop's produce has a silhouette that
+#: has to read at 12 px, and ``profile`` IS that silhouette -- (z, radius) pairs in units
+#: of r, bottom to top, spun into a surface of revolution. The other terms: ``height`` /
+#: ``width`` scale the axis and the girth, ``crease`` sinks a suture groove down the face
+#: toward the viewer (peach), ``shear`` bows the axis across the screen (a mango's
+#: kidney), ``cap`` puts the green calyx button on top at that fraction of r (``cap_z`` is
+#: where, in profile units), ``stalk`` is how far below its node the fruit hangs,
+#: ``style`` how the crop carries it (hang / pair / cluster / pod), ``gloss`` the
+#: highlight the skin takes (a waxy apple, a matte peach). Every crop reads as its own
+#: fruit from these alone; the colour is the crop's paint from CROPS.
+_SPHERE = ((-1.0, 0.0), (-0.85, 0.55), (-0.5, 0.87), (0.0, 1.0), (0.5, 0.87), (0.85, 0.55), (1.0, 0.0))
+FRUIT_SHAPES = {
+    "sphere":  dict(profile=_SPHERE, stalk=0.012, gloss=(0.12, 0.55)),
+    # oblate, dimpled at both ends, the stalk sunk in a well
+    "apple":   dict(profile=((-0.72, 0.0), (-0.88, 0.38), (-0.72, 0.74), (-0.32, 0.97), (0.10, 1.0),
+                             (0.50, 0.90), (0.78, 0.62), (0.90, 0.32), (0.70, 0.0)),
+                    height=0.95, stalk=0.012, cap=0.26, cap_z=0.80, gloss=(0.14, 0.50)),
+    # pyriform: full below, narrowing into a long neck
+    "pear":    dict(profile=((-1.0, 0.0), (-0.90, 0.50), (-0.60, 0.92), (-0.20, 1.0), (0.15, 0.88),
+                             (0.40, 0.62), (0.60, 0.50), (0.85, 0.50), (1.05, 0.42), (1.22, 0.26),
+                             (1.30, 0.0)),
+                    height=1.30, width=0.92, stalk=0.016, gloss=(0.10, 0.55)),
+    # round with the suture crease and a slight point below; fuzzy skin
+    "peach":   dict(profile=((-1.06, 0.0), (-0.92, 0.48), (-0.55, 0.88), (0.0, 1.0), (0.50, 0.90),
+                             (0.84, 0.58), (0.98, 0.24), (0.86, 0.0)),
+                    crease=0.30, stalk=0.010, cap=0.22, cap_z=0.86, gloss=(0.03, 0.75)),
+    # small, dimpled on top, two on long stalks from one node
+    "cherry":  dict(profile=((-1.0, 0.0), (-0.86, 0.55), (-0.45, 0.90), (0.0, 1.0), (0.50, 0.90),
+                             (0.82, 0.60), (0.92, 0.30), (0.76, 0.0)),
+                    style="pair", stalk=0.062, gloss=(0.18, 0.42)),
+    # slightly oblate, a tiny button on top
+    "citrus":  dict(profile=_SPHERE, height=0.92, stalk=0.010, cap=0.16, cap_z=0.92, gloss=(0.10, 0.60)),
+    # the pointed ellipsoid with a nipple at each end
+    "lemon":   dict(profile=((-1.28, 0.0), (-1.08, 0.20), (-0.86, 0.56), (-0.45, 0.92), (0.0, 1.0),
+                             (0.45, 0.92), (0.86, 0.56), (1.08, 0.20), (1.28, 0.0)),
+                    width=0.82, stalk=0.012, gloss=(0.10, 0.60)),
+    "lime":    dict(profile=((-1.12, 0.0), (-0.96, 0.32), (-0.60, 0.82), (0.0, 1.0), (0.60, 0.82),
+                             (0.96, 0.32), (1.12, 0.0)),
+                    width=0.90, stalk=0.012, gloss=(0.10, 0.60)),
+    # the egg drawn out into a neck, on a long stalk
+    "avocado": dict(profile=((-1.0, 0.0), (-0.88, 0.55), (-0.50, 0.92), (-0.05, 1.0), (0.30, 0.92),
+                             (0.60, 0.80), (0.90, 0.68), (1.20, 0.52), (1.45, 0.32), (1.60, 0.14),
+                             (1.66, 0.0)),
+                    height=1.10, width=0.92, stalk=0.040, gloss=(0.04, 0.70)),
+    # an oval bowed into a kidney, hanging tilted on a long stalk
+    "mango":   dict(profile=((-1.0, 0.0), (-0.80, 0.56), (-0.40, 0.90), (0.0, 1.0), (0.40, 0.96),
+                             (0.80, 0.74), (1.06, 0.46), (1.22, 0.0)),
+                    height=1.22, shear=0.42, tilt=22.0, stalk=0.050, gloss=(0.08, 0.60)),
+    # small prolate ellipsoids, a few to a node
+    "olive":   dict(profile=((-1.0, 0.0), (-0.86, 0.50), (-0.40, 0.90), (0.0, 1.0), (0.40, 0.90),
+                             (0.86, 0.50), (1.0, 0.0)),
+                    height=1.45, width=0.88, style="cluster", per=3, stalk=0.014, gloss=(0.06, 0.60)),
+    # coffee cherries: a ring of berries hugging the stem at the node
+    "coffee":  dict(profile=_SPHERE, style="cluster", per=5, stalk=0.0, gloss=(0.14, 0.50)),
+    # the two-lobed pod, lying at the foot of the plant
+    "peanut":  dict(profile=((-1.35, 0.0), (-1.20, 0.46), (-0.95, 0.76), (-0.55, 0.82), (-0.15, 0.56),
+                             (0.20, 0.62), (0.60, 0.86), (0.95, 0.76), (1.20, 0.42), (1.35, 0.0)),
+                    width=0.85, style="pod", gloss=(0.02, 0.80)),
+    # the barrel with eight ribs; the crown is built separately
+    "pineapple": dict(profile=((-1.0, 0.0), (-0.92, 0.66), (-0.55, 0.94), (0.0, 1.0), (0.55, 0.94),
+                               (0.92, 0.72), (1.0, 0.0)),
+                      height=1.40, lobes=8, lobe_amp=0.07, gloss=(0.06, 0.60)),
+    "grain":     dict(profile=_SPHERE, gloss=(0.10, 0.6)),
+    "banana":    dict(profile=_SPHERE, gloss=(0.10, 0.6)),
+    "grape":     dict(profile=_SPHERE, gloss=(0.16, 0.45)),
+    # the banana bract: a pointed bud, hung point-down
+    "bud":       dict(profile=((-1.0, 0.0), (-0.8, 0.55), (-0.3, 0.9), (0.2, 0.86), (0.7, 0.55), (1.1, 0.25), (1.3, 0.0)),
+                      height=1.1, gloss=(0.05, 0.6)),
+    # a ginger hand: knobbly, lying at the foot
+    "rhizome":   dict(profile=((-1.3, 0.0), (-1.1, 0.5), (-0.8, 0.7), (-0.4, 0.55), (0.0, 0.75), (0.4, 0.6),
+                               (0.8, 0.8), (1.1, 0.5), (1.3, 0.0)),
+                      width=0.8, gloss=(0.03, 0.8)),
+}
+#: the meridian that faces the camera, where a crease is cut
+_CREASE_AT = math.atan2(_NEAR[1], _NEAR[0])
+
+
+def _cut_profile(prof, zc, keep):
+    """The part of a profile below (keep="below") or above (keep="above") height zc, the
+    cut ring interpolated in -- two halves that meet on one ring make a two-tone fruit."""
+    out = []
+    for (z0, r0), (z1, r1) in zip(prof, prof[1:]):
+        inside0 = z0 <= zc if keep == "below" else z0 >= zc
+        if inside0:
+            out.append((z0, r0))
+        if (z0 - zc) * (z1 - zc) < 0:
+            u = (zc - z0) / (z1 - z0)
+            out.append((zc, r0 + (r1 - r0) * u))
+    zl, rl = prof[-1]
+    if (zl <= zc if keep == "below" else zl >= zc):
+        out.append((zl, rl))
+    return tuple(out)
+
+
+def _lathe(name, mat, loc, r, shape, k=1.0, yaw=0.0, tilt=0.0, sides=14, cut=None):
+    """A fruit body spun from its profile (see FRUIT_SHAPES). Poles are single vertices
+    fanned to their ring so no face is degenerate; winding is outward throughout.
+    ``cut=(zc, "below"|"above")`` spins only that part of the profile."""
+    prof = shape["profile"] if cut is None else _cut_profile(shape["profile"], *cut)
+    hk = shape.get("height", 1.0) * r * k
+    wk = shape.get("width", 1.0) * r * k
+    crease = shape.get("crease", 0.0)
+    shear = shape.get("shear", 0.0)
+    verts, faces, rings = [], [], []
+    for z, rad in prof:
+        zz = z * hk
+        sx = shear * z * z * r * k
+        if rad <= 1e-6:
+            rings.append((len(verts), 1))
+            verts.append((_ACROSS[0] * sx, _ACROSS[1] * sx, zz))
+            continue
+        start = len(verts)
+        for s in range(sides):
+            a = math.tau * s / sides
+            g = 1.0
+            if crease:
+                da = (a - _CREASE_AT + math.pi) % math.tau - math.pi
+                g = 1.0 - crease * math.exp(-(da / 0.30) ** 2)
+            rr = rad * wk * g * (1.0 + shape.get("lobe_amp", 0.0) * math.cos(shape.get("lobes", 0) * a))
+            verts.append((math.cos(a) * rr + _ACROSS[0] * sx, math.sin(a) * rr + _ACROSS[1] * sx, zz))
+        rings.append((start, sides))
+    for (a0, n0), (a1, n1) in zip(rings, rings[1:]):
+        if n0 == 1 and n1 == 1:
+            continue
+        if n0 == 1:
+            for s in range(n1):
+                faces.append((a0, a1 + (s + 1) % n1, a1 + s))
+        elif n1 == 1:
+            for s in range(n0):
+                faces.append((a0 + s, a0 + (s + 1) % n0, a1))
+        else:
+            for s in range(n0):
+                faces.append((a0 + s, a0 + (s + 1) % n0, a1 + (s + 1) % n0, a1 + s))
+    obj = _mesh_object(name, verts, faces, mat)
+    obj.location = loc
+    obj.rotation_euler = (tilt, 0.0, yaw)
+    return obj
+
+
+#: where a fruit's highlight sits: upper left on the sprite and toward the eye
+_GLEAM_DIR = tuple(v / (sum(w * w for w in (-0.45 * 0.707 - 0.354 * 0.55 + 0.612 * 0.70,
+                                             -0.45 * 0.707 + 0.354 * 0.55 - 0.612 * 0.70,
+                                             0.866 * 0.55 + 0.5 * 0.70)) ** 0.5)
+                   for v in (-0.45 * 0.707 - 0.354 * 0.55 + 0.612 * 0.70,
+                             -0.45 * 0.707 + 0.354 * 0.55 - 0.612 * 0.70,
+                             0.866 * 0.55 + 0.5 * 0.70))
+
+
+def _fruit(name, mats, loc, r, shape_name, rng, alt=False, k=1.0, lying=False, blush=None, gleam=False):
+    """One fruit of the crop's shape at ``loc`` (its centre), with the drawn rim behind
+    it (the fruit's own dark, pushed back along the view axis so it shows as a 1 px
+    outline) and the calyx button where the shape has one. ``blush=(material, zc)``
+    paints the fruit above profile height zc in a second colour (mango, peach)."""
+    shape = FRUIT_SHAPES[shape_name]
+    if lying:
+        yaw, tilt = rng.uniform(0.0, math.tau), math.radians(72.0 + rng.uniform(-10.0, 10.0))
+    else:
+        yaw = rng.uniform(-0.25, 0.25) + (0.0 if shape.get("crease") else rng.uniform(-1.2, 1.2))
+        tilt = math.radians(shape.get("tilt", 0.0) + rng.uniform(-6.0, 6.0))
+    parts = [_lathe(name + "_edge", mats["fruit_edge"],
+                    (loc[0] + _AWAY[0] * r * 0.30, loc[1] + _AWAY[1] * r * 0.30, loc[2] + _AWAY[2] * r * 0.30),
+                    r, shape, k=1.16 * k, yaw=yaw, tilt=tilt),
+             ]
+    body = mats["fruit_alt" if alt else "fruit"]
+    if blush is None or lying:
+        parts.append(_lathe(name, body, loc, r, shape, k=k, yaw=yaw, tilt=tilt))
+    else:
+        bmat, zc = blush
+        parts.append(_lathe(name, body, loc, r, shape, k=k, yaw=yaw, tilt=tilt, cut=(zc, "below")))
+        parts.append(_lathe(name + "_blush", bmat, loc, r, shape, k=k, yaw=yaw, tilt=tilt, cut=(zc, "above")))
+    if gleam and "gleam" in mats:
+        # the painted fruit's highlight: a 1-2 px pale dot on the upper-left front. A
+        # glossy lobe cannot draw it on a saturated paint (it tints red, or washes the
+        # whole fruit when added as white), so it is a small pale chip sitting on the skin
+        g = r * k * 0.92
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=8, ring_count=5, radius=1.0,
+                                             location=(loc[0] + _GLEAM_DIR[0] * g, loc[1] + _GLEAM_DIR[1] * g,
+                                                       loc[2] + _GLEAM_DIR[2] * g))
+        chip = bpy.context.active_object
+        chip.name = name + "_gleam"
+        chip.scale = (r * k * 0.30, r * k * 0.30, r * k * 0.24)
+        chip.data.materials.append(mats["gleam"])
+        bpy.ops.object.shade_smooth()
+        parts.append(chip)
+    if shape.get("cap") and not lying:
+        cz = loc[2] + shape.get("cap_z", 1.0) * shape.get("height", 1.0) * r * k
+        cap = _berry(name + "_cap", mats["calyx"], (loc[0], loc[1], cz), r * shape["cap"] * k, dimple=0.0)[0]
+        cap.scale = (1.0, 1.0, 0.55)
+        parts.append(cap)
+    return parts
+
+
+def _fruit_top(shape_name, r, k=1.0):
+    """How far a fruit's top rises above its centre (to hang it below a node)."""
+    shape = FRUIT_SHAPES[shape_name]
+    return max(z for z, _ in shape["profile"]) * shape.get("height", 1.0) * r * k
+
+
 def bush(stage, spec, mats, rng):
-    """The BellPepper habit, built in layers: design -> stems -> leaves -> fruit."""
+    """The BellPepper habit, built in layers: design -> stems -> leaves -> fruit.
+
+    Every part hangs off ONE skeleton: the main stem, its fork, and the leaders. Read
+    BUSH_GROWTH / BUSH_PLANTS for the design; this function only lays it down.
+    """
     parts = []
     rise = BUSH_PLANT_PX[stage]
     h = (((rise + BASE_DROP_PX) if rise > 0.0 else 0.0) / PX_PER_Z
@@ -793,29 +1049,23 @@ def bush(stage, spec, mats, rng):
     leaf_mats = [mats["dead"]] if dead else mats["leaves"]
     want_leaves = LAYER in ("leaves", "all")
     want_fruit = LAYER == "all"
-    for p, (px, py) in enumerate(((-0.19, -0.13), (0.04, -0.02), (0.17, 0.14))):
-        ph = h * (0.92 + 0.14 * rng.random())
+    for p, plant in enumerate(BUSH_PLANTS):
+        px, py = plant["foot"]
+        ph = h * (0.94 + 0.10 * rng.random())
         maturity = min(1.0, ph / 0.86)
-        # --- the node ladder, from the design ---------------------------------------
-        n_nodes = design["nodes"]
-        if n_nodes == 0:
-            node_zs = []
+        leaf_size = 0.165 * leaf_k * (0.84 + 0.16 * maturity)
+        base = (px, py, 0.015)
+        r0 = 0.0122 * min(1.0, 0.55 + ph * 0.6)
+        # --- LAYER 2a: the main stem, to the fork (or the tip) --------------------------
+        fork = design["fork"]
+        zf = ph * fork * plant["fork_k"] if fork else ph
+        if stage == 1:
+            # the seedling hook: leaves the soil upright and curls over at the tip
+            main = _axis(base, zf, plant["lean"], plant["lean"] + 48.0, bow=0.0)
         else:
-            step_z = min(INTERNODE, max(0.045, (ph - 0.06) / max(1, n_nodes)))
-            n0 = min(NODE0 * 0.75, ph * 0.38)
-            node_zs = [n0 + i * step_z for i in range(n_nodes) if n0 + i * step_z < ph - 0.02]
-        # --- LAYER 2: the stem ---------------------------------------------------------
-        node_zs = [nz for nz in node_zs if rng.random() > 0.12 or nz == node_zs[0]]
-        pts = _stem_path((px, py, 0.015), ph, design["lean"][p], node_zs, rng)
-        r0 = 0.0125 * min(1.0, 0.55 + ph * 0.6)
-        radii = [r0 * (1.0 - 0.62 * i / max(1, len(pts) - 1)) for i in range(len(pts))]
-        parts.append(_sweep(f"stem_{p}", stem_mat, pts, radii, sides=6))
-        # a joint bead at every node: the reference's stems thicken and darken a pixel
-        # at each junction
-        for i, nz in enumerate(node_zs):
-            jx, jy = _at_height(pts, nz)
-            parts.extend(_berry(f"joint_{p}_{i}", mats["calyx"], (jx, jy, nz), r0 * 0.9,
-                                dimple=0.0))
+            main = _axis(base, zf, plant["lean"] - 1.5, plant["lean"] + 1.5, bow=0.035,
+                         near=0.0)
+        parts.append(_sweep(f"stem_{p}", stem_mat, main, _taper(main, r0, r0 * (0.72 if fork else 0.45)), sides=6))
         for c in range(3):
             aa = c * math.tau / 3.0 + 0.5
             bpy.ops.mesh.primitive_uv_sphere_add(segments=6, ring_count=4, radius=0.5,
@@ -828,55 +1078,172 @@ def bush(stage, spec, mats, rng):
             collar.data.materials.append(mats["soil"])
             bpy.ops.object.shade_flat()
             parts.append(collar)
-        # --- branches from the joints: long, arcing, forking ----------------------------
-        joints = []
-        leaf_size = 0.152 * leaf_k * (0.84 + 0.16 * maturity)
-        for i, nz in enumerate(node_zs):
-            sx, sy = _at_height(pts, nz)
-            rise_deg, bend_deg = FAN[min(i, len(FAN) - 1)]
-            yaw = SCREEN_YAW + rng.uniform(-0.55, 0.55) + (math.pi if (i + p) % 2 else 0.0)
-            u = nz / ph
-            blen = (0.14 + 0.20 * (1.0 - u)) * leaf_k * (0.55 + 0.45 * maturity) * rng.uniform(0.75, 1.25)
-            parts.extend(_branch(f"br_{p}_{i}", leaf_mats, stem_mat, (sx, sy, nz), blen, yaw,
-                                 rise_deg, bend_deg, leaf_size, rng, dead=dead,
-                                 fork=(u < 0.6), leaves=want_leaves))
-            joints.append((sx, sy, nz, yaw, blen))
-        if not node_zs and want_leaves:
-            # seedling: a hook of stem with two cotyledons
-            for s in (-1.0, 1.0):
-                cyaw = SCREEN_YAW + s * 1.25
-                parts.extend(_leaf(f"cot_{p}_{int(s > 0)}", leaf_mats[0],
-                                   (px + math.cos(cyaw) * 0.02, py + math.sin(cyaw) * 0.02, ph * 0.92),
-                                   leaf_size * 0.9, cyaw, math.radians(-30.0), curl=0.25,
-                                   width_ratio=0.34, roll=_broadside_roll(cyaw)))
-        if not want_fruit:
+        # --- LAYER 2b: the leaders, from the fork --------------------------------------
+        leaders = []                       # (pts, side, is_tallest)
+        if fork:
+            top = main[-1]
+            parts.extend(_berry(f"fork_{p}", mats["calyx"], top, r0 * 0.95, dimple=0.0))
+            t0, t1 = design["spread"]
+            sides = (-1, 1) if plant["leaders"] == 2 else (-1, 0, 1)
+            run = ph - zf
+            for k, side in enumerate(sides):
+                tallest = side == plant["tallest"]
+                if side == 0:
+                    a0, a1, near = 5.0, 1.0, 0.05
+                else:
+                    a0 = side * (t0 + rng.uniform(-3.0, 3.0))
+                    a1 = side * (t1 + rng.uniform(-2.0, 2.0))
+                    near = -0.025 * side
+                mean = math.radians(abs(a0 + a1) * 0.5)
+                length = run / max(0.3, math.cos(mean)) * (1.0 if tallest else rng.uniform(0.80, 0.90))
+                pts = _axis(top, length, a0, a1, bow=0.0, near=near)
+                parts.append(_sweep(f"leader_{p}_{k}", stem_mat, pts,
+                                    _taper(pts, r0 * 0.72, r0 * 0.36), sides=5))
+                leaders.append((pts, side, tallest))
+        # --- LAYER 3: leaves, at the nodes of the skeleton -----------------------------
+        nodes = []                         # (point, side, rise, size, on_leader, z-frac)
+        n_main = design["nodes"]
+        main_len = _arc_len(main)
+        for i in range(n_main):
+            d = NODE0 + i * INTERNODE
+            if d > main_len - 0.03:
+                break
+            at = _along(main, d)
+            if i == 0 or not fork:
+                # the low pair: near horizontal, the lowest one drooping a little
+                for side in (-1, 1):
+                    nodes.append((at, side, rng.uniform(-10.0, 12.0) + 10.0 * i,
+                                  leaf_size * rng.uniform(0.95, 1.20), False, d / ph))
+            else:
+                nodes.append((at, -plant["tallest"] or 1, rng.uniform(8.0, 22.0),
+                              leaf_size * rng.uniform(0.95, 1.15), False, d / ph))
+        for pts, side, tallest in leaders:
+            L = _arc_len(pts)
+            d, j = 0.07, 0
+            while d < L - 0.04:
+                at = _along(pts, d)
+                # strict alternation, the outward side first; the internode shortens
+                # toward the apex, where the reference crowds its smaller leaves
+                s = (side or 1) * (1 if j % 2 == 0 else -1)
+                frac = d / L
+                rise = 10.0 + 42.0 * frac + rng.uniform(-12.0, 12.0)
+                size = leaf_size * rng.uniform(0.78, 1.22) * (1.0 - 0.25 * frac)
+                nodes.append((at, s, rise, size, True, at[2] / ph))
+                d += INTERNODE * (1.0 - 0.32 * frac)
+                j += 1
+        if want_leaves:
+            for k, (at, side, rise, size, on_leader, zfrac) in enumerate(nodes):
+                if dead and k % 2 == 1:
+                    continue               # the withered reference has shed half its leaves
+                parts.extend(_node_leaf(f"leaf_{p}_{k}", leaf_mats, stem_mat, at, side, rise,
+                                        size * (0.85 if dead else 1.0), rng, dead=dead, mat_i=k))
+            if stage == 1:
+                for s in (-1.0, 1.0):
+                    cyaw = SCREEN_YAW + s * 1.25
+                    tip = main[-1]
+                    parts.extend(_leaf(f"cot_{p}_{int(s > 0)}", leaf_mats[0],
+                                       (tip[0] + math.cos(cyaw) * 0.012, tip[1] + math.sin(cyaw) * 0.012, tip[2]),
+                                       leaf_size * 0.55, cyaw, math.radians(-25.0), curl=0.25,
+                                       width_ratio=0.34, roll=_broadside_roll(cyaw)))
+            elif stage == 2:
+                for s in (-1.0, 1.0):
+                    cyaw = SCREEN_YAW + s * 1.25
+                    at = _along(main, main_len * 0.45)
+                    parts.extend(_leaf(f"cot_{p}_{int(s > 0)}", leaf_mats[1],
+                                       (at[0] + math.cos(cyaw) * 0.012, at[1] + math.sin(cyaw) * 0.012, at[2]),
+                                       leaf_size * 0.50, cyaw, math.radians(-10.0), curl=0.25,
+                                       width_ratio=0.34, roll=_broadside_roll(cyaw)))
+            spear_k = 0.62 if fork else 0.72
+            if leaders:
+                for pts, side, tallest in leaders:
+                    parts.extend(_spear(f"spear_{p}_{side}", leaf_mats, stem_mat, pts[-1],
+                                        leaf_size * spear_k, rng, dead=dead))
+            elif stage >= 2:
+                parts.extend(_spear(f"spear_{p}", leaf_mats, stem_mat, main[-1],
+                                    leaf_size * spear_k, rng, dead=dead))
+        if not want_fruit or dead:
             continue
-        # --- LAYER 4: flowers and fruit at the joints ------------------------------------
+        # --- LAYER 4: flowers and fruit, hung from the nodes ---------------------------
         fl = FLOWER_BY_STAGE[stage]
-        if fl > 0.02 and joints:
-            for k2 in range(int(round(6 * fl))):
-                jx, jy, jz, jyaw, jc = joints[(k2 * 3 + 1) % len(joints)]
-                parts.extend(_berry(f"flower_{p}_{k2}", mats["flower"],
-                                    (jx + math.cos(jyaw) * jc * 0.40, jy + math.sin(jyaw) * jc * 0.40,
-                                     jz + jc * 0.20), 0.024, dimple=0.0))
+        if fl > 0.02 and leaders:
+            for pts, side, tallest in leaders:
+                for q in range(2 if fl > 0.8 else 1):
+                    d = _arc_len(pts) - 0.05 - q * INTERNODE * 0.9
+                    at = _along(pts, d)
+                    s = (side or 1) * (1 if q % 2 else -1)
+                    parts.extend(_berry(f"flower_{p}_{side}_{q}", mats["flower"],
+                                        (at[0] + _ACROSS[0] * s * 0.035 + _NEAR[0] * 0.02,
+                                         at[1] + _ACROSS[1] * s * 0.035 + _NEAR[1] * 0.02,
+                                         at[2] + 0.012), 0.022, dimple=0.0))
         fr = FRUIT_BY_STAGE[stage]
-        if fr > 0.02 and joints:
-            want = min(len(joints), max(1, int(round(spec.get("fruit_n", 3) * (0.45 + 0.55 * fr)))))
-            step = max(1, len(joints) // want)
-            r = 0.055 * spec.get("fruit_scale", 1.0) * (0.70 + 0.30 * fr)
-            for k2 in range(want):
-                jx, jy, jz, jyaw, jc = joints[min(len(joints) - 1, k2 * step)]
-                out = jc * rng.uniform(0.30, 0.60)
-                hx = jx + math.cos(jyaw) * out + _AWAY[0] * 0.03
-                hy = jy + math.sin(jyaw) * out + _AWAY[1] * 0.03
-                hz = jz - r * 0.6
-                parts.append(_stalk(f"pedicel_{p}_{k2}", mats["calyx"], (hx, hy, hz + r * 0.5),
-                                    r * 0.7, 0.0040, 0.0030))
-                parts.extend(_berry(f"fruit_{p}_{k2}", mats["fruit"], (hx, hy, hz), r,
-                                    pear=spec.get("fruit_pear", False),
-                                    lobes=spec.get("fruit_lobes", 0),
-                                    lobe_amp=spec.get("fruit_lobe_amp", 0.10),
-                                    dimple=0.0, outline_mat=mats["edge"]))
+        if fr > 0.02:
+            shape_name = spec.get("shape", "sphere")
+            shape = FRUIT_SHAPES[shape_name]
+            style = shape.get("style", "hang")
+            r = spec.get("fruit_r", 0.078) * 0.85 * spec.get("fruit_scale", 1.0) * (0.45 + 0.55 * fr)
+            if style == "pod":
+                # peanut: the pods set at the foot of each stem, lying on the ridge
+                for q in range(4):
+                    aa = _CREASE_AT + (q - 1.5) * 0.9 + rng.uniform(-0.25, 0.25)
+                    rad = 0.045 + 0.02 * (q % 2)
+                    parts.extend(_fruit(f"pod_{p}_{q}", mats,
+                                        (px + math.cos(aa) * rad + _NEAR[0] * 0.03,
+                                         py + math.sin(aa) * rad + _NEAR[1] * 0.03, 0.034 + r * 0.6),
+                                        r, shape_name, rng, alt=q % 2 == 1, lying=True))
+                continue
+            cands = [(at, side, zfrac) for (at, side, rise, size, on_leader, zfrac) in nodes
+                     if 0.28 <= zfrac <= 0.82]
+            cands.sort(key=lambda c: c[2])
+            want = min(len(cands), max(1, int(round(spec.get("fruit_n", 3) * (0.45 + 0.55 * fr)))))
+            # spread the fruit over the height band, never two on one node
+            picks = [cands[int((k + 0.5) * len(cands) / want)] for k in range(want)]
+            top = _fruit_top(shape_name, r)
+            for k2, (at, side, zfrac) in enumerate(picks):
+                s = -side                      # opposite the node's leaf, in front of the stem
+                if style == "pair":
+                    # two stalks from one node, diverging, each with its cherry
+                    for q, sq in enumerate((s, -s)):
+                        hx = at[0] + _ACROSS[0] * sq * 0.028 + _NEAR[0] * 0.03
+                        hy = at[1] + _ACROSS[1] * sq * 0.028 + _NEAR[1] * 0.03
+                        hz = at[2] - shape["stalk"] * rng.uniform(0.85, 1.1)
+                        parts.append(_sweep(f"pedicel_{p}_{k2}_{q}", mats["calyx"], [tuple(at), (hx, hy, hz + top * 0.8)],
+                                            [0.0032, 0.0026], sides=4))
+                        rk = r * rng.uniform(0.90, 1.08)
+                        parts.extend(_fruit(f"fruit_{p}_{k2}_{q}", mats, (hx, hy, hz - top * rk / r), rk,
+                                            shape_name, rng, alt=(k2 + q + p) % 2 == 1))
+                elif style == "cluster":
+                    # berries crowded round the node, hugging the stem
+                    per = shape.get("per", 3)
+                    for q in range(per):
+                        aa = _CREASE_AT + (q - (per - 1) / 2.0) * (2.4 / per) + rng.uniform(-0.2, 0.2)
+                        rad = r * 1.15
+                        hx = at[0] + math.cos(aa) * rad
+                        hy = at[1] + math.sin(aa) * rad
+                        hz = at[2] - shape["stalk"] + r * rng.uniform(-0.9, 0.5)
+                        if shape["stalk"] > 0.0:
+                            parts.append(_sweep(f"pedicel_{p}_{k2}_{q}", mats["calyx"], [tuple(at), (hx, hy, hz + top * 0.7)],
+                                                [0.0028, 0.0022], sides=4))
+                        parts.extend(_fruit(f"fruit_{p}_{k2}_{q}", mats, (hx, hy, hz), r * rng.uniform(0.85, 1.1),
+                                            shape_name, rng, alt=(k2 + q) % 2 == 1))
+                else:
+                    hx = at[0] + _ACROSS[0] * s * r * 0.55 + _NEAR[0] * 0.035
+                    hy = at[1] + _ACROSS[1] * s * r * 0.55 + _NEAR[1] * 0.035
+                    rk = r * rng.uniform(0.88, 1.08)
+                    hz = at[2] - shape["stalk"] - top * rk / r
+                    parts.append(_sweep(f"pedicel_{p}_{k2}", mats["calyx"], [tuple(at), (hx, hy, hz + top * rk / r * 0.85)],
+                                        [0.0040, 0.0032], sides=4))
+                    parts.extend(_fruit(f"fruit_{p}_{k2}", mats, (hx, hy, hz), rk, shape_name, rng,
+                                        alt=(k2 + p) % 2 == 1))
+            if fr < 0.8 and leaders and style == "hang":
+                # the mature-but-not-full stage: a cluster of small set fruit at the top
+                pts = max(leaders, key=lambda l: l[2])[0]
+                for q in range(3):
+                    at = _along(pts, _arc_len(pts) - 0.10 - q * 0.05)
+                    s = 1 if q % 2 else -1
+                    parts.extend(_fruit(f"setfruit_{p}_{q}", mats,
+                                        (at[0] + _ACROSS[0] * s * 0.03 + _NEAR[0] * 0.03,
+                                         at[1] + _ACROSS[1] * s * 0.03 + _NEAR[1] * 0.03,
+                                         at[2] - 0.03), r, shape_name, rng, alt=True, k=0.45))
     return parts
 
 
@@ -889,307 +1256,495 @@ def _at_height(pts, z):
     return pts[-1][0], pts[-1][1]
 
 
-def broadleaf(stage, spec, mats, rng):
-    """Banana: a thick pseudostem carrying a crown of very large arching paddles.
-
-    Reference habit: **Corn** (``vegetation_farming_01_78``), the only vanilla crop with
-    this build. Measured: it rises 183 px above the bed -- nearly the whole cell -- its
-    canopy is 121x203 with a fill of 0.285, it crosses background 6.90 times per row and
-    a quarter of its ink is thin runs. So it is TALL and it is OPEN, and the old banana,
-    at 91 px with nine leaves fanned radially round the top, was neither.
-    """
+def _blade(name, mat, stem_mat, base, length, yaw, rise_deg, rng, width_ratio=0.06,
+           curl=0.70, tilt=0.0, rib=True, dead=False):
+    """A grass blade: leaves its culm rising ``rise_deg`` and arches over toward the tip
+    (the curl works in the blade's own frame, so a steep blade bends forward and down,
+    the way every blade in the Barley and Corn sheets is drawn). A midrib rod in the
+    stem paint gives it the one interior line the reference paints."""
     parts = []
-    h = _rise(stage, 150.0)
-    if h <= 0.001:
-        return parts
-    dead = stage == STAGES - 1
-    leaf_mats = [mats["dead"]] if dead else mats["leaves"]
-    stem_mat = mats["dead"] if dead else mats["stem"]
-    mat = min(1.0, h / 2.0)
-    # Two stools, spaced on (x+y) because that is what separates them on SCREEN.
-    for p, (px, py) in enumerate(((-0.17, -0.15), (0.02, 0.01), (0.14, 0.18))):
-        ph = h * (0.86 + 0.20 * rng.random()) * (0.80 + 0.13 * p)
-        parts.append(_stalk(f"pstem_{p}", stem_mat, (px, py, 0.02), ph,
-                            0.030 * (0.5 + 0.5 * mat), 0.017, lean=0.05,
-                            yaw=SCREEN_YAW + p))
-        # The crown is a LADDER, not a wheel: paddles leave the stem in alternating pairs
-        # up its top half, longest at the bottom of the crown and shortening to the spike
-        # at the tip, each one arched over and rolled to show its face.
-        for k, (hfrac, dyaw, lscale, pdeg) in enumerate((
-                (0.44, -0.55, 1.00, +20), (0.53, +0.42, 0.98, +13),
-                (0.61, -0.30, 0.94, +6), (0.69, +0.62, 0.88, -2),
-                (0.77, -0.46, 0.80, -11), (0.84, +0.24, 0.70, -21),
-                (0.91, -0.62, 0.58, -31), (0.97, +0.36, 0.46, -42),
-                (1.00, -0.12, 0.34, -54))):
-            yaw = SCREEN_YAW + dyaw + (math.pi if k % 2 else 0.0)
-            size = 0.315 * lscale * (0.42 + 0.58 * mat)
-            parts.extend(_leaf(f"bleaf_{p}_{k}", leaf_mats[k % len(leaf_mats)],
-                               (px + math.cos(yaw) * 0.024, py + math.sin(yaw) * 0.024,
-                                0.02 + ph * hfrac),
-                               size, yaw, math.radians(pdeg if not dead else pdeg + 40.0),
-                               curl=0.40, width_ratio=0.24,
-                               droop=(0.22 if dead else 0.0),
-                               roll=_broadside_roll(yaw, -11.0 * (k % 3)),
-                               outline_mat=mats["edge"]))
-        if FRUIT_BY_STAGE[stage] > 0.4 and not dead:
-            # A HAND of bananas hanging clear of the stem on a rachis, fingers curving up
-            # -- two tiers of five. Stacked spheres on the trunk read as a painted band,
-            # which is what the first pass produced.
-            bz = 0.02 + ph * 0.42
-            byaw = SCREEN_YAW + math.pi
-            parts.append(_sweep(f"bunch_{p}", stem_mat,
-                                _cane_path((px, py, bz + 0.09), 0.10, byaw, -20, -70,
-                                           segs=4),
-                                [0.011, 0.0098, 0.0086, 0.0074, 0.0062], sides=5))
-            hx = px + math.cos(byaw) * 0.055
-            hy = py + math.sin(byaw) * 0.055
-            for tier in range(2):
-                for g in range(5):
-                    a = byaw + (g - 2) * 0.30
-                    parts.append(_sweep(
-                        f"nana_{p}_{tier}_{g}", mats["fruit"],
-                        _cane_path((hx, hy, bz - 0.012 - tier * 0.055), 0.085, a,
-                                   -34, 28, segs=4),
-                        [spec["fruit_r"] * s for s in (0.55, 1.00, 1.05, 0.85, 0.35)],
-                        sides=5))
+    pitch = -math.radians(rise_deg) if not dead else math.radians(10.0 + rng.uniform(0.0, 25.0))
+    roll = _broadside_roll(yaw, tilt)
+    parts.extend(_leaf(name, mat, base, length, yaw, pitch, curl=curl, midrib=0.30,
+                       width_ratio=width_ratio, roll=roll))
+    if rib:
+        parts.append(_rib(f"{name}_rib", stem_mat, base, length * 0.70, 0.0034, 0.0016, (roll, pitch, yaw)))
     return parts
 
 
-def rosette(stage, spec, mats, rng):
-    """Pineapple: a ground rosette of stiff blades with one crowned fruit in the middle.
-
-    Reference habit: **Cabbages** (``vegetation_farming_01_21``). Measured, and it is the
-    opposite of the bush in every way that matters: fill 0.582 (not 0.232), 1.76 background
-    crossings per row (not 4.91), and only 1.7% thin ink -- a leafy head shows no stem at
-    all. Its tonal range is correspondingly WIDE (v 0.180/0.365/0.580) because with no
-    background between the leaves the only thing separating them is value. So this
-    archetype is deliberately dense and high contrast, and it would be a mistake to open it
-    up the way the bush had to be opened.
-    """
+def _palmate(name, mat, stem_mat, at, size, yaw, rise_deg, rng, dead=False):
+    """A vine leaf: three blades from one petiole -- the lobed outline of a grape leaf
+    at 12 px, where a single oval reads as a coin."""
     parts = []
-    h = _rise(stage, 62.0)
-    if h <= 0.001:
-        return parts
-    dead = stage == STAGES - 1
-    leaf_mats = [mats["dead"]] if dead else mats["leaves"]
-    mat = min(1.0, h / 0.98)
-    for p, (px, py) in enumerate(((-0.26, -0.18), (0.08, -0.16), (0.15, 0.24))):
-        # Blades in three tiers: a low sprawling skirt, a mid ring, and a steep heart.
-        # The tiers are what give a rosette its dome; one radial fan gave a starfish.
-        for tier, (n, lift, pdeg, lscale) in enumerate((
-                (7, 0.10, +26, 1.00), (6, 0.36, -18, 0.86), (5, 0.62, -52, 0.62))):
-            for k in range(n):
-                yaw = (k + 0.5 * tier) * math.tau / n + 0.30 * tier
-                size = 0.215 * lscale * (0.40 + 0.60 * mat)
-                parts.extend(_leaf(
-                    f"blade_{p}_{tier}_{k}",
-                    leaf_mats[(k + tier) % len(leaf_mats)],
-                    (px + math.cos(yaw) * size * 0.20,
-                     py + math.sin(yaw) * size * 0.20, 0.02 + h * lift),
-                    size, yaw, math.radians(pdeg if not dead else pdeg + 44.0),
-                    curl=0.30, width_ratio=0.20,
-                    roll=_broadside_roll(yaw, -14.0 * tier),
-                    outline_mat=mats["edge"]))
-        if FRUIT_BY_STAGE[stage] > 0.4 and not dead:
-            r = spec["fruit_r"]
-            parts.extend(_berry(f"pine_{p}", mats["fruit"], (px, py, 0.05 + h * 0.52), r,
-                                pear=True, lobes=8, lobe_amp=0.09, dimple=0.10,
-                                outline_mat=mats["edge"]))
-            # the crown is the pineapple's whole silhouette cue
-            for c in range(5):
-                yaw = c * math.tau / 5.0 + 0.4
-                parts.extend(_leaf(f"crown_{p}_{c}", leaf_mats[c % len(leaf_mats)],
-                                   (px, py, 0.05 + h * 0.52 + r * 1.15),
-                                   r * 1.5, yaw, math.radians(-64.0),
-                                   curl=0.22, width_ratio=0.16,
-                                   roll=_broadside_roll(yaw), outline_mat=mats["edge"]))
+    pet = rng.uniform(0.014, 0.026)
+    tip = (at[0] + math.cos(yaw) * pet, at[1] + math.sin(yaw) * pet, at[2] + pet * 0.3)
+    parts.append(_sweep(f"{name}_pet", stem_mat, [tuple(at), tip], [0.0030, 0.0024], sides=4))
+    pitch = math.radians(rng.uniform(20.0, 40.0)) if dead else -math.radians(rise_deg)
+    for j, (dy, sk) in enumerate(((0.0, 1.0), (0.62, 0.74), (-0.62, 0.74))):
+        y2 = yaw + dy
+        parts.extend(_leaf(f"{name}_{j}", mat, tip, size * sk, y2, pitch, curl=0.12,
+                           midrib=0.30, width_ratio=0.30,
+                           roll=_broadside_roll(y2, rng.uniform(-20.0, 10.0))))
     return parts
 
 
-def trellis(stage, spec, mats, rng):
-    """Grapes: vanilla builds trellised crops (Greenpeas, Tomato) with the wooden frame
-    present from stage 0 and the vine climbing it.
-
-    Reference habit: **Greenpeas** (``vegetation_farming_01_110``) -- canopy 107x145, fill
-    0.232, 7.24 crossings per row and 44.6% thin ink. A trellised crop is mostly FRAME and
-    CANE with leaves clipped to it; scattering leaves at random heights and yaws, as this
-    did, produces a hedge draped over a fence instead.
-    """
-    parts = []
-    dead = stage == STAGES - 1
-    for i, y in enumerate((-0.24, 0.22)):
-        for j, x in enumerate((-0.32, 0.32)):
-            parts.append(_stalk(f"post_{i}_{j}", mats["wood"], (x, y, 0.0), 1.05,
-                                0.018, 0.016))
-        for k, z in enumerate((0.38, 0.70, 1.02)):
-            bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.011, depth=0.70,
-                                                location=(0.0, y, z))
-            rail = bpy.context.active_object
-            rail.name = f"rail_{i}_{k}"
-            rail.rotation_euler = (0.0, math.radians(90.0), 0.0)
-            rail.data.materials.append(mats["wood"])
-            parts.append(rail)
-    h = _rise(stage, 102.0)
-    if h <= 0.001:
-        return parts
-    leaf_mats = [mats["dead"]] if dead else mats["leaves"]
-    stem_mat = mats["dead"] if dead else mats["stem"]
-    mat = min(1.0, h / 1.35)
-    for i, y in enumerate((-0.26, 0.24)):
-        for c, cx in enumerate((-0.22, 0.01, 0.23)):
-            climb = min(1.05, h * 0.92)
-            parts.append(_stalk(f"vine_{i}_{c}", stem_mat, (cx, y, 0.01), climb,
-                                0.010, 0.006, tilt=0.07 * (1 if c % 2 else -1)))
-            # TENDRILS. Mask the leaf regions out of Greenpeas with ``pzforge refsheet``
-            # and what is left is hooks and spirals clinging to the frame -- the single
-            # strongest read that a crop climbs rather than just standing next to a fence.
-            if mat > 0.25:
-                for tk, (tz, tyaw) in enumerate(((0.34, -0.5), (0.62, 2.3),
-                                                 (0.86, 0.7))):
-                    if tz > 0.10 + 0.95 * mat:
-                        continue
-                    parts.append(_tendril(
-                        f"tendril_{i}_{c}_{tk}", stem_mat,
-                        (cx, y, 0.02 + climb * tz), 0.16 * (0.6 + 0.4 * mat), 0.0052,
-                        SCREEN_YAW + tyaw, turns=1.7))
-            # leaves clipped to the cane at regular internodes, alternating sides, the
-            # lower ones large and the tip ones small -- a vine, not a shrub
-            for k, (hfrac, dyaw, lscale) in enumerate((
-                    (0.16, -0.50, 1.00), (0.31, +0.66, 1.04), (0.46, -0.72, 0.98),
-                    (0.60, +0.38, 0.92), (0.73, -0.44, 0.84), (0.85, +0.58, 0.72),
-                    (0.96, -0.26, 0.58))):
-                if hfrac > 0.10 + 0.95 * mat:
-                    continue
-                yaw = SCREEN_YAW + dyaw + (math.pi if k % 2 else 0.0)
-                size = 0.20 * lscale * (0.50 + 0.50 * mat)
-                parts.extend(_leaf(f"vleaf_{i}_{c}_{k}",
-                                   leaf_mats[(k + c) % len(leaf_mats)],
-                                   (cx + math.cos(yaw) * 0.055,
-                                    y + math.sin(yaw) * 0.055, 0.02 + climb * hfrac),
-                                   size, yaw,
-                                   math.radians((-6.0 - 4.0 * k) if not dead else 30.0),
-                                   curl=0.26, width_ratio=0.30,
-                                   roll=_broadside_roll(yaw, -8.0 * (k % 2)),
-                                   outline_mat=mats["edge"]))
-            if FRUIT_BY_STAGE[stage] > 0.3 and not dead and c != 1:
-                # a bunch is a CONE of berries on a short peduncle, widest at the top
-                bz = 0.02 + climb * 0.56
-                bx = cx + 0.045 * (1 if c else -1)
-                parts.append(_stalk(f"pedu_{i}_{c}", stem_mat, (bx, y, bz), 0.05,
-                                    0.007, 0.005))
-                r = spec["fruit_r"] * 1.55
-                tiers = ((5, 0.000, 1.00), (4, -0.034, 0.95), (4, -0.066, 0.88),
-                         (3, -0.096, 0.80), (2, -0.122, 0.70), (1, -0.144, 0.58))
-                for t, (n, dz, rs) in enumerate(tiers):
-                    for g in range(n):
-                        a = g * math.tau / n + 0.6 * t
-                        rad = 0.0 if n == 1 else r * 1.35 * rs
-                        parts.extend(_berry(
-                            f"grape_{i}_{c}_{t}_{g}", mats["fruit"],
-                            (bx + math.cos(a) * rad, y + math.sin(a) * rad * 0.7,
-                             bz + dz - r * 0.6), r * rs, dimple=0.0))
-    return parts
+# --------------------------------------------------------------------------- #
+# Grain (rice) -- the Barley habit
+# --------------------------------------------------------------------------- #
+#: Measured rise above the bed silhouette, vegetation_farming_01b_0..7, px at 2x.
+GRAIN_PX = (0, 11, 15, 35, 57, 87, 120, 81)
+#: THE GROWTH DESIGN. Read at 6x: nine culms in three sown rows. A culm is a single
+#: near-vertical straw with 3-4 long narrow blades leaving it at nodes on alternate
+#: sides and arching over, and at c5+ a PANICLE on top -- a neck that bends over into
+#: a fan of five to seven spikelets strung with grains. Tufts (c1-c2) are blades only;
+#: the culm shows from c3 and reaches full height at c5; c6 is ripe straw; c7 dry.
+#:   blades  per culm;  culm  visible fraction;  panicle  none / green / ripe / dry
+GRAIN_GROWTH = (
+    dict(blades=0, culm=0.00, panicle=None),
+    dict(blades=3, culm=0.00, panicle=None),
+    dict(blades=4, culm=0.00, panicle=None),
+    dict(blades=4, culm=0.35, panicle=None),
+    dict(blades=4, culm=0.75, panicle=None),
+    dict(blades=4, culm=1.00, panicle="green"),
+    dict(blades=4, culm=1.00, panicle="ripe"),
+    dict(blades=3, culm=1.00, panicle="dry"),
+)
 
 
 def grain(stage, spec, mats, rng):
-    """Rice: the Barley habit -- rows of slim culms, each with a pair of blades and a
-    drooping ear.
-
-    Reference habit: **Barley** (``vegetation_farming_01b_6``). Measured: canopy 107x145,
-    fill only 0.190, 6.43 crossings per row and **48.9% thin ink** -- half of a cereal
-    sprite is line work. It rises 118 px above the bed. The job here is therefore the
-    opposite of filling space: many thin culms, standing apart, read against the dark.
-    """
     parts = []
-    h = _rise(stage, 102.0)
+    rise = GRAIN_PX[stage]
+    h = (rise + BASE_DROP_PX) / PX_PER_Z if rise > 0 else 0.0
     if h <= 0.001:
         return parts
+    design = GRAIN_GROWTH[stage]
     dead = stage == STAGES - 1
-    # A cereal RIPENS: culm, blade and ear all turn straw together at the fruiting
-    # stages, which is what the reference's mature sheet is painted in end to end.
-    ripe = FRUIT_BY_STAGE[stage] > 0.3 and not dead
-    leaf_mats = ([mats["dead"]] if dead else
-                 (mats["straw"] if ripe else mats["leaves"]))
-    stem_mat = (mats["dead"] if dead else
-                (mats["strawstem"] if ripe else mats["stem"]))
-    mat = min(1.0, h / 1.70)
-    # Culms are placed on a fixed lattice and then nudged, so the paddy reads as SOWN
-    # ROWS. Purely random x gave clumps and bald patches, which no cereal field has.
-    for i, y in enumerate((-0.28, -0.02, 0.24)):
-        for k in range(6):
-            x = -0.26 + k * 0.104 + (0.024 if i == 1 else 0.0) + rng.uniform(-0.010, 0.010)
-            ph = h * (0.84 + 0.30 * rng.random())
-            tilt = rng.uniform(-0.10, 0.10)
-            parts.append(_stalk(f"culm_{i}_{k}", stem_mat, (x, y, 0.02), ph, 0.0135,
-                                0.0075, tilt=tilt))
-            # Blades hug the culm and rise steeply; they do not radiate like a bush's.
-            for b in range(2):
-                yaw = SCREEN_YAW + (0.0 if b else math.pi) + rng.uniform(-0.14, 0.14)
-                parts.extend(_leaf(f"blade_{i}_{k}_{b}",
-                                   leaf_mats[(k + b) % len(leaf_mats)],
-                                   (x + 0.010 * (1 if b else -1), y,
-                                    ph * (0.26 + 0.30 * b)),
-                                   0.185 * (0.45 + 0.55 * mat), yaw,
-                                   math.radians(-78.0 if not dead else -34.0),
-                                   curl=0.34, width_ratio=0.085,
-                                   roll=_broadside_roll(yaw),
-                                   outline_mat=mats["edge"]))
-            if FRUIT_BY_STAGE[stage] > 0.3:
-                # The seed head is the crop's whole silhouette cue, and in the reference
-                # it is not a smooth cone: it is a spray of AWNS, a little starburst of
-                # bristles at the top of each culm. That spray is most of what makes a
-                # cereal field read as a cereal field at 2x.
-                ez = ph * 0.90
-                parts.append(_stalk(f"ear_{i}_{k}", mats["fruit"], (x, y, ez),
-                                    0.13, 0.021, 0.006, tilt=tilt + 0.30, sides=6))
-                for aw in range(5):
-                    ayaw = SCREEN_YAW + (aw - 2) * 0.42
-                    parts.append(_sweep(
-                        f"awn_{i}_{k}_{aw}", mats["fruit"],
-                        _cane_path((x + tilt * 0.10, y, ez + 0.10), 0.12, ayaw,
-                                   78 - 6 * abs(aw - 2), 52 - 9 * abs(aw - 2), segs=4),
-                        [0.0060, 0.0048, 0.0036, 0.0024, 0.0012], sides=4))
+    ripe = stage == 6
+    leaf_mats = mats["straw_dry"] if dead else (mats["straw"] if ripe else mats["leaves"])
+    stem_mat = mats["straw_dry"][2] if dead else (mats["strawstem"] if ripe else mats["stem"])
+    grain_mat = mats["straw_dry"][1] if dead else (mats["fruit"] if ripe else mats["unripe"])
+    want_leaves = LAYER in ("leaves", "all")
+    want_fruit = LAYER == "all"
+    for i, y in enumerate((-0.287, 0.0, 0.287)):
+        for k in range(3):
+            x = -0.25 + k * 0.25 + (0.07 if i == 1 else 0.0) + rng.uniform(-0.02, 0.02)
+            ph = h * rng.uniform(0.90, 1.10)
+            # --- LAYER 2: the culm ------------------------------------------------------
+            zc = ph * (0.18 + 0.82 * design["culm"])
+            lean = rng.uniform(-3.0, 3.0)
+            culm = _axis((x, y, 0.015), zc, lean, lean + rng.uniform(-2.0, 2.0), bow=0.02)
+            parts.append(_sweep(f"culm_{i}_{k}", stem_mat, culm,
+                                _taper(culm, 0.0105, 0.0060), sides=5))
+            # --- LAYER 3: blades at the nodes --------------------------------------------
+            n = design["blades"]
+            if want_leaves:
+                L = min(0.46, max(0.14, 0.36 * ph))
+                for b in range(n):
+                    frac = (0.15, 0.40, 0.62, 0.82)[b] if n == 4 else (0.15, 0.45, 0.75)[b]
+                    at = _along(culm, _arc_len(culm) * frac)
+                    side = 1 if (b + k) % 2 == 0 else -1
+                    if (k == 2 and side > 0 or k == 0 and side < 0) and rng.random() < 0.7:
+                        side = -side       # edge culms keep their blades inside the tile
+                    yaw = SCREEN_YAW + (0.0 if side > 0 else math.pi) + rng.uniform(-0.55, 0.55)
+                    parts.extend(_blade(f"blade_{i}_{k}_{b}", leaf_mats[(b + k) % len(leaf_mats)],
+                                        stem_mat, at, L * rng.uniform(0.80, 1.10), yaw,
+                                        48.0 + 8.0 * b + rng.uniform(-8.0, 8.0), rng,
+                                        width_ratio=0.040, curl=rng.uniform(0.45, 0.70),
+                                        tilt=rng.uniform(-20.0, 10.0), dead=dead))
+            # --- LAYER 4: the panicle -----------------------------------------------------
+            if want_fruit and design["panicle"]:
+                dry = design["panicle"] == "dry"
+                top = culm[-1]
+                nyaw = SCREEN_YAW + (math.pi if k % 2 else 0.0) + rng.uniform(-0.5, 0.5)
+                neck = _cane_path(top, 0.06, nyaw, 82.0, 40.0 if not dry else 5.0, segs=4)
+                parts.append(_sweep(f"neck_{i}_{k}", stem_mat, neck, _taper(neck, 0.0075, 0.0055), sides=4))
+                end = neck[-1]
+                ns = 6
+                for j in range(ns):
+                    u = (j - (ns - 1) / 2.0) / ((ns - 1) / 2.0)
+                    syaw = nyaw + u * 0.95 + rng.uniform(-0.12, 0.12)
+                    r0 = 50.0 - 22.0 * abs(u) - (25.0 if dry else 0.0)
+                    r1 = r0 - 45.0
+                    sp = _cane_path(end, rng.uniform(0.15, 0.21), syaw, r0, r1, segs=4)
+                    parts.append(_sweep(f"spike_{i}_{k}_{j}", grain_mat, sp, _taper(sp, 0.0100, 0.0052), sides=5))
+                    for g in range(3):
+                        gp = sp[1 + g] if 1 + g < len(sp) else sp[-1]
+                        parts.extend(_berry(f"grain_{i}_{k}_{j}_{g}", grain_mat,
+                                            (gp[0], gp[1], gp[2] - 0.003), 0.0115, dimple=0.0))
     return parts
 
 
-def clump(stage, spec, mats, rng):
-    """Ginger: a low clump of upright strap leaves, the SweetPotato habit.
+# --------------------------------------------------------------------------- #
+# Broadleaf (banana) -- the Corn habit
+# --------------------------------------------------------------------------- #
+#: Measured rise, vegetation_farming_01_72..79 (Corn), px at 2x. c1 is the reference's
+#: bare bed; ours shows a sprout.
+BROADLEAF_PX = (0, 6, 14, 48, 93, 156, 183, 170)
+#: THE GROWTH DESIGN. Corn at 6x is a tall straight stalk with long blades leaving it
+#: on alternate sides in a ladder and arching down, and a tassel on top. A banana keeps
+#: that build: one thick pseudostem, and the paddles emerge from its top and fan down
+#: the top half in a ladder -- lowest largest and near horizontal, top smallest and
+#: steep. The bunch hangs from the throat on a peduncle from c5, with the bract below.
+#:   leaves  in the crown;  bunch  0 / 0.5 (small green hands) / 1 (full)
+BROADLEAF_GROWTH = (
+    dict(leaves=0, bunch=0.0),
+    dict(leaves=2, bunch=0.0),
+    dict(leaves=3, bunch=0.0),
+    dict(leaves=5, bunch=0.0),
+    dict(leaves=7, bunch=0.0),
+    dict(leaves=8, bunch=0.5),
+    dict(leaves=9, bunch=1.0),
+    dict(leaves=7, bunch=0.0),
+)
+BROADLEAF_STOOLS = (dict(foot=(-0.18, -0.235), lean=-2.0, k=1.00),
+                    dict(foot=(0.18, -0.235), lean=2.5, k=0.92),
+                    dict(foot=(0.00, 0.235), lean=-0.5, k=1.06))
 
-    Reference habit: **SweetPotato** (``vegetation_farming_01_102``) -- canopy 109x101,
-    fill 0.296, 6.03 crossings per row, 21.9% thin ink. A strap-leaved clump is open, and
-    every strap runs from a visible sheath at the ground, which is where the thin ink comes
-    from; the old version grew leaves out of thin air at random yaws.
-    """
+
+def broadleaf(stage, spec, mats, rng):
     parts = []
-    h = _rise(stage, 86.0)
+    rise = BROADLEAF_PX[stage]
+    h = (rise + BASE_DROP_PX) / PX_PER_Z if rise > 0 else 0.0
     if h <= 0.001:
         return parts
+    design = BROADLEAF_GROWTH[stage]
     dead = stage == STAGES - 1
     leaf_mats = [mats["dead"]] if dead else mats["leaves"]
     stem_mat = mats["dead"] if dead else mats["stem"]
-    mat = min(1.0, h / 1.29)
-    for p, (px, py) in enumerate(((-0.22, -0.17), (0.09, -0.15), (0.12, 0.21))):
-        # one short sheath, then straps leaving it in a flat fan across the screen
-        parts.append(_stalk(f"sheath_{p}", stem_mat, (px, py, 0.01), h * 0.30,
-                            0.019, 0.011, yaw=SCREEN_YAW, lean=0.10))
-        for k, (dyaw, lscale, pdeg, lift) in enumerate((
-                (-0.86, 1.00, -34, 0.10), (+0.70, 0.94, -44, 0.16),
-                (-0.50, 1.04, -54, 0.22), (+0.34, 0.98, -62, 0.28),
-                (-0.18, 0.90, -70, 0.33), (+0.54, 0.86, -50, 0.19),
-                (-0.68, 0.80, -40, 0.13), (+0.14, 0.74, -76, 0.36))):
-            if k > 1 + int(6.5 * mat):
-                continue
-            yaw = SCREEN_YAW + dyaw + (math.pi if k % 2 else 0.0)
-            size = 0.29 * lscale * (0.38 + 0.62 * mat)
-            parts.extend(_leaf(f"strap_{p}_{k}", leaf_mats[k % len(leaf_mats)],
-                               (px + math.cos(yaw) * 0.022, py + math.sin(yaw) * 0.022,
-                                0.02 + h * lift),
-                               size, yaw,
-                               math.radians(pdeg if not dead else pdeg + 58.0),
-                               curl=0.38, width_ratio=0.135,
-                               droop=(0.20 if dead else 0.0),
-                               roll=_broadside_roll(yaw, -10.0 * (k % 3)),
-                               outline_mat=mats["edge"]))
+    want_leaves = LAYER in ("leaves", "all")
+    want_fruit = LAYER == "all"
+    mat = min(1.0, h / 2.3)
+    for p, stool in enumerate(BROADLEAF_STOOLS):
+        px, py = stool["foot"]
+        ph = h * stool["k"] * rng.uniform(0.96, 1.04)
+        # --- LAYER 2: the pseudostem, to the throat -------------------------------------
+        zt = ph * 0.68
+        stem = _axis((px, py, 0.015), zt, stool["lean"], stool["lean"] + 1.5, bow=0.025)
+        r0 = 0.014 + 0.024 * mat
+        parts.append(_sweep(f"pstem_{p}", stem_mat, stem, _taper(stem, r0, r0 * 0.62), sides=7))
+        for c in range(3):
+            aa = c * math.tau / 3.0 + 0.5
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=6, ring_count=4, radius=0.5,
+                                                 location=(px + math.cos(aa) * 0.03, py + math.sin(aa) * 0.03, 0.028))
+            collar = bpy.context.active_object
+            collar.name = f"bcollar_{p}_{c}"
+            collar.scale = (0.026, 0.020, 0.014)
+            collar.rotation_euler = (0.0, 0.0, aa)
+            collar.data.materials.append(mats["soil"])
+            bpy.ops.object.shade_flat()
+            parts.append(collar)
+        # the throat: a thinner axis the leaves leave from, continuing the stem upward
+        throat = _axis(stem[-1], ph - zt, stool["lean"] + 1.5, stool["lean"] + 4.0, bow=0.0)
+        parts.append(_sweep(f"throat_{p}", stem_mat, throat, _taper(throat, r0 * 0.62, r0 * 0.30), sides=6))
+        # --- LAYER 3: the paddles, a ladder up the throat ---------------------------------
+        n = design["leaves"]
+        if want_leaves:
+            tl = _arc_len(throat)
+            for k in range(n):
+                frac = k / max(1, n - 1)
+                at = _along(throat, tl * (0.05 + 0.95 * frac))
+                side = 1 if (k + p) % 2 == 0 else -1
+                yaw = SCREEN_YAW + (0.0 if side > 0 else math.pi) + rng.uniform(-0.9, 0.9)
+                size = (0.42 - 0.16 * frac) * (0.45 + 0.55 * mat) * rng.uniform(0.9, 1.1)
+                rise_deg = -4.0 + 62.0 * frac + rng.uniform(-8.0, 8.0)
+                parts.extend(_blade(f"paddle_{p}_{k}", leaf_mats[k % len(leaf_mats)], stem_mat, at,
+                                    size, yaw, rise_deg, rng, width_ratio=0.25,
+                                    curl=rng.uniform(0.70, 1.00), tilt=rng.uniform(-18.0, 8.0), dead=dead))
+        # --- LAYER 4: the bunch ----------------------------------------------------------
+        b = design["bunch"]
+        if want_fruit and b > 0.0:
+            # the bunch hangs on the viewer's side of the stem, below the crown, where it
+            # is clear of the paddles: a peduncle arcing out and down, then three hands of
+            # five fingers each curving upward -- every finger a stroke with its own dark
+            # edge behind it, so the hand reads as fingers and not as one yellow blob
+            byaw = _CREASE_AT + rng.uniform(-0.3, 0.3)
+            ped = _cane_path(_along(throat, 0.02), 0.20, byaw, -30.0, -88.0, segs=5)
+            parts.append(_sweep(f"peduncle_{p}", stem_mat, ped, _taper(ped, 0.010, 0.007), sides=5))
+            hx, hy, hz = ped[-1]
+            hands = 3 if b > 0.8 else 2
+            fr = spec["fruit_r"] * 0.85
+            drop = fr * 3.2
+            stalk = [(hx, hy, hz + 0.01), (hx, hy, hz - hands * drop - 0.01)]
+            parts.append(_sweep(f"rachis_{p}", stem_mat, stalk, [0.007, 0.006], sides=4))
+            for tier in range(hands):
+                tz = hz - 0.01 - tier * drop
+                for g in range(5):
+                    a = byaw + (g - 2) * 0.62 + rng.uniform(-0.1, 0.1)
+                    fin = _cane_path((hx + math.cos(a) * 0.008, hy + math.sin(a) * 0.008, tz),
+                                     0.105, a, -62.0, 40.0, segs=4)
+                    radii = [fr * s for s in (0.70, 1.0, 1.0, 0.85, 0.40)]
+                    shell = [(x + _AWAY[0] * fr * 0.5, y + _AWAY[1] * fr * 0.5, z + _AWAY[2] * fr * 0.5) for x, y, z in fin]
+                    parts.append(_sweep(f"nana_{p}_{tier}_{g}_edge", mats["fruit_edge"], shell, [r * 1.35 for r in radii], sides=5))
+                    key = "unripe" if b < 0.8 else ("fruit" if (g + tier) % 2 else "fruit_alt")
+                    parts.append(_sweep(f"nana_{p}_{tier}_{g}", mats[key], fin, radii, sides=5))
+            # the bract: a dark bud hanging point-down under the last hand
+            bud = _lathe(f"bract_{p}", mats["bract"], (hx, hy, hz - hands * drop - 0.05), fr * 1.8,
+                         FRUIT_SHAPES["bud"], yaw=byaw, tilt=math.radians(180.0))
+            parts.append(bud)
+    return parts
+
+
+# --------------------------------------------------------------------------- #
+# Rosette (pineapple) -- the Cabbages habit
+# --------------------------------------------------------------------------- #
+#: The reference's heads never rise more than 8 px above the bed silhouette: a rosette
+#: is LOW. Heights here are the rosette's top above the bed, px at 2x.
+ROSETTE_PX = (0, 3, 6, 11, 17, 21, 23, 19)
+#: THE GROWTH DESIGN: tiers of stiff narrow blades all round -- an outer skirt near
+#: horizontal, a middle ring rising, an inner heart steep -- and from c5 the fruit on a
+#: short central stalk with its crown. (blade counts per tier, outer first)
+ROSETTE_GROWTH = (
+    dict(tiers=(), fruit=0.0),
+    dict(tiers=(5,), fruit=0.0),
+    dict(tiers=(6, 4), fruit=0.0),
+    dict(tiers=(7, 5), fruit=0.0),
+    dict(tiers=(8, 6, 5), fruit=0.0),
+    dict(tiers=(8, 6, 5), fruit=0.6),
+    dict(tiers=(8, 6, 5), fruit=1.0),
+    dict(tiers=(7, 5, 4), fruit=0.0),
+)
+ROSETTE_PLANTS = ((-0.21, -0.287), (0.23, -0.287), (-0.24, 0.0), (0.20, 0.0), (-0.20, 0.287), (0.22, 0.287))
+
+
+def rosette(stage, spec, mats, rng):
+    parts = []
+    rise = ROSETTE_PX[stage]
+    h = (rise + BASE_DROP_PX) / PX_PER_Z if rise > 0 else 0.0
+    if h <= 0.001:
+        return parts
+    design = ROSETTE_GROWTH[stage]
+    dead = stage == STAGES - 1
+    leaf_mats = [mats["dead"]] if dead else mats["leaves"]
+    stem_mat = mats["dead"] if dead else mats["stem"]
+    want_leaves = LAYER in ("leaves", "all")
+    want_fruit = LAYER == "all"
+    mat = min(1.0, rise / 23.0)
+    for p, (px, py) in enumerate(ROSETTE_PLANTS):
+        # --- LAYER 2: the heart -- a stub of stem the blades leave from ----------------
+        core = _axis((px, py, 0.012), 0.04 + 0.05 * mat, 0.0, 0.0)
+        parts.append(_sweep(f"heart_{p}", stem_mat, core, _taper(core, 0.020, 0.012), sides=6))
+        # --- LAYER 3: the tiers ----------------------------------------------------------
+        if want_leaves:
+            for tier, n in enumerate(design["tiers"]):
+                size = (0.30, 0.24, 0.17)[tier] * (0.40 + 0.60 * mat)
+                rise_deg = (6.0, 34.0, 62.0)[tier]
+                for k in range(n):
+                    yaw = k * math.tau / n + tier * 0.45 + p * 0.3 + rng.uniform(-0.15, 0.15)
+                    at = _along(core, 0.01 + tier * 0.02)
+                    at = (at[0] + math.cos(yaw) * 0.012, at[1] + math.sin(yaw) * 0.012, at[2])
+                    parts.extend(_blade(f"rblade_{p}_{tier}_{k}", leaf_mats[(k + tier) % len(leaf_mats)],
+                                        stem_mat, at, size * rng.uniform(0.85, 1.15), yaw,
+                                        rise_deg + rng.uniform(-8.0, 8.0), rng, width_ratio=0.085,
+                                        curl=0.30 if tier else 0.45, tilt=rng.uniform(-24.0, 6.0),
+                                        rib=False, dead=dead))
+        # --- LAYER 4: the fruit on its stalk --------------------------------------------
+        f = design["fruit"]
+        if want_fruit and f > 0.0:
+            r = spec["fruit_r"] * (0.60 + 0.40 * f)
+            top = core[-1]
+            stalk = _axis(top, 0.05 + 0.04 * f, 0.0, 0.0)
+            parts.append(_sweep(f"fstalk_{p}", stem_mat, stalk, _taper(stalk, 0.012, 0.010), sides=5))
+            cz = stalk[-1][2] + r * 1.05
+            key = "unripe" if f < 0.8 else None
+            body_mat = mats["unripe"] if key else mats["fruit" if p % 2 else "fruit_alt"]
+            shell = _lathe(f"pine_{p}_edge", mats["fruit_edge"],
+                           (px + _AWAY[0] * r * 0.3, py + _AWAY[1] * r * 0.3, cz + _AWAY[2] * r * 0.3),
+                           r, FRUIT_SHAPES["pineapple"], k=1.14)
+            body = _lathe(f"pine_{p}", body_mat, (px, py, cz), r, FRUIT_SHAPES["pineapple"])
+            parts.extend([shell, body])
+            crown_z = cz + r * 1.35
+            for c in range(6):
+                yaw = c * math.tau / 6.0 + 0.4 + p * 0.2
+                parts.extend(_blade(f"crown_{p}_{c}", leaf_mats[c % len(leaf_mats)], stem_mat,
+                                    (px + math.cos(yaw) * r * 0.25, py + math.sin(yaw) * r * 0.25, crown_z),
+                                    r * 1.6, yaw, 62.0 + rng.uniform(-8.0, 8.0), rng, width_ratio=0.10,
+                                    curl=0.25, rib=False, dead=dead))
+    return parts
+
+
+# --------------------------------------------------------------------------- #
+# Trellis (grape) -- the Greenpeas habit
+# --------------------------------------------------------------------------- #
+#: How far up its stake each vine has climbed, world units, per stage. The mod user's
+#: Tree_Grape sheet is the design: six stakes in two rows, present from c0, and a vine
+#: TWINING up each one -- a helix round the pole, laterals arching out and down off it
+#: with the leaves and tendrils, bunches hanging from the laterals (green at c5, ripe
+#: at c6). Vanilla's Greenpeas stays the tone reference; the frame it draws is rails,
+#: the sheet's is stakes, and a vine reads as a vine only when it wraps something.
+VINE_CLIMB = (0.0, 0.12, 0.26, 0.45, 0.78, 1.05, 1.05, 1.00)
+VINE_GROWTH = (
+    dict(laterals=0, bunch=0.0), dict(laterals=0, bunch=0.0), dict(laterals=0, bunch=0.0),
+    dict(laterals=1, bunch=0.0), dict(laterals=2, bunch=0.0), dict(laterals=3, bunch=0.5),
+    dict(laterals=3, bunch=1.0), dict(laterals=3, bunch=0.0),
+)
+STAKES = ((-0.24, 0.0, 0.24), (-0.235, 0.235))
+LATERAL_Z = (0.34, 0.62, 0.88)
+
+
+def _helix(base, height, radius, turns, phase=0.0, step=0.035):
+    """A vine twining up a stake: a helix of ``turns`` over ``height`` round the pole."""
+    n = max(4, int(height / step))
+    pts = []
+    for i in range(n + 1):
+        u = i / n
+        a = phase + u * math.tau * turns
+        pts.append((base[0] + math.cos(a) * radius, base[1] + math.sin(a) * radius, base[2] + height * u))
+    return pts
+
+
+def trellis(stage, spec, mats, rng):
+    parts = []
+    dead = stage == STAGES - 1
+    # --- LAYER 1: the stakes, from stage 0 -----------------------------------------------
+    for i, y in enumerate(STAKES[1]):
+        for j, x in enumerate(STAKES[0]):
+            parts.append(_stalk(f"stake_{i}_{j}", mats["wood"], (x, y, 0.0), 1.12 + 0.03 * ((i + j) % 2),
+                                0.014, 0.012))
+    climb = VINE_CLIMB[stage]
+    if climb <= 0.001:
+        return parts
+    design = VINE_GROWTH[stage]
+    leaf_mats = [mats["dead"]] if dead else mats["leaves"]
+    stem_mat = mats["dead"] if dead else mats["stem"]
+    want_leaves = LAYER in ("leaves", "all")
+    want_fruit = LAYER == "all"
+    mat = min(1.0, climb / 1.05)
+    leaf_size = 0.13 * (0.55 + 0.45 * mat)
+    for i, y in enumerate(STAKES[1]):
+        for c, cx in enumerate(STAKES[0]):
+            ch = climb * rng.uniform(0.92, 1.0)
+            # --- LAYER 2: the twining cane and its laterals ----------------------------
+            vine = _helix((cx, y, 0.01), ch, 0.022, turns=ch * 2.1, phase=rng.uniform(0.0, math.tau))
+            parts.append(_sweep(f"vine_{i}_{c}", stem_mat, vine, _taper(vine, 0.0080, 0.0045), sides=5))
+            laterals = []
+            for k, lz in enumerate(LATERAL_Z[:design["laterals"]]):
+                if lz > ch - 0.04:
+                    continue
+                at = _along(vine, lz * _arc_len(vine) / ch)
+                side = 1 if (k + c + i) % 2 == 0 else -1
+                yaw = SCREEN_YAW + (0.0 if side > 0 else math.pi) + rng.uniform(-0.6, 0.6)
+                lat = _cane_path(at, rng.uniform(0.15, 0.23) * (0.6 + 0.4 * mat), yaw, 28.0, -58.0, segs=6)
+                parts.append(_sweep(f"lateral_{i}_{c}_{k}", stem_mat, lat, _taper(lat, 0.0050, 0.0028), sides=4))
+                laterals.append((lat, yaw, side, lz))
+                parts.append(_tendril(f"tendril_{i}_{c}_{k}", stem_mat, lat[-1], 0.08 * (0.6 + 0.4 * mat), 0.0030,
+                                      yaw + rng.uniform(-0.6, 0.6), turns=1.5))
+            if mat > 0.3:
+                at = _along(vine, 0.55 * _arc_len(vine))
+                parts.append(_tendril(f"tendril_{i}_{c}_v", stem_mat, at, 0.07, 0.0028,
+                                      SCREEN_YAW + rng.uniform(-1.0, 1.0), turns=1.8))
+            # --- LAYER 3: leaves on the cane and along the laterals -----------------------
+            if want_leaves:
+                L = _arc_len(vine)
+                d, j = 0.10, 0
+                while d < L - 0.03:
+                    at = _along(vine, d)
+                    side = 1 if (j + c) % 2 == 0 else -1
+                    yaw = SCREEN_YAW + (0.0 if side > 0 else math.pi) + rng.uniform(-0.6, 0.6)
+                    parts.extend(_palmate(f"vleaf_{i}_{c}_{j}", leaf_mats[j % len(leaf_mats)], stem_mat, at,
+                                          leaf_size * rng.uniform(0.85, 1.15), yaw, rng.uniform(-10.0, 25.0), rng, dead=dead))
+                    d += 0.13
+                    j += 1
+                for q, (lat, lyaw, side, lz) in enumerate(laterals):
+                    for m in (1, 3, 5):
+                        if m >= len(lat):
+                            break
+                        s2 = 1 if (m // 2 + q) % 2 else -1
+                        yaw = lyaw + s2 * rng.uniform(0.6, 1.2)
+                        parts.extend(_palmate(f"lleaf_{i}_{c}_{q}_{m}", leaf_mats[(q + m) % len(leaf_mats)], stem_mat,
+                                              lat[m], leaf_size * rng.uniform(0.75, 1.05), yaw,
+                                              rng.uniform(-20.0, 20.0), rng, dead=dead))
+            # --- LAYER 4: bunches hanging from the laterals ---------------------------------
+            b = design["bunch"]
+            if want_fruit and b > 0.0 and laterals:
+                for q, (lat, lyaw, side, lz) in enumerate(laterals):
+                    if lz < 0.5 or (q + c) % 3 == 2:
+                        continue
+                    bx, by, bz = lat[2]
+                    r = spec["fruit_r"] * 1.3 * (0.7 + 0.3 * b)
+                    parts.append(_sweep(f"pedu_{i}_{c}_{q}", stem_mat, [(bx, by, bz), (bx, by, bz - 0.035)],
+                                        [0.0040, 0.0032], sides=4))
+                    tiers = ((5, 0.000, 1.00), (4, -0.028, 0.95), (4, -0.054, 0.88),
+                             (3, -0.078, 0.80), (2, -0.098, 0.70), (1, -0.114, 0.58))
+                    for t, (n, dz, rs) in enumerate(tiers):
+                        for g in range(n):
+                            a = g * math.tau / n + 0.6 * t
+                            rad = 0.0 if n == 1 else r * 1.35 * rs
+                            mkey = "unripe" if b < 0.8 else ("fruit" if (g + t) % 2 else "fruit_alt")
+                            parts.extend(_berry(f"grape_{i}_{c}_{q}_{t}_{g}", mats[mkey],
+                                                (bx + math.cos(a) * rad, by + math.sin(a) * rad * 0.7,
+                                                 bz - 0.035 + dz - r * 0.6), r * rs, dimple=0.0))
+    return parts
+
+
+# --------------------------------------------------------------------------- #
+# Clump (ginger) -- the SweetPotato habit
+# --------------------------------------------------------------------------- #
+#: Rise above the bed, read off vegetation_farming_01_96..103 (its bbox is spoiled by a
+#: stray pixel, so this is measured on the plant mass), px at 2x.
+CLUMP_PX = (0, 6, 24, 35, 55, 70, 80, 45)
+#: THE GROWTH DESIGN: a ginger clump is several reed-like pseudostems from one crown,
+#: each leaning a little outward, carrying narrow lanceolate leaves in two ranks on
+#: alternate sides with a spear at the tip. The rhizome shows at the foot from c5.
+CLUMP_GROWTH = (
+    dict(stems=0, rhizome=0.0), dict(stems=1, rhizome=0.0), dict(stems=1, rhizome=0.0),
+    dict(stems=2, rhizome=0.0), dict(stems=3, rhizome=0.0), dict(stems=4, rhizome=0.6),
+    dict(stems=4, rhizome=1.0), dict(stems=3, rhizome=0.0),
+)
+CLUMP_PLANTS = ((-0.22, -0.235), (0.20, -0.235), (0.02, 0.235))
+
+
+def clump(stage, spec, mats, rng):
+    parts = []
+    rise = CLUMP_PX[stage]
+    h = (rise + BASE_DROP_PX) / PX_PER_Z if rise > 0 else 0.0
+    if h <= 0.001:
+        return parts
+    design = CLUMP_GROWTH[stage]
+    dead = stage == STAGES - 1
+    leaf_mats = [mats["dead"]] if dead else mats["leaves"]
+    stem_mat = mats["dead"] if dead else mats["stem"]
+    want_leaves = LAYER in ("leaves", "all")
+    want_fruit = LAYER == "all"
+    mat = min(1.0, rise / 80.0)
+    leaf_size = 0.20 * (0.60 + 0.40 * mat)
+    for p, (px, py) in enumerate(CLUMP_PLANTS):
+        n = design["stems"]
+        for s in range(n):
+            # --- LAYER 2: the pseudostems, leaning apart from one crown -------------------
+            u = (s - (n - 1) / 2.0)
+            side = 1 if u > 0 else (-1 if u < 0 else (1 if p % 2 else -1))
+            lean = u * 9.0 + rng.uniform(-3.0, 3.0)
+            ph = h * rng.uniform(0.80, 1.0) * (1.0 - 0.10 * abs(u))
+            base = (px + _ACROSS[0] * u * 0.030 + _NEAR[0] * (s % 2) * 0.03,
+                    py + _ACROSS[1] * u * 0.030 + _NEAR[1] * (s % 2) * 0.03, 0.015)
+            stem = _axis(base, ph, lean * 0.6, lean * 1.4, bow=0.03)
+            parts.append(_sweep(f"gstem_{p}_{s}", stem_mat, stem, _taper(stem, 0.0090, 0.0045), sides=5))
+            # --- LAYER 3: two-ranked leaves and the spear ----------------------------------
+            if want_leaves:
+                L = _arc_len(stem)
+                d, j = 0.20 * L + 0.02, 0
+                while d < L - 0.03:
+                    at = _along(stem, d)
+                    sd = 1 if j % 2 == 0 else -1
+                    yaw = SCREEN_YAW + (0.0 if sd > 0 else math.pi) + rng.uniform(-0.35, 0.35)
+                    frac = d / L
+                    parts.extend(_blade(f"gleaf_{p}_{s}_{j}", leaf_mats[(j + s) % len(leaf_mats)], stem_mat, at,
+                                        leaf_size * rng.uniform(0.85, 1.15) * (1.0 - 0.25 * frac), yaw,
+                                        22.0 + 30.0 * frac + rng.uniform(-8.0, 8.0), rng, width_ratio=0.12,
+                                        curl=0.30, tilt=rng.uniform(-20.0, 8.0), dead=dead))
+                    d += 0.085
+                    j += 1
+                parts.extend(_spear(f"gspear_{p}_{s}", leaf_mats, stem_mat, stem[-1], leaf_size * 0.55, rng, dead=dead))
+        # --- LAYER 4: the rhizome at the foot -----------------------------------------------
+        rz = design["rhizome"]
+        if want_fruit and rz > 0.0:
+            r = spec["fruit_r"] * (0.7 + 0.3 * rz)
+            for q in range(3):
+                aa = _CREASE_AT + (q - 1) * 0.8 + rng.uniform(-0.2, 0.2)
+                parts.extend(_fruit(f"rhizome_{p}_{q}", mats,
+                                    (px + math.cos(aa) * 0.05 + _NEAR[0] * 0.03,
+                                     py + math.sin(aa) * 0.05 + _NEAR[1] * 0.03, 0.028 + r * 0.5),
+                                    r, "rhizome", rng, alt=q % 2 == 1, lying=True))
     return parts
 
 
@@ -1221,12 +1776,17 @@ def clump(stage, spec, mats, rng):
 TREE_STAGES = (
     None,                                                   # seed
     None,                                                   # sprout
-    (0.30, 0.016, 0.34, 0.11, 0.13, 3, 0, 0),
-    (0.48, 0.028, 0.56, 0.24, 0.30, 10, 0, 0),
-    (0.58, 0.058, 0.96, 0.45, 0.66, 40, 0, 0),
-    (0.66, 0.075, 1.38, 0.47, 1.02, 66, 0, 0),
-    (0.66, 0.075, 1.38, 0.47, 1.02, 66, 24, 0),
-    (0.66, 0.075, 1.38, 0.47, 1.02, 66, 24, 0),
+    # v22, from the painted sheets (median of the 11 Tree_*.png, x0.92 for our floor
+    # anchor): crown width x height px and its skirt above the trunk foot --
+    #   c2 29x33, 25 px up; c3 44x56, 31; c4 86x106, 53; c5-c7 114x148, 62.
+    # th: trunk height (the fork sits at the skirt); cz, rx, rz: crown centre and radii
+    # (across the screen = 1.40 rx); tk: trunk radius as a fraction of the crop's own.
+    dict(th=0.32, cz=0.53, rx=0.115, rz=0.21, tk=0.25),
+    dict(th=0.40, cz=0.75, rx=0.174, rz=0.36, tk=0.45),
+    dict(th=0.68, cz=1.35, rx=0.34, rz=0.66, tk=0.80),
+    dict(th=0.79, cz=1.73, rx=0.45, rz=0.92, tk=1.00),
+    dict(th=0.79, cz=1.73, rx=0.45, rz=0.92, tk=1.00),
+    dict(th=0.79, cz=1.73, rx=0.45, rz=0.92, tk=1.00),
 )
 #: unripe fruit at c6 is green: measured off Cherry c6 (yellow-green blobs) and Banana c6
 UNRIPE_PAINT = (0.34, 0.44, 0.12)
@@ -1341,137 +1901,615 @@ def _on_canopy(rng, cz, rx, rz, depth=0.90, spread=1.15):
     return (dx * rx * depth, dy * rx * depth, cz + dz * rz * depth)
 
 
+#: THE TREE DESIGN (v22). The mod user's painted sheets (Tree_*.png) are the reference a
+#: fruit tree has -- vanilla has no tree crop -- and what the user singled out in them is
+#: the TRUNK AND LIMBS (their pixel drawing and their colour) and the FRUIT. Read at 6x
+#: and measured on all 11 sheets (ripe cell):
+#:   * trunk: a straight, slightly tapering cylinder 8-17 px wide, lit on its left ~40%,
+#:     thin low-contrast streaks along it, no outline; at the crown's skirt it forks into
+#:     2-4 limbs that splay up into the crown in a V and show for 10-20 px before the
+#:     leaves close over them. The base is cut straight or flares into 2-3 short roots
+#:     (base/mid width 1.0-2.4). Colour per crop: near-black red-brown (cherry), grey-brown
+#:     (orange, coffee), warm mid brown (lemon, avocado), silver grey (olive).
+#:   * forms: one trunk (most), a low vase of four limbs (cherry), twin trunks (olive),
+#:     a clump of stems (coffee).
+#:   * fruit: 15-24 fruit (cherry 22 pairs, olive/coffee ~25 clusters) spread evenly over
+#:     the crown's FRONT, each sitting on the leaves on a short stem, deep and saturated,
+#:     with a 1 px highlight, a dark side and a dark rim; mango/peach two-toned.
+#:   * shadow: a flat black ellipse ~0.42 of the sprite's width (drawn by the build:
+#:     --ground-shadow-shape ellipse), none under seed and sprout.
+#:   limbs / secs / twigs  how far the skeleton branches;  leaf  blade size (world)
+#:   bloom  share of the crown that is blossom;  fruit  share of the full fruit count
+TREE_GROWTH = (
+    dict(limbs=0, secs=0, twigs=0, leaf=0.00, bloom=0.0, fruit=0.0),
+    dict(limbs=0, secs=0, twigs=0, leaf=0.00, bloom=0.0, fruit=0.0),
+    dict(limbs=2, secs=2, twigs=2, leaf=0.085, bloom=0.0, fruit=0.0),
+    dict(limbs=3, secs=3, twigs=3, leaf=0.090, bloom=0.0, fruit=0.0),
+    dict(limbs=4, secs=3, twigs=5, leaf=0.105, bloom=0.0, fruit=0.0),
+    dict(limbs=4, secs=4, twigs=5, leaf=0.110, bloom=0.62, fruit=0.0),
+    dict(limbs=4, secs=4, twigs=5, leaf=0.110, bloom=0.0, fruit=1.0),
+    dict(limbs=4, secs=4, twigs=5, leaf=0.100, bloom=0.0, fruit=0.65),
+)
+#: Per crop, off its own painted sheet (ripe cell):
+#:   r      trunk radius: mid-trunk width px / 2 / 90.5 px per metre, x0.92 (our tree
+#:          stands on the game's floor anchor, 15-20 px higher than the sheets', so the
+#:          whole tree is drawn at 0.92 of the sheet's height)
+#:   flare  base width / mid width; past 1.3 the base grows root buttresses
+#:   form   single | vase | twin | multi (see above)
+#:   bark   albedo of the trunk's lit (p90) shade on the S face (pzforge.spec.albedo_for)
+#:   crown  median rendered colour of the crown's greens -- the leaf paints are scaled to it
+#:   n, fr  fruit count and fruit radius (median fruit blob, less the outline's ~16%)
+TREE_FORMS = {
+    "cherry":     dict(bloom=(0.92, (0.87, 0.26, 0.47)), seen=(61, 84, 42), r=0.086, flare=1.2, form="vase",   bark=(0.100, 0.052, 0.023), crown=(71, 98, 43),  n=22, fr=0.031,
+                       T=185, S=38, W=113, fork=0, fl=0.49, gl=(0.70, 0.06)),
+    "pear":       dict(bloom=(0.14, (0.95, 0.95, 0.9)), seen=(65, 83, 48), r=0.041, flare=1.0, form="single", bark=(0.147, 0.089, 0.063), crown=(78, 98, 50),  n=20, fr=0.042,
+                       T=199, S=36, W=101, fork=0, fl=1.0, gl=(0.22, 0.16)),
+    "peach":      dict(bloom=(0.92, (1.0, 0.38, 0.75)), seen=(77, 106, 53), r=0.071, flare=1.6, form="single", bark=(0.166, 0.107, 0.074), crown=(91, 123, 52), n=20, fr=0.065,
+                       T=212, S=66, W=116, fork=-6, fl=1.76, gl=(0.12, 0.18)),
+    "orange":     dict(bloom=(0.12, (0.95, 0.96, 0.88)), seen=(66, 92, 61), r=0.066, flare=1.1, form="single", bark=(0.156, 0.114, 0.107), crown=(88, 119, 67), n=27, fr=0.059,
+                       T=213, S=57, W=116, fork=8, fl=1.89, gl=(0.30, 0.14)),
+    "lemon":      dict(bloom=(0.22, (0.95, 0.96, 0.85)), seen=(59, 98, 57), r=0.051, flare=1.2, form="single", bark=(0.264, 0.166, 0.111), crown=(79, 130, 65), n=16, fr=0.075,
+                       T=209, S=56, W=101, fork=2, fl=2.2, gl=(0.30, 0.14)),
+    "lime":       dict(bloom=(0.2, (0.95, 0.96, 0.85)), seen=(46, 97, 53), r=0.051, flare=1.2, form="single", bark=(0.264, 0.170, 0.114), crown=(63, 120, 60), n=16, fr=0.074,
+                       T=208, S=53, W=104, fork=2, fl=0.60, gl=(0.30, 0.14)),
+    "grapefruit": dict(bloom=(0.12, (0.95, 0.96, 0.88)), seen=(75, 102, 66), r=0.061, flare=1.1, form="single", bark=(0.156, 0.114, 0.107), crown=(88, 119, 67), n=26, fr=0.064,
+                       T=207, S=58, W=117, fork=8, fl=1.81, gl=(0.30, 0.14)),
+    "avocado":    dict(bloom=(0.0, None), seen=(42, 66, 43), r=0.071, flare=2.4, form="single", bark=(0.234, 0.139, 0.086), crown=(56, 86, 46),  n=18, fr=0.046,
+                       T=205, S=53, W=110, fork=-8, fl=1.0, gl=(0.50, 0.07)),
+    "mango":      dict(bloom=(0.0, None), seen=(59, 89, 55), r=0.071, flare=2.4, form="single", bark=(0.234, 0.152, 0.093), crown=(65, 97, 52),  n=16, fr=0.06,
+                       T=206, S=49, W=112, fork=-8, fl=1.86, gl=(0.22, 0.16)),
+    # single dark olives (the painted blobs are 5x7 px, one fruit each), silver birch-like
+    # twin trunks on one stump
+    "olive":      dict(bloom=(0.25, (0.95, 0.93, 0.8)), seen=(59, 73, 51), r=0.040, flare=1.0, form="twin",   bark=(0.530, 0.480, 0.440), crown=(79, 94, 54),  n=30, fr=0.034,
+                       T=212, S=55, W=109, fork=4, style="hang", bark_tex="birch", fl=0.34, gl=(0.55, 0.07)),
+    # a low bundle of stems under a big round crown; berries in clumps of 5-7
+    "coffee":     dict(bloom=(0.0, None), seen=(74, 92, 49), r=0.040, flare=1.0, form="multi",  bark=(0.143, 0.093, 0.074), crown=(93, 112, 51), n=25, fr=0.027,
+                       T=194, S=31, W=114, fork=4, per=6, fl=0.5, gl=(0.60, 0.06)),
+    # no apple sheet: the cherry's silhouette and red, a little lighter
+    "apple":      dict(bloom=(0.55, (1.0, 0.72, 0.84)), seen=(60, 82, 43), r=0.068, flare=1.3, form="single", bark=(0.130, 0.075, 0.045), crown=(80, 108, 48), n=20, fr=0.052,
+                       T=180, S=42, W=105, fork=0, fl=0.75, gl=(0.55, 0.07)),
+}
+#:   T, S, W  where the crown is SET: the painted ripe crown x0.92 (silhouette rows of
+#:            >= 6 green px, top / skirt above the trunk foot, width px) less the residual
+#:            v22f measured between that setting and our shell-crowned silhouette
+#:   fork     px the fork sits ABOVE the visible skirt (hidden in the crown: orange,
+#:            grapefruit) or below it (a V of limbs showing: avocado, mango, peach)
+#:   bloom    the bloom stage (c5) off the painted c5 cell: share of the crown in flower
+#:            and the blossom paint (cherry and peach flower all over in magenta-pink,
+#:            pear/citrus/olive carry 12-25% white, avocado/mango/coffee none)
+#:   seen     the crown median v22c rendered: the leaf paints are corrected by
+#:            target/seen per channel in linear light (a second closed loop)
+#:   fl, gl   fruit light (x every toon level: the painted fruit are drawn brighter than
+#:            our ramp's top step reaches -- orange p50 209 vs 165 -- or darker: cherry,
+#:            olive, lime) and the highlight (strength, roughness): a crisp dot on cherry
+#:            and berries, a soft sheen on citrus, peach, pear, mango
+#:   T, S, W  the painted ripe crown: top and skirt above the trunk foot, width (px, x0.92)
+#:   fork     px the fork sits ABOVE the visible skirt (hidden in the crown: orange,
+#:            grapefruit) or below it (a V of limbs showing: avocado, mango, peach)
+#: How a crown ellipsoid renders with its leaf shell (v22e): the leafy top lands ~4 px
+#: over the ellipsoid's top, the skirt ~3 px under its bottom (leaves droop), the width
+#: ~8 px over (rim leaves, kept on the tile)
+_SIL_TOP, _SIL_SKIRT, _SIL_W = 4.0, -3.0, 8.0
+
+
+def _tree_stage(form, stage):
+    """The crop's crown and trunk at a stage: c5-c7 solved from its painted silhouette,
+    the earlier stages the median stage table scaled by its height and width."""
+    st = TREE_STAGES[stage]
+    T, S, W = form["T"], form["S"], form["W"]
+    if stage >= 5:
+        cz = (T - _SIL_TOP + S - _SIL_SKIRT) / 2.0 / PX_PER_Z
+        rz = (T - _SIL_TOP - S + _SIL_SKIRT) / 2.0 / PX_PER_Z
+        rx = (W - _SIL_W) / (2.0 * _CROWN_ACROSS * 90.5)
+        th = (S + form["fork"]) / PX_PER_Z
+        return dict(th=th, cz=cz, rx=rx, rz=rz, tk=st["tk"])
+    hf, wf = T / 211.0, W / 105.0
+    return dict(th=st["th"] * hf, cz=st["cz"] * hf, rx=st["rx"] * wf, rz=st["rz"] * hf, tk=st["tk"])
+#: the rendered crown median the base leaf paints give (measured on the cherry, v22);
+#: each crop's paints are scaled per channel (in linear light) from this to its own crown
+CROWN_RESPONSE = (71, 98, 43)
+#: how many leaf areas the crown's outer shell carries per unit of its visible area
+SHELL_COVER = 1.3
+#: drooping boughs under a hidden fork -- off since the shell fills the lower crown
+#: (with both, v22e's orange skirt hung 15 px below the painted one)
+SKIRT_BOUGHS = False
+#: crown semi-axes across the screen and in depth, as multiples of TREE_STAGES' rx
+_CROWN_ACROSS, _CROWN_DEPTH = 1.40, 0.60
+#: the painter's light: from the upper left and a little in front
+_LIGHT = (-0.55, 0.35, 0.76)
+_UP = (0.0, 0.0, 1.0)
+#: screen axes in world units (rig: 90.5 px per metre across, 78.4 per metre of height)
+_SCREEN_UP = (-0.354, 0.354, 0.866)
+
+
+def _clamp_tile(p, lim=0.48):
+    return (max(-lim, min(lim, p[0])), max(-lim, min(lim, p[1])), p[2])
+
+
+def _screen(p):
+    """World point -> sprite px (x right, y up) relative to the tile centre."""
+    return ((p[0] * _ACROSS[0] + p[1] * _ACROSS[1]) * 90.5,
+            (p[0] * _SCREEN_UP[0] + p[1] * _SCREEN_UP[1] + p[2] * _SCREEN_UP[2]) * 90.5)
+
+
+def _bough(a, b, bow, rng, segs=6, lift=0.0):
+    """A limb from ``a`` to ``b``: one smooth sideways bow (perpendicular to its run,
+    in the ground plane) and an upward lift, so no limb is a straight rod."""
+    dx, dy, dz = b[0] - a[0], b[1] - a[1], b[2] - a[2]
+    hl = math.hypot(dx, dy) or 1e-6
+    nx, ny = -dy / hl, dx / hl
+    s = 1.0 if rng.random() < 0.5 else -1.0
+    pts = []
+    for i in range(segs + 1):
+        u = i / segs
+        w = math.sin(math.pi * u)
+        pts.append((a[0] + dx * u + nx * s * bow * w, a[1] + dy * u + ny * s * bow * w,
+                    a[2] + dz * u + lift * w))
+    return pts
+
+
+def _on_crown(cz, rx, rz, yaw, el, k):
+    """A point at fraction ``k`` of the crown ellipsoid's radius in direction (yaw, el):
+    yaw runs round the SCREEN-aligned ellipsoid (0 = screen-right, pi/2 = toward the
+    camera), el up from its equator."""
+    ce = math.cos(el)
+    across = ce * math.cos(yaw) * rx * _CROWN_ACROSS * k
+    depth = ce * math.sin(yaw) * rx * _CROWN_DEPTH * k
+    return _clamp_tile((_ACROSS[0] * across + _NEAR[0] * depth,
+                        _ACROSS[1] * across + _NEAR[1] * depth,
+                        cz + math.sin(el) * rz * k))
+
+
+def _crown_shade(p, cz, rx, rz):
+    """Where a leaf sits on the crown: (dot of its shell normal with the light, its
+    radius fraction). The painter's rule: lit side bright, far side dark, inside dark."""
+    across = (p[0] * _ACROSS[0] + p[1] * _ACROSS[1]) / (rx * _CROWN_ACROSS)
+    depth = (p[0] * _NEAR[0] + p[1] * _NEAR[1]) / (rx * _CROWN_DEPTH)
+    up = (p[2] - cz) / rz
+    k = math.sqrt(across * across + depth * depth + up * up) or 1e-6
+    nx = across * _ACROSS[0] + depth * _NEAR[0]
+    ny = across * _ACROSS[1] + depth * _NEAR[1]
+    nz = up
+    nl = math.sqrt(nx * nx + ny * ny + nz * nz) or 1e-6
+    lit = (nx * _LIGHT[0] + ny * _LIGHT[1] + nz * _LIGHT[2]) / nl
+    return lit, k
+
+
+def _tone(mats_list, lit, k, rng, bloom=False):
+    """Pick the leaf paint for a crown position: five tones from the lit crown to the
+    shadowed interior, with one step of jitter so clusters are not banded."""
+    n = len(mats_list)
+    t = 0.5 + 0.5 * lit                 # 0 far side .. 1 lit side
+    if k < 0.62:
+        t *= 0.45                       # interior: shadow
+    idx = int(round((1.0 - t) * (n - 1))) + rng.choice((-1, 0, 0, 1))
+    return mats_list[max(0, min(n - 1, idx))]
+
+
+def _trunk_radii(pts, r, flare, top_k=0.78):
+    """A trunk's radius along its axis: tapering to ``top_k`` at the fork, swelling into
+    the base over its lowest 15% (capped at 1.35x; wider flares are root buttresses)."""
+    n = max(1, len(pts) - 1)
+    out = []
+    for i in range(len(pts)):
+        u = i / n
+        swell = 1.0 + (min(flare, 1.35) - 1.0) * max(0.0, 1.0 - u / 0.15) ** 2
+        out.append(r * (1.0 - (1.0 - top_k) * u) * swell)
+    return out
+
+
+def _stems(form, th, r, rng):
+    """The crop's trunk(s): a list of (axis polyline, radius, limbs at its top, fork
+    height fraction). Saplings are always single stems."""
+    lean = rng.uniform(-3.0, 3.0)
+    if form == "vase":
+        # a short thick trunk forking low into four splayed limbs (painted cherry: the
+        # trunk splits ~24 px under the skirt and the limbs fan through the lower crown)
+        return [(_axis((0.0, 0.0, 0.0), th * 0.52, lean, lean * 0.4, bow=0.02), r, 4, 0.52)]
+    if form == "twin":
+        # two trunks off one stump, nearly parallel (painted olive: 7-8 px each, a 19 px
+        # stump, diverging a few degrees)
+        out = []
+        for s in (-1, 1):
+            base = (_ACROSS[0] * s * r * 0.85, _ACROSS[1] * s * r * 0.85, 0.0)
+            out.append((_axis(base, th * 1.02, s * 4.0 + rng.uniform(-1, 1), s * 2.5, bow=0.02), r, 2, 1.0))
+        return out
+    if form == "multi":
+        # a bundle: three stems close together, splaying a little (painted coffee: 21-24 px
+        # wide at the foot, the crown low over them)
+        out = []
+        for s in (-1, 0, 1):
+            base = (_ACROSS[0] * s * r * 1.25 + _NEAR[0] * (0.015 if s == 0 else -0.01),
+                    _ACROSS[1] * s * r * 1.25 + _NEAR[1] * (0.015 if s == 0 else -0.01), 0.0)
+            hk = 1.0 if s == 0 else 0.94
+            out.append((_axis(base, th * hk, s * 9.0 + rng.uniform(-2, 2), s * 6.0, bow=0.02), r, 2, 1.0))
+        return out
+    return [(_axis((0.0, 0.0, 0.0), th, lean, lean * 0.4, bow=0.03), r, None, 1.0)]
+
+
+def _front_points(cz, rx, rz, n, rng, k=(0.86, 0.96), el=(-38.0, 60.0)):
+    """``n`` points on the FRONT of the crown, spread evenly on the sprite: Poisson-disc
+    in screen px, the spacing set by the crown's visible area over the count."""
+    across_px = rx * _CROWN_ACROSS * 90.5
+    half_h = rz * 78.4
+    area = math.pi * across_px * half_h * 0.80
+    dmin = 0.80 * math.sqrt(area / max(1, n))
+    pts, scr = [], []
+    for _ in range(4000):
+        if len(pts) >= n:
+            break
+        yaw = math.pi / 2.0 + rng.uniform(-1.30, 1.30)
+        e = math.radians(rng.uniform(*el))
+        p = _on_crown(cz, rx, rz, yaw, e, rng.uniform(*k))
+        sp = _screen(p)
+        if all((sp[0] - q[0]) ** 2 + (sp[1] - q[1]) ** 2 >= dmin * dmin for q in scr):
+            pts.append(p)
+            scr.append(sp)
+    return pts
+
+
+def _pick_spots(cands, cz, rx, rz, n, rng, margin=0.0):
+    """``n`` fruit spots out of the front leaf anchors, spread evenly on the sprite
+    (Poisson-disc in screen px). Fruit then always sit ON the crown -- v22a drew them
+    on the crown ellipsoid, and where the leaves fell short of it they floated."""
+    across_px = rx * _CROWN_ACROSS * 90.5
+    half_h = rz * 78.4
+    dmin = 0.82 * math.sqrt(math.pi * across_px * half_h * 0.80 / max(1, n))
+    # a fruit must sit wholly on the tile once moved in front of its leaf (+_TOWARD 0.12):
+    # past the edge the packer cuts its body and the outline shell behind it is left as a
+    # dark crescent (v22g: orange, lemon, grapefruit, peach)
+    lim = 0.47 - margin
+    pool = [q for q in cands
+            if abs(q[0] + _TOWARD[0] * 0.12) <= lim and abs(q[1] + _TOWARD[1] * 0.12) <= lim]
+    rng.shuffle(pool)
+    out, scr = [], []
+    for shrink in (1.0, 0.85, 0.7):
+        d2 = (dmin * shrink) ** 2
+        for p in pool:
+            if len(out) >= n:
+                break
+            sp = _screen(p)
+            if all((sp[0] - q[0]) ** 2 + (sp[1] - q[1]) ** 2 >= d2 for q in scr):
+                out.append(p)
+                scr.append(sp)
+        if len(out) >= n:
+            break
+    return out
+
+
 def tree(stage, spec, mats, rng):
-    """Fruit tree: trunk, limbs, a dabbed canopy, blossom then green then ripe fruit."""
     parts = []
-    dead = False
+    form = TREE_FORMS.get(spec.get("name"), TREE_FORMS["apple"])
     if stage == 0:
         bpy.ops.mesh.primitive_uv_sphere_add(segments=8, ring_count=5, radius=0.5,
                                              location=(0.0, 0.0, 0.035))
         seed = bpy.context.active_object
         seed.name = "seed"
-        seed.scale = (0.072, 0.055, 0.045)
+        seed.scale = (0.110, 0.085, 0.068)
         seed.data.materials.append(mats["bark"])
         bpy.ops.object.shade_smooth()
         parts.append(F.tag_family(seed, "wood"))
         return parts
+    want_leaves = LAYER in ("leaves", "all")
+    want_fruit = LAYER == "all"
     if stage == 1:
-        for k in range(3):
-            yaw = SCREEN_YAW + (k - 1) * 0.9 + (math.pi if k == 1 else 0.0)
-            parts.extend(F.tag_family(_leaf(
-                f"sprout_{k}", mats["leaves"][k % len(mats["leaves"])],
-                (0.0, 0.0, 0.02), 0.13, yaw, math.radians(-40.0), curl=0.30,
-                width_ratio=0.30, roll=_broadside_roll(yaw)), "foliage"))
         parts.append(F.tag_family(_stalk("sprout_stem", mats["stem"], (0.0, 0.0, 0.0),
-                                         0.06, 0.008, 0.006), "wood"))
+                                         0.07, 0.008, 0.005), "wood"))
+        if want_leaves:
+            for k in range(4):
+                yaw = SCREEN_YAW + (k - 1.5) * 0.8 + (math.pi if k % 2 else 0.0)
+                parts.extend(F.tag_family(_leaf(
+                    f"sprout_{k}", mats["tree_leaves"][1 + k % 2],
+                    (0.0, 0.0, 0.03 + 0.012 * k), 0.11, yaw, math.radians(-30.0 - 8.0 * k), curl=0.20,
+                    width_ratio=0.30, roll=_broadside_roll(yaw)), "foliage"))
         return parts
+    st = _tree_stage(form, stage)
+    design = TREE_GROWTH[stage]
+    th, cz, rx, rz = st["th"], st["cz"], st["rx"], st["rz"]
+    r = form["r"] * st["tk"]
+    withered = stage == STAGES - 1
+    tones = mats["tree_leaves"]
+    if withered:
+        tones = [mats["tree_leaves"][0], mats["dead"], mats["tree_leaves"][2], mats["dead"], mats["tree_leaves"][4]]
+    # --- LAYER 2a: the trunk(s) and the root flare ------------------------------------------
+    kind = form["form"] if stage >= 4 else "single"
+    stems = _stems(kind, th, r, rng)
+    for si, (axis, sr, _nl, _fk) in enumerate(stems):
+        parts.append(F.tag_family(_sweep(f"trunk_{si}", mats["bark"], axis,
+                                         _trunk_radii(axis, sr, form["flare"] if stage >= 4 else 1.0, top_k=0.70),
+                                         sides=8), "wood"))
+    if kind == "twin":
+        stump = [(0.0, 0.0, 0.0), (0.0, 0.0, 0.05), (0.0, 0.0, 0.11)]
+        parts.append(F.tag_family(_sweep("stump", mats["bark"], stump, [r * 2.3, r * 2.0, r * 1.2], sides=8), "wood"))
+    if stage >= 4 and form["flare"] > 1.3:
+        for c in range(3):
+            aa = _CREASE_AT + (c - 1) * 1.7 + rng.uniform(-0.25, 0.25)
+            reach = r * form["flare"] * rng.uniform(0.95, 1.10)
+            root = [(math.cos(aa) * r * 0.3, math.sin(aa) * r * 0.3, r * 1.4),
+                    (math.cos(aa) * r * 0.85, math.sin(aa) * r * 0.85, r * 0.45),
+                    (math.cos(aa) * reach, math.sin(aa) * reach, 0.004)]
+            parts.append(F.tag_family(_sweep(f"root_{c}", mats["bark"], root,
+                                             [r * 0.62, r * 0.42, r * 0.16], sides=6), "wood"))
+    # --- LAYER 2b: limbs from the fork -> secondaries -> twigs --------------------------------
+    twigs = []                      # (polyline, is_secondary)
+    li_total = 0
+    for si, (axis, sr, n_lim, fork_k) in enumerate(stems):
+        # the limbs leave from INSIDE the trunk, below its end, each nearly as thick as
+        # the trunk there: their union is the fork, and the trunk's end cap stays buried
+        # (v22a's limbs started at the cap and left a visible step at every fork)
+        top = _along(axis, _arc_len(axis) * 0.80)
+        n_limbs = n_lim if n_lim else design["limbs"]
+        limb_r = sr * (0.66 if n_limbs >= 4 else 0.74)
+        base_yaw = rng.uniform(-0.35, 0.35)
+        for i in range(n_limbs):
+            yaw = base_yaw + i * math.tau / n_limbs + rng.uniform(-0.30, 0.30)
+            if kind == "vase":
+                # long splayed limbs through the lower crown: they end low and wide
+                el = math.radians(rng.uniform(-28.0, 12.0))
+                end = _on_crown(cz, rx, rz, yaw, el, 0.74)
+            else:
+                el = math.radians(rng.uniform(5.0, 42.0))
+                end = _on_crown(cz, rx, rz, yaw, el, 0.46)
+            if len(stems) > 1:
+                # each stem of a twin or a clump feeds its own side of the crown
+                end = (end[0] + (top[0] - axis[0][0]) * 1.5, end[1] + (top[1] - axis[0][1]) * 1.5, end[2])
+                end = _clamp_tile(end)
+            limb = _bough(top, end, bow=0.04 + 0.03 * rx, rng=rng, lift=0.02)
+            parts.append(F.tag_family(_sweep(f"limb_{si}_{i}", mats["bark"], limb,
+                                             _taper(limb, limb_r, limb_r * 0.50), sides=6), "wood"))
+            twigs.append((limb[2:], True))
+            n_sec = design["secs"] if len(stems) == 1 else max(2, design["secs"] - 1)
+            for s in range(n_sec):
+                base = limb[2 + (s * 4) // max(1, n_sec)] if len(limb) > 6 else limb[-1]
+                syaw = yaw + (s - (n_sec - 1) / 2.0) * 0.85 + rng.uniform(-0.3, 0.3)
+                sel = math.radians(rng.uniform(-62.0, 76.0))
+                send = _on_crown(cz, rx, rz, syaw, sel, rng.uniform(0.80, 0.96))
+                sec = _bough(base, send, bow=0.05, rng=rng, lift=0.03)
+                sec_r = limb_r * 0.55
+                parts.append(F.tag_family(_sweep(f"sec_{si}_{i}_{s}", mats["bark"], sec,
+                                                 _taper(sec, sec_r, sec_r * 0.45), sides=5), "wood"))
+                twigs.append((sec[2:], True))
+                for t in range(design["twigs"]):
+                    tb = sec[2 + t * (len(sec) - 3) // max(1, design["twigs"] - 1)] if design["twigs"] > 1 else sec[-2]
+                    tyaw = syaw + (t % 2 * 2 - 1) * rng.uniform(0.5, 1.1)
+                    tel = math.radians(rng.uniform(-10.0, 55.0))
+                    tl = 0.12 + 0.14 * rx + rng.uniform(-0.02, 0.04)
+                    tend = _clamp_tile((tb[0] + math.cos(tel) * math.cos(tyaw) * tl,
+                                        tb[1] + math.cos(tel) * math.sin(tyaw) * tl,
+                                        tb[2] + math.sin(tel) * tl * 1.3))
+                    twig = _bough(tb, tend, bow=0.012, rng=rng, segs=4)
+                    parts.append(F.tag_family(_sweep(f"twig_{si}_{i}_{s}_{t}", mats["bark"], twig,
+                                                     _taper(twig, 0.0045, 0.0022), sides=4), "wood"))
+                    twigs.append((twig, False))
+            li_total += 1
+        if SKIRT_BOUGHS and form["fork"] > 2 and stage >= 4:
+            # under a fork hidden in the crown nothing reaches the crown's lower shell:
+            # boughs droop from the stem's top out and down to it (v22c: the orange's
+            # skirt sat 27 px above the painted one's with the lower crown empty)
+            n_skirt = 5 if len(stems) == 1 else 3
+            for q in range(n_skirt):
+                syaw = base_yaw + (q + 0.5) * math.tau / n_skirt + rng.uniform(-0.3, 0.3)
+                start = _along(axis, _arc_len(axis) * rng.uniform(0.70, 0.95))
+                send = _on_crown(cz, rx, rz, syaw, math.radians(rng.uniform(-80.0, -45.0)), rng.uniform(0.86, 0.96))
+                droop = _bough(start, send, bow=0.04, rng=rng, lift=-0.02)
+                dr = sr * 0.40
+                parts.append(F.tag_family(_sweep(f"skirt_{si}_{q}", mats["bark"], droop,
+                                                 _taper(droop, dr, dr * 0.45), sides=5), "wood"))
+                twigs.append((droop[2:], True))
+                for tq in range(3):
+                    tb = droop[2 + tq]
+                    tyaw = syaw + (tq % 2 * 2 - 1) * rng.uniform(0.5, 1.1)
+                    tel = math.radians(rng.uniform(-35.0, 10.0))
+                    tl = 0.10 + 0.12 * rx
+                    tend = _clamp_tile((tb[0] + math.cos(tel) * math.cos(tyaw) * tl,
+                                        tb[1] + math.cos(tel) * math.sin(tyaw) * tl,
+                                        tb[2] + math.sin(tel) * tl))
+                    twig = _bough(tb, tend, bow=0.010, rng=rng, segs=4)
+                    parts.append(F.tag_family(_sweep(f"stwig_{si}_{q}_{tq}", mats["bark"], twig,
+                                                     _taper(twig, 0.0042, 0.0022), sides=4), "wood"))
+                    twigs.append((twig, False))
+    # --- LAYER 3: the crown ---------------------------------------------------------------
+    fruit_spots = []                # front-facing leaf anchors: where fruit can sit
+    # the skirt is kept thin round the fork only where the fork shows (a V of limbs under
+    # the crown); a fork hidden in the crown keeps a full skirt (v22b: clearing it there
+    # lifted orange/grapefruit skirts 22-25 px)
+    clear_skirt = form["fork"] <= 2 and kind in ("single", "vase")
+    if want_leaves:
+        size = design["leaf"]
+        bloom = form.get("bloom", (design["bloom"], None))[0] if design["bloom"] > 0.0 else 0.0
+        # a crown that flowers all over turns its leaves to blossom; a sparse white
+        # bloom is drawn as small flower dots on top instead (after the leaves)
+        flower_dots = bloom if 0.0 < bloom < 0.5 else 0.0
+        if flower_dots:
+            bloom = 0.0
+        li = 0
 
-    th, tr, cz, rx, rz, n_cl, n_fruit, n_bloom = TREE_STAGES[stage]
-    # ground: the painted sheets carry a small soft shadow under the trunk, not the
-    # 0.87-tile diamond furniture gets; a flat dark disc does it
-    bpy.ops.mesh.primitive_circle_add(vertices=14, radius=1.0, fill_type="NGON",
-                                      location=(0.0, 0.0, 0.002))
-    disc = bpy.context.active_object
-    disc.name = "shadow"
-    disc.scale = (0.20 + 0.12 * rx, 0.20 + 0.12 * rx, 1.0)
-    disc.data.materials.append(mats["shadow"])
-    parts.append(F.tag_family(disc, "soil"))
-    # trunk: a serpentine sweep (vanilla stems reverse direction ~3 times over 80 px),
-    # tapering to 0.6 of its base radius, then three limbs into the canopy
-    pts = []
-    segs = 8
-    for i in range(segs + 1):
-        u = i / segs
-        wob = 0.035 * th * math.sin(u * math.pi * 3.0)
-        pts.append((wob * 0.707, -wob * 0.707, th * u))
-    parts.append(F.tag_family(_sweep("trunk", mats["bark"], pts,
-                                     [tr * (1.0 - 0.4 * i / segs) for i in range(segs + 1)],
-                                     sides=7), "wood"))
-    for k in range(3):
-        yaw = k * math.tau / 3.0 + 0.4
-        limb = _cane_path((0.0, 0.0, th * 0.78), rz * 0.75, yaw, 62, 44, segs=5)
-        parts.append(F.tag_family(_sweep(f"limb_{k}", mats["bark"], limb,
-                                         [tr * 0.55 * (1.0 - 0.5 * i / 5) for i in range(6)],
-                                         sides=5), "wood"))
-    # canopy: a dark core cluster and a leaf shell per site. Sites are biased toward
-    # the outside so the outline is lumpy and light shows through the middle (the
-    # reference's canopies are ~75% filled), and every site is kept inside the tile:
-    # centre distance + 1.2 x cluster radius <= 0.47, because the packer cuts at 0.5.
-    leaf_mats = mats["blossom"] if stage == 5 else mats["canopy_leaves"]
-    # The crown fills the tile's SQUARE, not a circle inside it: screen-horizontal is
-    # the tile's (x+y) diagonal, so a crown that only reaches radius 0.47 is 60 px wide
-    # on screen while the reference's is 120-128. Sites are drawn in the square
-    # |x|,|y| <= 0.47 - 1.2 cr, biased to its edge, and the vertical profile is an
-    # ellipse so the crown stays round in elevation.
-    sites = []
-    for k in range(n_cl):
-        cr = rx * rng.uniform(0.20, 0.32)
-        lim = max(0.02, 0.47 - cr * 1.85)
-        # Sampled in the SCREEN frame. Screen-horizontal is the tile's (x+y) diagonal
-        # and screen-depth its (x-y) diagonal; the square |x|,|y| <= lim is the diamond
-        # |h| + |d| <= lim*sqrt(2) in those. Drawing x and y independently put most
-        # sites on the depth diagonal, where the camera foreshortens them, and the
-        # crown came out 90 px wide against the reference's 125. Here h is drawn wide
-        # with an edge bias and d takes what the diamond leaves.
-        span = lim * math.sqrt(2.0)
-        h = span * (rng.random() ** 0.55) * (1.0 if rng.random() < 0.5 else -1.0)
-        d = (span - abs(h)) * rng.uniform(-0.9, 0.9)
-        cx = (h + d) / math.sqrt(2.0)
-        cy = (h - d) / math.sqrt(2.0)
-        h = (abs(h) / span) ** 2                          # 0 centre .. 1 at the sides
-        vz = ((rz - cr * 0.6) * math.sqrt(max(0.0, 1.0 - h))
-              * (rng.random() ** 0.7) * (1.0 if rng.random() < 0.56 else -0.85))
-        sites.append((cx, cy, cz + vz, cr))
-    # twigs: dark sweeps from the limb tips out to the shells, the visible wood the
-    # reference threads through its canopy (4.3% thin structure)
-    for k, (cx, cy, czz, cr) in enumerate(sites[::3]):
-        base = (cx * 0.35, cy * 0.35, th * 0.85 + (czz - th * 0.85) * 0.35)
-        pts = [base, ((base[0] + cx) * 0.5, (base[1] + cy) * 0.5, (base[2] + czz) * 0.5 + 0.03),
-               (cx, cy, czz)]
-        parts.append(F.tag_family(_sweep(f"twig_{k}", mats["bark"], pts,
-                                         [tr * 0.30, tr * 0.22, tr * 0.12], sides=4), "wood"))
-    for k, (cx, cy, czz, cr) in enumerate(sites):
-        parts.append(F.tag_family(_cluster(
-            f"core_{k}", mats["blossom_core"] if stage == 5 else mats["canopy"],
-            (cx, cy, czz), cr * 0.80, rng), "foliage"))
-        parts.append(F.tag_family(_leaf_shell(f"shell_{k}", leaf_mats, (cx, cy, czz), cr,
-                                              int(12 + 18 * cr / rx), rng), "foliage"))
-    for k in range(n_bloom):
-        x, y, z = _on_canopy(rng, cz, rx, rz, depth=0.98)
-        parts.extend(F.tag_family(_berry(f"bloom_{k}", mats["bloom"], (x, y, z), 0.024,
-                                         dimple=0.0), "flower"))
-    # fruit: 7-8 px across in the reference (r 0.04 world), 21-24 per crown, on the
-    # camera-facing shell and only a little buried, each with the drawn rim
-    fr_mat = mats["unripe"] if stage == 6 else mats["fruit"]
-    for k in range(n_fruit):
-        x, y, z = _on_canopy(rng, cz, rx, rz, depth=rng.uniform(0.86, 0.98), spread=1.45)
-        # the crown is a square on the ground, so the face point is scaled out along the
-        # screen's horizontal diagonal and clamped to the tile
-        s = rng.uniform(1.0, 1.30)
-        hx = (x + y) * 0.5 * s
-        dd = (x - y) * 0.5
-        x, y = max(-0.42, min(0.42, hx + dd)), max(-0.42, min(0.42, hx - dd))
-        r = 0.040 * rng.uniform(0.85, 1.15) * spec.get("fruit_scale", 1.0)
-        pair = spec.get("fruit_pairs", False)
-        for j in range(2 if pair else 1):
-            ox = (j - 0.5) * r * 1.6 * 0.707 if pair else 0.0
-            oy = -(j - 0.5) * r * 1.6 * 0.707 if pair else 0.0
-            parts.extend(F.tag_family(_berry(f"fruit_{k}_{j}", fr_mat, (x + ox, y + oy, z), r,
-                                             pear=spec.get("fruit_pear", False),
-                                             dimple=0.0, outline_mat=mats["edge"]), "fruit"))
-            # the painter's highlight dot, up and toward the light
-            parts.extend(F.tag_family(_berry(f"gleam_{k}_{j}", mats["gleam"],
-                                             (x + ox + 0.35 * r, y + oy - 0.35 * r, z + 0.45 * r),
-                                             r * 0.30, dimple=0.0), "fruit"))
-        # the stem the pair hangs from
-        parts.append(F.tag_family(_stalk(f"pedicel_{k}", mats["bark"], (x, y, z + r * 0.6),
-                                         r * 1.4, 0.006, 0.004, lean=0.6), "wood"))
+        def put_leaf(at, sz, yaw, pitch, name):
+            nonlocal li
+            if at[0] * _NEAR[0] + at[1] * _NEAR[1] > 0.0:
+                fruit_spots.append(tuple(at))
+            # keep the blade on the tile: a tip past the edge is cut by the packer, so
+            # turn the blade back toward the trunk (and shorten it if that is not enough)
+            for _ in range(2):
+                tip = (at[0] + math.cos(yaw) * math.cos(pitch) * sz, at[1] + math.sin(yaw) * math.cos(pitch) * sz)
+                if max(abs(tip[0]), abs(tip[1])) <= 0.485:
+                    break
+                yaw = math.atan2(-at[1], -at[0]) + rng.uniform(-0.6, 0.6)
+            tip = (at[0] + math.cos(yaw) * math.cos(pitch) * sz, at[1] + math.sin(yaw) * math.cos(pitch) * sz)
+            over = max(abs(tip[0]), abs(tip[1])) - 0.485
+            if over > 0.0:
+                sz = max(sz * 0.4, sz - over * 1.2)
+            lit, k = _crown_shade(at, cz, rx, rz)
+            if bloom > 0.0 and rng.random() < bloom:
+                mat = _tone(mats["blossom"], lit, k, rng)
+            else:
+                mat = _tone(tones, lit, k, rng)
+            edge = rng.random() < 0.12
+            roll = _broadside_roll(yaw, rng.uniform(-28.0, 14.0) + (58.0 if edge else 0.0))
+            parts.extend(F.tag_family(_leaf(name, mat, at, sz, yaw, pitch, curl=rng.uniform(0.05, 0.20),
+                                            midrib=0.35, width_ratio=rng.uniform(0.21, 0.29), roll=roll), "foliage"))
+            li += 1
+
+        # the dark inner fill: large shadow leaves deep in the crown so nothing shows
+        # through the clusters but the tree's own shade
+        n_fill = int(70 * rx * rz)
+        for f in range(n_fill):
+            yaw = rng.uniform(0.0, math.tau)
+            el = math.radians(rng.uniform(-50.0, 70.0))
+            at = _on_crown(cz, rx, rz, yaw, el, rng.uniform(0.20, 0.50))
+            y2 = SCREEN_YAW + (math.pi if f % 2 else 0.0) + rng.uniform(-0.8, 0.8)
+            parts.extend(F.tag_family(_leaf(f"fill_{f}", tones[-1], at, size * 1.35, y2,
+                                            math.radians(rng.uniform(-30.0, 30.0)), curl=0.05, midrib=0.2,
+                                            width_ratio=0.45, roll=_broadside_roll(y2, rng.uniform(-20.0, 10.0))), "foliage"))
+        for pts, is_sec in twigs:
+            L = _arc_len(pts)
+            d = 0.02 if not is_sec else L * 0.15
+            while d < L - 0.01:
+                at = _along(pts, d)
+                # the skirt stays thin where the limbs leave the fork, so they show
+                if clear_skirt and at[2] < cz - rz * 0.72 and math.hypot(at[0], at[1]) < rx * 0.55:
+                    d += 0.02
+                    continue
+                side = 1 if li % 2 == 0 else -1
+                yaw = SCREEN_YAW + (0.0 if side > 0 else math.pi) + rng.uniform(-0.9, 0.9)
+                put_leaf(at, size * rng.uniform(0.75, 1.25), yaw, math.radians(rng.uniform(-45.0, 30.0)), f"leaf_{li}")
+                d += 0.020 + rng.uniform(0.0, 0.010)
+            if not is_sec:
+                # the tuft at the twig tip: a rosette of leaves fanning out and up
+                tx, ty, tz = pts[-1]
+                tx, ty = max(-0.45, min(0.45, tx)), max(-0.45, min(0.45, ty))
+                n_tuft = rng.randint(5, 7)
+                for k in range(n_tuft):
+                    yaw = k * math.tau / n_tuft + rng.uniform(-0.3, 0.3)
+                    at = (tx + math.cos(yaw) * 0.012, ty + math.sin(yaw) * 0.012, tz + rng.uniform(-0.01, 0.02))
+                    put_leaf(at, size * rng.uniform(0.85, 1.15), yaw, math.radians(rng.uniform(-55.0, 15.0)), f"tuft_{li}")
+        # the outer shell: leaves over the crown's whole front and rim. The painted crowns
+        # are full rounded masses -- leaves everywhere, lit top-left, dark lower right,
+        # small dark gaps -- and the twig leaves alone left ours ragged, with 25-40% fewer
+        # leaf pixels; the shell sets the outline the silhouette constants assume.
+        if stage >= 3:
+            across_px = rx * _CROWN_ACROSS * 90.5
+            leaf_px = (size * 90.5) * (size * 90.5 * 0.25) * 0.85
+            n_shell = int(SHELL_COVER * math.pi * across_px * rz * 78.4 / max(1.0, leaf_px))
+            for s_i in range(n_shell):
+                el = math.asin(rng.uniform(-0.92, 0.98))               # even over the shell
+                # the front half and the rim -- and, high up, all the way round: the camera
+                # looks down 30 deg, so the crown's top BACK is its top edge on the sprite
+                # (v22h: avocado, olive and coffee had a dark notch there)
+                if math.sin(el) > 0.30:
+                    yaw = rng.uniform(0.0, math.tau)
+                else:
+                    yaw = rng.uniform(-0.30 * math.pi, 1.30 * math.pi)
+                at = _on_crown(cz, rx, rz, yaw, el, rng.uniform(0.88, 1.0))
+                if clear_skirt and at[2] < cz - rz * 0.72 and math.hypot(at[0], at[1]) < rx * 0.55:
+                    continue
+                out = math.atan2(at[1], at[0]) if math.hypot(at[0], at[1]) > 1e-3 else rng.uniform(0, math.tau)
+                rise = 30.0 * math.sin(el) + rng.uniform(-25.0, 25.0)
+                put_leaf(at, size * rng.uniform(0.80, 1.20), out + rng.uniform(-1.0, 1.0),
+                         -math.radians(rise), f"shell_{s_i}")
+    # --- LAYER 3b: sparse white bloom as small flower dots on the front leaves ------------
+    if want_leaves and flower_dots and fruit_spots and "flower_dot" in mats:
+        n_fl = int(flower_dots * 900)
+        for k, at in enumerate(_pick_spots(fruit_spots, cz, rx, rz, n_fl, rng, margin=0.02)):
+            at = _clamp_tile((at[0] + _TOWARD[0] * 0.08, at[1] + _TOWARD[1] * 0.08, at[2] + _TOWARD[2] * 0.08))
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=6, ring_count=4, radius=1.0, location=at)
+            fl = bpy.context.active_object
+            fl.name = f"flower_{k}"
+            s = rng.uniform(0.016, 0.024)
+            fl.scale = (s, s, s * 0.7)
+            fl.data.materials.append(mats["flower_dot"])
+            bpy.ops.object.shade_flat()
+            parts.append(F.tag_family(fl, "fruit"))
+    # --- LAYER 4: the fruit, spread over the crown's front --------------------------------
+    fr = design["fruit"]
+    if want_fruit and fr > 0.0:
+        shape_name = spec.get("shape", "sphere")
+        shape = FRUIT_SHAPES[shape_name]
+        style = shape.get("style", "hang")
+        n_want = max(1, int(round(form["n"] * fr)))
+        rr = form["fr"] * (0.92 if withered else 1.0)
+        top_r = _fruit_top(shape_name, rr)
+        stem_mat = mats["bark"]
+        blush = (mats["fruit_blush"], spec["blush_z"]) if "fruit_blush" in mats else None
+        style = form.get("style", style)
+        spots = _pick_spots(fruit_spots, cz, rx, rz, n_want, rng, margin=rr * 1.6) if fruit_spots else \
+            _front_points(cz, rx, rz, n_want, rng)
+        for k, at in enumerate(spots):
+            # sit the fruit in front of the leaves at that spot
+            at = _clamp_tile((at[0] + _TOWARD[0] * 0.12, at[1] + _TOWARD[1] * 0.12, at[2] + _TOWARD[2] * 0.12))
+            alt = (k % 3 == 1) or withered
+            if style == "pair":
+                # cherries: two on long stalks from one spur, the stalks a V
+                # the painted pair: an inverted V of 1 px stalks 5-6 px long, the two
+                # cherries a pixel apart (v22a's touched and read as one red bar)
+                spur = (at[0], at[1], at[2] + rr * 3.6)
+                for q, s in enumerate((-1.0, 1.0)):
+                    c = _clamp_tile((at[0] + _ACROSS[0] * s * rr * 1.40, at[1] + _ACROSS[1] * s * rr * 1.40,
+                                     at[2] - (0.0 if q == 0 else rr * 0.30)))
+                    parts.append(F.tag_family(_sweep(f"tstem_{k}_{q}", stem_mat, [spur, (c[0], c[1], c[2] + top_r * 0.8)],
+                                                     [0.0048, 0.0040], sides=4), "wood"))
+                    parts.extend(F.tag_family(_fruit(f"tfruit_{k}_{q}", mats, c, rr * (1.0 if q == 0 else 0.94),
+                                                     shape_name, rng, alt=alt, blush=blush, gleam=True), "fruit"))
+            elif style == "cluster":
+                # a clump: berries crowded irregularly round the spot, the nearer ones
+                # in front (v22a's centre-plus-ring read as a red cross)
+                per = form.get("per", shape.get("per", 3))
+                offs = [(0.0, 0.0, 0.0)]
+                while len(offs) < per:
+                    a = rng.uniform(0.0, math.tau)
+                    dd = rng.uniform(1.1, 1.9)
+                    offs.append((math.cos(a) * dd, math.sin(a) * dd * 0.85, rng.uniform(-0.6, 0.6)))
+                offs.sort(key=lambda o: o[2])
+                for q, (ox, oy, oz) in enumerate(offs):
+                    c = _clamp_tile((at[0] + _ACROSS[0] * ox * rr + _TOWARD[0] * oz * rr,
+                                     at[1] + _ACROSS[1] * ox * rr + _TOWARD[1] * oz * rr,
+                                     at[2] + oy * rr + _TOWARD[2] * oz * rr))
+                    parts.extend(F.tag_family(_fruit(f"tfruit_{k}_{q}", mats, c, rr * rng.uniform(0.88, 1.06),
+                                                     shape_name, rng, alt=(q % 2 == 1) or withered,
+                                                     gleam=(q == 0)), "fruit"))
+            else:
+                hang = (at[0], at[1], at[2] - top_r * 0.35)
+                parts.append(F.tag_family(_sweep(f"tstem_{k}", stem_mat,
+                                                 [(hang[0], hang[1], hang[2] + top_r + 0.022),
+                                                  (hang[0], hang[1], hang[2] + top_r * 0.85)],
+                                                 [0.0032, 0.0028], sides=4), "wood"))
+                parts.extend(F.tag_family(_fruit(f"tfruit_{k}", mats, hang, rr * rng.uniform(0.92, 1.06),
+                                                 shape_name, rng, alt=alt, blush=blush, gleam=True), "fruit"))
     return parts
 
 
 ARCHETYPES = {"tree": tree, "bush": bush, "broadleaf": broadleaf, "rosette": rosette,
               "trellis": trellis, "grain": grain, "clump": clump}
 ROWS = {"tree": 0, "bush": 2, "broadleaf": 2, "rosette": 3, "trellis": 2, "grain": 3, "clump": 2}
+
+#: The perennials -- every crop FruitFarming's conf gives a growBack. Their last column is
+#: not a withered plant but the plant AFTER HARVEST. Vanilla's harvest() puts a growBack
+#: crop back to an early stage (nbOfGrow growBack+1, the young tree of the first growth),
+#: and a tree that shrank to a sapling each time it was picked was the complaint;
+#: FF_farmingSprites.lua shows this column instead while a plant that has fruited regrows.
+#: In play the healthy last column was never seen otherwise: with fullGrown 6 a ripe crop
+#: left on the plant rots (deadSprite) before nbOfGrow reaches 8. The column is the
+#: fruiting stage's own plant -- same seed, same geometry -- with the fruit taken off, so
+#: a harvest takes the fruit away and nothing else.
+AFTER_HARVEST = ("apple", "pear", "peach", "cherry", "orange", "lemon", "lime", "grapefruit",
+                 "avocado", "mango", "olive", "coffee", "grape", "banana", "pineapple")
+#: the fruit's parts per habit, by object-name prefix (every helper names its sub-parts
+#: after the part: "tfruit_3_edge", "tfruit_3_gleam", "pine_2_edge", ...)
+FRUIT_PARTS = {"tree": ("tfruit_", "tstem_"), "trellis": ("pedu_", "grape_"),
+               "broadleaf": ("peduncle_", "rachis_", "nana_", "bract_"),
+               "rosette": ("fstalk_", "pine_", "crown_")}
+
+
+def _pick_fruit(parts, prefixes):
+    """``parts`` without the fruit: the fruit's objects are deleted from the scene (an
+    object left behind unparked would render in the first cell)."""
+    kept = []
+    for part in parts:
+        if part.name.startswith(prefixes):
+            bpy.data.objects.remove(part, do_unlink=True)
+        else:
+            kept.append(part)
+    return kept
 
 
 # --------------------------------------------------------------------------- #
@@ -1529,19 +2567,72 @@ def materials(spec):
                                     material_spec("foliage", seed=19))
     soil_map = write_surface_map(ROOT / "build" / "ff_soil.png", 512, 512,
                                  material_spec("soil", seed=7))
-    leaf_paint = (0.148, 0.367, 0.152)
+    bark_map = write_surface_map(ROOT / "build" / "ff_bark.png", 512, 512,
+                                 material_spec("bark", seed=11))
+    leaf_paint = (0.124, 0.346, 0.128)
     # the reference's top five palette entries are five greens (#305030 #305838
     # #487048 #385838 #406040): neighbouring leaves differ in tone, so four paints
     # within the class swing, all on the reference's hue
     leaf_paints = [tuple(c * k for c in leaf_paint) for k in (1.00, 0.92, 0.85, 0.78)]
-    stem_paint = tuple(c * 0.82 for c in leaf_paint)   # thin runs measure 0.967x the blades; a thin cylinder sits on the ramp's top stop, so the paint compensates
+    fruit_gloss = FRUIT_SHAPES[spec.get("shape", "sphere")].get("gloss", (0.12, 0.55))
+    alt_paint = (spec["fruit"][0] * 0.85, spec["fruit"][1] + spec["fruit"][0] * 0.10, spec["fruit"][2] * 0.90)
+    edge_k = 0.40
+    fruit_ao = None
+    fruit_shading = None
+    form = TREE_FORMS.get(spec.get("name"))
+    tree_leaf_paints = ((0.38, 0.62, 0.12), (0.26, 0.47, 0.10), (0.17, 0.33, 0.08),
+                        (0.10, 0.21, 0.06), (0.055, 0.115, 0.04))
+    bark_paint = (0.100, 0.052, 0.023)
+    bark_class = "bark"
+    if spec.get("arch") == "tree" and form:
+        # the painted fruit: deep paint, a 1 px highlight (a tight lobe -- v21's wide one
+        # washed every cherry pink), a near-black rim; the alternate is a step darker
+        fruit_gloss = form.get("gl", (0.60, 0.07))
+        fruit_ao = (0.015, 0.50)
+        fruit_shading = {"mode": "step",
+                         "levels": {k: v * form.get("fl", 1.0) for k, v in F.TOON_LEVELS.items()}}
+        alt_paint = tuple(c * 0.85 for c in spec["fruit"])
+        edge_k = 0.30
+        bark_paint = form["bark"]
+        if form.get("bark_tex") == "birch":
+            bark_map = write_surface_map(ROOT / "build" / "ff_bark_birch.png", 512, 512,
+                                         material_spec("bark_birch", seed=13), grain_axis="u")
+            bark_class = "bark_birch"
+        from pzforge.spec import srgb_to_linear
+        gain = [srgb_to_linear(form["crown"][i] / 255.0) / srgb_to_linear(CROWN_RESPONSE[i] / 255.0)
+                for i in range(3)]
+        if "seen" in form:
+            gain = [g * srgb_to_linear(form["crown"][i] / 255.0) / srgb_to_linear(form["seen"][i] / 255.0)
+                    for i, g in enumerate(gain)]
+        tree_leaf_paints = tuple(tuple(min(1.0, c * g) for c, g in zip(pt, gain)) for pt in tree_leaf_paints)
+    stem_paint = (leaf_paint[0] * 1.45, leaf_paint[1] * 1.28, leaf_paint[2] * 1.05)   # thin runs measure 0.967x the blades; a thin cylinder sits on the ramp's top stop, so the paint compensates
+    blossom_paints = BLOSSOM_PAINTS
+    if form and form.get("bloom") and form["bloom"][1]:
+        # five tones of the crop's own blossom, lit crown to shaded interior
+        bp = form["bloom"][1]
+        blossom_paints = tuple(tuple(min(1.0, ch * k) for ch in bp) for k in (1.10, 0.95, 0.80, 0.62, 0.45))
+    extra = {}
+    if form and form.get("bloom") and form["bloom"][1] and form["bloom"][0] < 0.5:
+        # a 2-3 px flower dot: lit bright and left undarkened -- the fruit class's rim and
+        # contact shade turned v22k's first dots grey and lost them in the crown
+        extra["flower_dot"] = F.forge_material(
+            "ff_flower_dot", "fruit", form["bloom"][1], gloss=(0.0, 0.5), ao=(0.01, 0.0), rim=(0.01, 1.0),
+            shading={"mode": "step", "levels": {k: v * 1.8 for k, v in F.TOON_LEVELS.items()}})
+    if spec.get("blush"):
+        extra["fruit_blush"] = F.forge_material("ff_fruit_blush", "fruit", spec["blush"], gloss=fruit_gloss, ao=fruit_ao,
+                                                shading=fruit_shading)
     return {
-        "leaves": [F.forge_material(f"ff_leaf{i}", "foliage", pt, texture_path=str(foliage_map))
+        **extra,
+        "leaves": [F.forge_material(f"ff_leaf{i}", "foliage", pt)
                    for i, pt in enumerate(leaf_paints)],
         "leaf": F.forge_material("ff_leaf", "foliage", leaf_paint, texture_path=str(foliage_map)),
+        "tree_leaves": [F.forge_material(f"ff_tleaf{i}", "foliage", pt)
+                        for i, pt in enumerate(tree_leaf_paints)],
         "stem": F.forge_material("ff_stem", "foliage", stem_paint, split=None,
                                  rim=(0.38, 0.70)),
         "dead": F.forge_material("ff_dead", "foliage", DEAD_PAINT, texture_path=str(foliage_map)),
+        "straw_dry": [F.forge_material(f"ff_strawdry{i}", "foliage", (pt[0] * 0.62, pt[1] * 0.56, pt[2] * 0.9 + 0.02))
+                      for i, pt in enumerate(STRAW_PAINTS)],
         "straw": [F.forge_material(f"ff_straw{i}", "foliage", pt, texture_path=str(foliage_map))
                   for i, pt in enumerate(STRAW_PAINTS)],
         "strawstem": F.forge_material("ff_strawstem", "foliage", STRAW_STEM),
@@ -1549,19 +2640,27 @@ def materials(spec):
         "calyx": F.forge_material("ff_calyx", "foliage", tuple(c * 0.70 for c in leaf_paint)),
         # the drawn rim round a fruit: the darkest foliage tone, not black
         "edge": F.forge_material("ff_edge", "foliage", tuple(c * 0.62 for c in leaf_paint)),
-        "fruit": F.forge_material("ff_fruit", "fruit", spec["fruit"]),
+        "fruit": F.forge_material("ff_fruit", "fruit", spec["fruit"], gloss=fruit_gloss, ao=fruit_ao,
+                                  shading=fruit_shading),
+        "fruit_alt": F.forge_material("ff_fruit_alt", "fruit", alt_paint, gloss=fruit_gloss, ao=fruit_ao,
+                                      shading=fruit_shading),
+        "fruit_edge": F.forge_material("ff_fruit_edge", "fruit", tuple(c * edge_k for c in spec["fruit"]),
+                                       gloss=(0.0, 0.5)),
         "unripe": F.forge_material("ff_unripe", "fruit", UNRIPE_PAINT),
+        "bract": F.forge_material("ff_bract", "fruit", (0.20, 0.04, 0.10), gloss=(0.03, 0.7)),
         "soil": F.forge_material("ff_soil", "soil", (0.133, 0.047, 0.0045), texture_path=str(soil_map)),
         "wood": F.forge_material("ff_trellis", "wood", (0.42, 0.26, 0.12)),
         # tree-habit extras (kept for the tree archetype)
         "canopy": F.forge_material("ff_canopy", "foliage", tuple(c * 0.80 for c in leaf_paint),
                                    texture_path=str(foliage_map)),
-        "bark": F.forge_material("ff_bark", "wood", (0.120, 0.072, 0.036)),
+        "bark": F.forge_material("ff_bark", bark_class, bark_paint, texture_path=str(bark_map)),
         "canopy_leaves": [F.forge_material(f"ff_cleaf{i}", "foliage", c) for i, c in enumerate(CANOPY_PAINTS)],
-        "blossom": [F.forge_material(f"ff_blossom{i}", "fruit", c) for i, c in enumerate(BLOSSOM_PAINTS)],
+        "blossom": [F.forge_material(f"ff_blossom{i}", "fruit", c) for i, c in enumerate(blossom_paints)],
         "bloom": F.forge_material("ff_bloom", "fruit", BLOOM_PAINT),
         "shadow": F.forge_material("ff_shadow", "soil", (0.045, 0.040, 0.030)),
-        "gleam": F.forge_material("ff_gleam", "fruit", (0.95, 0.90, 0.85)),
+        "gleam": F.forge_material("ff_gleam", "fruit", (0.95, 0.92, 0.86), gloss=(0.0, 0.5), ao=(0.01, 0.0),
+                                  rim=(0.01, 1.0),
+                                  shading={"mode": "step", "levels": {k: v * 2.2 for k, v in F.TOON_LEVELS.items()}}),
         "blossom_core": F.forge_material("ff_blossom_core", "fruit", (0.42, 0.20, 0.30)),
     }
 
@@ -1617,7 +2716,7 @@ def main() -> None:
         LAYER = argv[argv.index("--layer") + 1]
     if crop not in CROPS:
         raise SystemExit(f"unknown crop {crop!r}; known: {', '.join(sorted(CROPS))}")
-    spec = CROPS[crop]
+    spec = dict(CROPS[crop], name=crop)
     out = ROOT / "build" / f"ff_{crop}_cells"
 
     for obj in list(bpy.data.objects):
@@ -1658,13 +2757,19 @@ def main() -> None:
     subject = bpy.data.objects[F.SUBJECT_NAME]
 
     for stage in range(STAGES):
+        # a perennial's last column is its fruiting plant after harvest (AFTER_HARVEST)
+        after_harvest = stage == STAGES - 1 and crop in AFTER_HARVEST
+        grown = STAGES - 2 if after_harvest else stage
         # Stable seed: Python's hash() is salted per process, which would reshuffle a
         # crop's leaves on every re-render and make pixel-diffing a refactor impossible.
-        rng = random.Random(sum(ord(c) * (i + 7) for i, c in enumerate(crop)) * 1000 + stage)
+        rng = random.Random(sum(ord(c) * (i + 7) for i, c in enumerate(crop)) * 1000 + grown)
         parts = soil_bed(mats["soil"], rng, rows=rows) if rows else []
-        parts += build(stage, spec, mats, rng)
+        parts += build(grown, spec, mats, rng)
+        if after_harvest:
+            parts = _pick_fruit(parts, FRUIT_PARTS[spec["arch"]])
         for part in parts:
             part.location.x += stage * F.TILE   # grid +x, one tile per stage
+            part["pz_tile"] = (stage, 0)       # this stage's cell, whatever hangs over
             part.parent = subject
 
     manifest = F.render_cells(bpy.context)

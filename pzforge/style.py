@@ -161,6 +161,12 @@ class StyleOptions:
     #: measure 0.68-0.91 (boundary/interior), vanilla 0.97-1.00, ours 0.90-0.97 with
     #: only the outline shell. 1.0 disables.
     rim_ratio: float = 1.0
+    #: Drop opaque islands of at most this many pixels. A 2 px awn or a grain bead
+    #: that the render resolves to a lone dot is a rendering residue, not a drawn
+    #: mark; vanilla crop sprites do keep 3-7 single-pixel dots each, so only the
+    #: smallest islands should go (the crops use 2). Opt-in, and the one step after
+    #: rendering that changes alpha. 0 = off.
+    despeckle: int = 0
     enabled: bool = True
 
 
@@ -1084,7 +1090,7 @@ def add_strokes(img: Image.Image, amplitude: float = 0.05, coverage: float = 0.1
 
 def ground_shadow(img: Image.Image, strength: float = 1.0,
                   scale: float = 0.87, offset: tuple[int, int] = (-4, 0),
-                  alpha: int = 51) -> Image.Image:
+                  alpha: int = 51, shape: str = "diamond") -> Image.Image:
     """Composite the painted floor shadow behind the sprite.
 
     Objects that stand on legs float without one. Measured on the vanilla wooden
@@ -1104,6 +1110,24 @@ def ground_shadow(img: Image.Image, strength: float = 1.0,
     a = round(alpha * min(1.0, strength))
     shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     spx = shadow.load()
+    if shape == "ellipse":
+        # A tree's shadow is not the furniture diamond: the painted fruit-tree sheets
+        # and vanilla's ornamental trees both pool a flat black ellipse under the
+        # trunk, ~3:1 (painted cherry 48x16 px at alpha 51, vanilla hawthorn alpha 77),
+        # centred on the trunk foot.
+        half_h = half_w / 3.0
+        for y in range(int(cy - half_h), int(cy + half_h) + 1):
+            if not 0 <= y < h:
+                continue
+            k = 1.0 - ((y - cy) / half_h) ** 2
+            if k <= 0:
+                continue
+            span = half_w * k ** 0.5
+            for x in range(int(round(cx - span)), int(round(cx + span)) + 1):
+                if 0 <= x < w:
+                    spx[x, y] = (0, 0, 0, a)
+        shadow.alpha_composite(img)
+        return shadow
     for y in range(int(cy - half_h), int(cy + half_h) + 1):
         if not 0 <= y < h:
             continue
@@ -1275,6 +1299,46 @@ def apply(img: Image.Image, options: StyleOptions | None = None,
     img = bleed_edges(img, options.bleed_passes)
     if options.shadow_strength > 0:
         img = ground_shadow(img, options.shadow_strength)
+    if options.despeckle > 0:
+        img = despeckle(img, options.despeckle)
+    return img
+
+
+def despeckle(img: Image.Image, max_px: int, alpha_floor: int = 24) -> Image.Image:
+    """Clear 4-connected islands of opaque pixels no larger than ``max_px``.
+
+    The last pass: after the edge bleed, anything still standing alone is a residue
+    of thin geometry (a 1 px awn, a bead) that the sprite could not carry. It is the
+    one pass that changes alpha, so it is opt-in and kept small: vanilla crop sprites
+    keep a few single-pixel dots of their own (3-7 each), and a stray island bigger
+    than ``max_px`` is a recipe problem to fix at the source, not here.
+    """
+    if max_px <= 0:
+        return img
+    img = img.convert("RGBA")
+    w, h = img.size
+    px = img.load()
+    seen = bytearray(w * h)
+    for y in range(h):
+        for x in range(w):
+            i = y * w + x
+            if seen[i] or px[x, y][3] < alpha_floor:
+                continue
+            stack = [(x, y)]
+            seen[i] = 1
+            island = []
+            while stack:
+                cx, cy = stack.pop()
+                island.append((cx, cy))
+                for nx, ny in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                    if 0 <= nx < w and 0 <= ny < h:
+                        j = ny * w + nx
+                        if not seen[j] and px[nx, ny][3] >= alpha_floor:
+                            seen[j] = 1
+                            stack.append((nx, ny))
+            if len(island) <= max_px:
+                for cx, cy in island:
+                    px[cx, cy] = (0, 0, 0, 0)
     return img
 
 

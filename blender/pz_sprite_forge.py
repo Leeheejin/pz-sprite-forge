@@ -727,6 +727,29 @@ MATERIAL_CLASSES = {
         "hue": None, "swing": (0.797, 1.0), "ramp_range": (0.08, 0.92),
         "projection": "BOX", "texture_scale": 1.13, "texture": "brick",
     },
+    "bark": {
+        # A tree trunk as the mod user's painted sheets draw one (Tree_* read at 6x):
+        # a CYLINDER first -- the left ~40% lit, the right darker, no drawn outline
+        # (the lit edge measures 1.02-1.22x the trunk's middle on 9 of 11 sheets, so a
+        # rim term that darkens both silhouette edges is wrong here) -- and over it thin
+        # low-contrast streaks, 1 px wide, running the length of every trunk and limb.
+        # UV projection: _sweep lays u round the tube and v along it in world units, so
+        # the streaks follow each limb instead of standing vertical on a leaning one;
+        # world BOX projection also seamed the cylinder where its two projections met,
+        # which is what turned v21's trunk into blotches. Swing narrow because the
+        # cylinder light, not the map, carries the trunk's value range.
+        "shading": "step", "hue": _hue_wood, "swing": (0.80, 1.20),
+        "ramp_range": (0.20, 0.80), "projection": "UV", "texture_scale": 1.0,
+        "texture": "bark", "ao": (0.10, 0.90),
+    },
+    "bark_birch": {
+        # Pale, birch-like bark (the painted olive's trunks): silver grey, value p10/50/90
+        # 0.33/0.48/0.67, with short dark lenticels at ~0.35 of the bark's value. Same
+        # cylinder light as "bark"; the swing reaches down to the marks, not up.
+        "shading": "step", "hue": None, "swing": (0.38, 1.12),
+        "ramp_range": (0.12, 0.72), "projection": "UV", "texture_scale": 1.0,
+        "texture": "bark_birch", "ao": (0.10, 0.90),
+    },
     "foliage": {
         # Measured on vanilla farming crops at fullGrown (green pixels of BellPepper,
         # Tomato, Cabbages, Corn, SweetPotato, Greenpeas; reference/material_signatures
@@ -747,7 +770,7 @@ MATERIAL_CLASSES = {
         # reference's leaves read as two halves whichever way they face); plant-
         # scale occlusion so leaves darken each other and stems pocket into the bed
         # (the couch-corner AO at 0.7 m sees nothing 1 cm wide)
-        "split": (1.16, 0.80), "ao": (0.08, 0.85),
+        "split": (1.26, 0.72), "ao": (0.08, 0.85),
     },
     "soil": {
         # The tilled bed, measured on the same sprites plus the bare beds
@@ -773,7 +796,7 @@ MATERIAL_CLASSES = {
         "ramp_range": (0.08, 0.92), "projection": "BOX", "texture_scale": 1.0,
         "texture": None,
         # the drawn outline round every fruit and its highlight dot
-        "rim": (0.30, 0.64), "gloss": (0.22, 0.30), "ao": (0.08, 0.85),
+        "rim": (0.30, 0.64), "gloss": (0.32, 0.30), "ao": (0.08, 0.85),
     },
 }
 
@@ -954,6 +977,14 @@ def toon_material(name: str, paint=None, texture_path=None, dark=None, light=Non
                 coords = nodes.new("ShaderNodeTexCoord")
                 links.new(coords.outputs["Object"], mapping.inputs["Vector"])
             links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
+        elif projection == "UV" and texture_scale != 1.0:
+            # UV coordinates in world units (as _sweep lays them) need the class's
+            # scale too, or every map repeats once per metre of tube whatever it says
+            mapping = nodes.new("ShaderNodeMapping")
+            mapping.inputs["Scale"].default_value = (texture_scale,) * 3
+            coords = nodes.new("ShaderNodeTexCoord")
+            links.new(coords.outputs["UV"], mapping.inputs["Vector"])
+            links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
         # ramp_range narrows how much of the map's 0-1 field spans dark-to-light.
         # Texture sampling averages ~4 texels per sprite pixel, pulling extremes
         # toward the middle; a narrower range maps those averaged mid values back
@@ -1038,7 +1069,10 @@ def toon_material(name: str, paint=None, texture_path=None, dark=None, light=Non
     if gloss is not None:
         # the highlight dot: a tight glossy lobe captured to RGB and added to the
         # light, so it lands where the key's reflection is -- upper left of a
-        # fruit, as the reference paints it
+        # fruit, as the reference paints it. (It tints with the paint: a white dot
+        # on a saturated fruit has to be geometry -- the capture also carries the
+        # environment's reflection over the whole surface, so adding it as white
+        # washes the fruit; tried and measured in examples/ff_crop.py v22f.)
         strength, rough = gloss if isinstance(gloss, (tuple, list)) else (gloss, 0.22)
         gl = nodes.new("ShaderNodeBsdfGlossy")
         gl.inputs["Roughness"].default_value = rough
@@ -1333,8 +1367,16 @@ def render_cells(context, report=None) -> dict:
                                        for c in part.bound_box]
                             cx = sum(v.x for v in corners) / 8.0
                             cy = sum(v.y for v in corners) / 8.0
-                            tile = (int(math.floor(cx + 0.5)),
-                                    int(math.floor(-cy + 0.5)))
+                            if "pz_tile" in part:
+                                # The recipe knows which tile a part belongs to
+                                # (a leaf leaning over the boundary is still this
+                                # plant's leaf); guessing from the bbox centre
+                                # handed such parts to the neighbouring cell,
+                                # where they rendered as floating fragments.
+                                tile = tuple(int(v) for v in part["pz_tile"])
+                            else:
+                                tile = (int(math.floor(cx + 0.5)),
+                                        int(math.floor(-cy + 0.5)))
                             part.hide_render = (tile != (i, j)
                                                 or _facing_hidden(part, facing))
                             if tile == (i, j):

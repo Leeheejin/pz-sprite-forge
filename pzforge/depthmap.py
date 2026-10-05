@@ -256,10 +256,13 @@ def render(tiles: dict[int, list[dict]], scale: float, offset: float,
 
 
 def tiles_from_manifest(manifest: dict, sheet_cells) -> dict[int, list[dict]]:
+    from .geometry import source_of
     by_file = {rec["file"]: rec for rec in manifest.get("cells", [])}
     out: dict[int, list[dict]] = {}
     for cell in sheet_cells:
-        rec = by_file.get(cell.source)
+        # health-variant rows share their source cell's geometry (they were left out
+        # of DEPTH_*.png and drawn without depth)
+        rec = by_file.get(source_of(cell.source))
         if not rec or not rec.get("geometry"):
             continue
         out[cell.index] = [{"min": g["min"], "max": g["max"]} for g in rec["geometry"]]
