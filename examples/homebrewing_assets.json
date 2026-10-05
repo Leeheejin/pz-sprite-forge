@@ -146,5 +146,53 @@
         {"ratio": "head/deck", "min": 0.85, "max": 1.15}
       ]
     }
-  ]
+  ],
+  "workshop": {
+    "_about": "Workshop images from the shipped packs (python -m pzforge.cli workshop examples/homebrewing_assets.json [--publish]). They reproduce, byte for byte, the images the former one-off scripts examples/hb_promo.py and examples/hb_thumbnail.py wrote.",
+    "media": "C:/Users/leina/Zomboid/Workshop/HomeBrewing/Contents/mods/HomeBrewing/common/media",
+    "publish": "C:/Users/leina/Zomboid/Workshop/HomeBrewing",
+    "promo": {
+      "_about": "Three rack columns (3 / 2 / 1 casks) along the back, the still and the vat two rows in front, on the cork the first promo stood on; the 7x6 scene centred at 1:1 in the 1152x760 frame. Column offsets are HB_Brewing.TIER_OFFSET (1x px).",
+      "out": "docs/hb_promo.png",
+      "publish_as": "promo_stations.png",
+      "packs": ["hb_rack_01.pack", "hb_rackdeck2_01.pack", "hb_rackdeck3_01.pack", "hb_rackfront_01.pack",
+                "hb_barrel_racked_01.pack", "hb_barrel_racked_02.pack", "hb_barrel_01.pack", "hb_still_01.pack"],
+      "game_packs": ["Tiles2x.floor.pack", "Tiles2x.pack"],
+      "floor": "floors_interior_tilesandwood_01_6",
+      "grid": [7, 6],
+      "frame": [1152, 760],
+      "background": [26, 28, 32],
+      "columns": {
+        "rack3": [["hb_rack_01_0", 0], ["hb_barrel_racked_01_0", 3], ["hb_rackdeck2_01_0", 0], ["hb_barrel_racked_02_0", 34],
+                  ["hb_rackdeck3_01_0", 0], ["hb_barrel_racked_02_0", 64], ["hb_rackfront_01_0", 0]],
+        "rack2": [["hb_rack_01_0", 0], ["hb_barrel_racked_01_0", 3], ["hb_rackdeck2_01_0", 0], ["hb_barrel_racked_02_0", 34],
+                  ["hb_rackdeck3_01_0", 0], ["hb_rackfront_01_0", 0]],
+        "rack1": [["hb_rack_01_0", 0], ["hb_barrel_racked_01_0", 3], ["hb_rackdeck2_01_0", 0],
+                  ["hb_rackdeck3_01_0", 0], ["hb_rackfront_01_0", 0]]
+      },
+      "place": [[2, 1, "rack3"], [3, 1, "rack2"], [4, 1, "rack1"], [2, 4, "hb_still_01_0"], [4, 4, "hb_barrel_01_0"]]
+    },
+    "thumbnail": {
+      "_about": "The key image in the Food Preservation family style (pzforge.workshop.HOUSE_STYLE): the still behind, the upright barrel in front just overlapping it, and the drinks they make. Wine's mask tinted Maroon (vanilla fluid Wine), the glass bottle OldLace (HBMakgeolli); zombie.core.Colors values.",
+      "out": "docs/hb_thumbnail.png",
+      "publish_as": "preview.png",
+      "title": "Home Brewing",
+      "subtitle": "Ferment - Distill - Age  (B42)",
+      "packs": ["hb_barrel_01.pack", "hb_still_01.pack"],
+      "game_packs": ["UI.pack", "UI2.pack"],
+      "stations": [
+        {"sprite": "hb_still_01_0", "scale": 2, "x": 16, "bottom": 446},
+        {"sprite": "hb_barrel_01_0", "scale": 2, "after": 0, "overlap": 14, "bottom": 494}
+      ],
+      "floor_shadow": {"top": 432, "bottom": 506, "pad": [6, 10]},
+      "icons": {
+        "items": [
+          {"icon": "Item_BeerBottle"},
+          {"icon": "Item_Wine", "mask": "Item_Wine_Mask", "color": [128, 0, 0]},
+          {"icon": "Item_GlassBottle", "mask": "Item_GlassBottle_Mask", "color": [253, 245, 230]},
+          {"icon": "Item_WhiskeyFull"}
+        ]
+      }
+    }
+  }
 }

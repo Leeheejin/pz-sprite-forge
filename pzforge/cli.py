@@ -825,6 +825,13 @@ def cmd_measure(args: argparse.Namespace) -> int:
     return 1 if failed else 0
 
 
+def cmd_workshop(args: argparse.Namespace) -> int:
+    from . import workshop
+
+    only = set(args.only.split(",")) if args.only else None
+    return 1 if workshop.run(args.spec, only=only, publish=args.publish) else 0
+
+
 # --------------------------------------------------------------------------- #
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1047,6 +1054,16 @@ def build_parser() -> argparse.ArgumentParser:
     me.add_argument("patch", nargs="+", metavar="NAME:x0,y0,x1,y1")
     me.add_argument("--expect", action="append", metavar="A/B=min,max or NAME=min,max")
     me.set_defaults(func=cmd_measure)
+
+    ws = sub.add_parser("workshop",
+                        help="the Workshop promo and thumbnail from a spec's \"workshop\" "
+                             "section, composed from the packs the mod ships")
+    ws.add_argument("spec")
+    ws.add_argument("--only", help="comma list: promo,thumbnail")
+    ws.add_argument("--publish", action="store_true",
+                    help="also copy each picture into the spec's Workshop folder "
+                         "(publish_as: preview.png for the thumbnail)")
+    ws.set_defaults(func=cmd_workshop)
 
     d = sub.add_parser("ids", help="list tiledef ids already claimed by installed mods")
     d.add_argument("--limit", type=int, default=30)

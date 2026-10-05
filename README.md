@@ -76,6 +76,7 @@ the labelled comparison shots.
 | `wood_drum.py` | the composition test: steel geometry, oak materials | above |
 | `metal_still.py` | the no-reference path: an original object from the measured classes | below |
 | `hb_still.py` / `hb_barrel.py` | shipping recipes for a real mod: face-SINGLE view choice, a lathed stave barrel | below |
+| `hb_rack.py` / `hb_barrel_racked.py` | a layered object: one sheet per draw layer, facing-gated posts, the barrel's second pose | below |
 | `ff_crop.py` (+ `ff_build.py`, `ff_wire_mod.py`) | a whole crop mod: seven growth habits x 8 stages, fruit trees measured off painted sheets, health variants, an after-harvest stage | [Growing crops and fruit trees](#growing-crops-and-fruit-trees) |
 
 ![vanilla couch vs the two-tile fabric recreation](docs/sofa_compare.png)
@@ -96,9 +97,11 @@ check:
 ![vanilla vs forge at 2x, then 1x and 0.5x](docs/bold_sheet.png)
 
 The workflow's end state is shipping original objects with no vanilla
-counterpart: a moonshine still and a stave fermentation barrel, composed
-entirely from the measured classes, staged here with the tool's own table on
-a vanilla floor -- these two are live in the Home Brewing workshop mod:
+counterpart: a moonshine still, a stave fermentation barrel and a three-tier
+barrel rack, composed entirely from the measured classes and live in the Home
+Brewing workshop mod. The picture is `workshop` output: the mod's own packs on
+a vanilla floor, the racks' layers at their render offsets
+(`examples/homebrewing_assets.json` builds the sheets and this image alike):
 
 ![the Home Brewing mod's still and fermentation barrels on a vanilla floor](docs/hb_promo.png)
 
@@ -666,6 +669,7 @@ python -m pzforge.cli stack --layer <png>/<sheet>[:off]... # draw-order composit
 python -m pzforge.cli measure <image> name:x0,y0,x1,y1 ... # patch luminance, PASS/FAIL bands
 python -m pzforge.cli depthmap calibrate --tileset <vanilla>  # fit the B42 depth-map encoding
 python -m pzforge.cli depthmap render --cells <cells-dir>     # DEPTH_<sheet>.png from the manifest
+python -m pzforge.cli workshop <spec.json> [--publish]        # promo + thumbnail from the shipped packs
 ```
 
 `compare` is the one to reach for when copying an existing tile; it is the only view that
@@ -747,15 +751,40 @@ rack's own back pair. Gating lets one recipe render both answers without a secon
 geometry -- `examples/hb_rack.py` puts both pairs in both parts, each gated to the two
 facings it is right for.
 
+### Workshop images from the shipped packs
+
+A Workshop page wants a promo and a key image (Steam's `preview.png`), and both used to
+be one-off scripts with the sprite names typed into them. `workshop` composes them from
+the spec's `"workshop"` section and the packs the mod ships, so a picture cannot show art
+the mod does not have and is rebuilt with the tile set:
+
+- **promo** -- `grid`, `floor`, a `place` list of sprites or named `columns`; a column is
+  its layers in draw order, each lifted by its render y offset, the `stack` rule.
+- **thumbnail** -- the house style the Food Preservation and Home Brewing thumbnails
+  share (`pzforge.workshop.HOUSE_STYLE`, measured on the Food Preservation one): warm
+  radial background, Georgia Bold title over a soft shadow, Georgia subtitle,
+  `stations` as game sprites at whole-number scale (their baked contact shadow dropped
+  for one soft floor shadow), and `icons` drawn the way the game draws a full item: the
+  base icon, then its fluid mask multiplied by the fluid's ColorReference
+  (`zombie.core.Colors`).
+
+`--publish` copies each picture into the mod's Workshop folder under the name the
+uploader expects (`preview.png`: RGB, under Steam's 1 MB). The Home Brewing promo and
+thumbnail rebuild byte for byte from `examples/homebrewing_assets.json`; the scripts that
+first made them are gone.
+
+![the Home Brewing thumbnail: still, barrel and the drinks they make](docs/hb_thumbnail.png)
+
 ## Tests
 
 ```bash
-python tools/validate_formats.py                                   # 65 files, byte-exact
+python tools/validate_formats.py                                   # every .pack/.tiles, byte-exact
 python tests/test_geometry.py                                      # projection maths
 uv run --python 3.12 --with pillow python tests/test_pipeline.py   # cells -> mod -> read back
 uv run --python 3.12 --with pillow python tests/test_assets.py     # harness: stack, measure, spec, run
 uv run --python 3.12 --with pillow python tests/test_tilegeometry.py  # B42 tile geometry writer + merger
 uv run --python 3.12 --with pillow python tests/test_depthmap.py     # B42 depth maps: projection, ray cast, fit
+uv run --python 3.12 --with pillow python tests/test_workshop.py     # Workshop promo + thumbnail, the HB spec
 blender -b -P tests/test_blender_render.py                         # renders and measures
 ```
 
@@ -792,11 +821,14 @@ crate and a vanilla barrel oven, with no mod involved.
 ```
 blender/pz_sprite_forge.py   the addon (self-contained, single file)
 pzforge/                     packfile, tiledef, sheet, style, texture, spec,
-                             compare, check, modgen, preview, cli
+                             compare, check, modgen, preview, assets (the spec
+                             harness), geometry + depthmap (Build 42 depth),
+                             workshop (Workshop images), cli
 tools/                       the measurement scripts behind every number above
 reference/                   their output, consumed at runtime
-tests/                       four suites
-examples/                    crate.py, metal_drum.py, metal_crate.py, wood_floor.py
+tests/                       the suites listed under Tests
+examples/                    recipes (crate.py first), and homebrewing_assets.json,
+                             the worked asset spec
 harness/                     pzh, the in-engine test tool: isolated client/server runners,
                              PZH Lua libraries, crosscheck, self-test, promo composer
 ```
