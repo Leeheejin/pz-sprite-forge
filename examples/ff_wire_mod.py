@@ -20,10 +20,13 @@ For every crop built into dist/FFCrops (examples/ff_build.py):
 
 usage:
     uv run --python 3.12 --with pillow python examples/ff_wire_mod.py [--dry-run] [--version 0.3.0] [--mod DIR]
+
+The mod folder defaults to $FF_MOD, else the author's dev copy.
 """
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import shutil
 import sys
@@ -34,7 +37,7 @@ sys.path.insert(0, str(ROOT))
 from pzforge import geometry as geom  # noqa: E402
 
 DIST = ROOT / "dist" / "FFCrops" / "42" / "media"
-MOD = Path(r"C:\Users\leina\Zomboid\mods\FruitFarming")
+MOD = Path(os.environ.get("FF_MOD", r"C:\Users\leina\Zomboid\mods\FruitFarming"))
 
 #: mod conf key -> forge sheet crop name
 CROPS = {
