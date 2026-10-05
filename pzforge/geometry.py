@@ -30,7 +30,7 @@ from pathlib import Path
 UNITS = 10000
 VERSION = 2
 #: Tile properties vanilla repeats inside the geometry file.
-ECHOED_PROPERTIES = ("Surface", "ItemHeight")
+ECHOED_PROPERTIES = ("Surface", "ItemHeight", "Translucent")
 
 
 def _u(value: float) -> int:
@@ -145,6 +145,26 @@ def merge_into(path: Path, incoming_text: str) -> None:
     path.write_text(merge(existing, incoming_text), encoding="utf-8")
 
 
+def plant_tiles(count: int) -> list[dict]:
+    """Geometry for a sheet of growing plants: what vanilla gives its own.
+
+    Every ``vegetation_farming_*`` tileset in vanilla's tileGeometry.txt is a list of
+    properties-only tiles, ``Translucent = true`` and no box, and the plants' cells in
+    ``DEPTH_vegetation_farming_*.png`` are empty: a growing crop is drawn as a
+    translucent billboard, not with per-pixel depth. A crop sheet built from part
+    boxes (furniture's treatment) would be the one crop in the field that occludes
+    and is occluded differently, so crop sheets are written the vanilla way: every
+    tile ``Translucent``, no boxes, no depth texture.
+    """
+    return [{"index": i, "boxes": [], "properties": {"Translucent": "true"}} for i in range(count)]
+
+
+def source_of(cell_source: str) -> str:
+    """The manifest file a sheet cell came from. Health-variant rows are derived
+    copies (``"dying:ff_apple_01_S_x6_y0.png"``) and share their source's geometry."""
+    return cell_source.rsplit(":", 1)[-1]
+
+
 # --------------------------------------------------------------------------- #
 # from the rig's manifest
 # --------------------------------------------------------------------------- #
@@ -159,7 +179,7 @@ def tiles_from_manifest(manifest: dict, sheet_cells, tile_props: dict | None = N
     by_file = {rec["file"]: rec for rec in manifest.get("cells", [])}
     tiles = []
     for cell in sheet_cells:
-        rec = by_file.get(cell.source)
+        rec = by_file.get(source_of(cell.source))
         if not rec or not rec.get("geometry"):
             continue
         tiles.append({"index": cell.index,

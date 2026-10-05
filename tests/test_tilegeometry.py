@@ -76,9 +76,28 @@ def test_manifest_pairing() -> None:
     check("boxes and echoed props carried", tiles[0]["boxes"][0]["max"] == [1, 1, 1] and tiles[0]["properties"] == {"Surface": 6})
 
 
+def test_plants_and_variants() -> None:
+    print("\n== plant sheets and health-variant rows ==")
+    tiles = geom.plant_tiles(32)
+    text = geom.tileset_text("ff_apple_01", tiles, 8)
+    check("plant sheet: one entry per sprite", len(tiles) == 32 and text.count("        tile\n") == 32)
+    check("plant sheet: no boxes, Translucent like vanilla's crops",
+          "box" not in text and text.count("Translucent = true,") == 32)
+    check("plant sheet: last sprite at its grid cell", "xy = 7x3," in text)
+    manifest = {"cells": [{"file": "a_S_x6_y0.png", "facing": "S",
+                           "geometry": [{"group": "g", "min": [0, 0, 0], "max": [1, 1, 1]}]}]}
+    src = Cell(None, "S", source="a_S_x6_y0.png")
+    dup = Cell(None, "S", source="dying:a_S_x6_y0.png")
+    src.index, dup.index = 6, 22
+    paired = geom.tiles_from_manifest(manifest, [src, dup])
+    check("a derived health-variant row shares its source cell's geometry",
+          sorted(t["index"] for t in paired) == [6, 22])
+
+
 if __name__ == "__main__":
     test_writer()
     test_merge()
     test_manifest_pairing()
+    test_plants_and_variants()
     print(f"\n{'ALL PASS' if not FAILURES else 'FAILED: ' + ', '.join(FAILURES)}")
     raise SystemExit(1 if FAILURES else 0)
