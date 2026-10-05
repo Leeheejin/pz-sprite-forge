@@ -266,6 +266,28 @@ function PZH.queueTransfers(p, items, from, to)
 end
 function PZH.cancelActions(p) ISTimedActionQueue.clear(p) end
 
+--- crafting -----------------------------------------------------------------------
+--- Craft a recipe by hand the way the crafting window does (ISHandCraftPanel and
+--- ISEntityUI.HandcraftStart): a HandcraftLogic in manual-select mode, its inputs
+--- auto-populated from the player's containers, refused when the window would refuse the
+--- craft, and the action made with ISHandcraftAction.FromLogic. Building the action by hand
+--- does not work: ISHandcraftAction:new always converts its manual inputs to a net table
+--- (nil -> NPE, false -> type error). Recipe names may need their module
+--- ("MyMod.MyRecipe"). Returns the queued action, or nil and the reason.
+function PZH.handcraft(p, recipeName)
+    local recipe = getScriptManager():getCraftRecipe(recipeName)
+    if not recipe then return nil, "no recipe " .. tostring(recipeName) end
+    local logic = HandcraftLogic.new(p, nil, nil)
+    logic:setManualSelectInputs(true)
+    logic:setContainers(ISInventoryPaneContextMenu.getContainers(p))
+    logic:setRecipe(recipe)
+    logic:autoPopulateInputs()
+    if not logic:canPerformCurrentRecipe() then return nil, "the crafting window would refuse it" end
+    local action = ISHandcraftAction.FromLogic(logic)
+    ISTimedActionQueue.add(action)
+    return action
+end
+
 --- world objects and building ------------------------------------------------------
 function PZH.findBySprite(square, spriteName, className)
     if not square then return nil end
