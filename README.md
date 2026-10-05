@@ -76,6 +76,7 @@ the labelled comparison shots.
 | `wood_drum.py` | the composition test: steel geometry, oak materials | above |
 | `metal_still.py` | the no-reference path: an original object from the measured classes | below |
 | `hb_still.py` / `hb_barrel.py` | shipping recipes for a real mod: face-SINGLE view choice, a lathed stave barrel | below |
+| `ff_crop.py` (+ `ff_build.py`, `ff_wire_mod.py`) | a whole crop mod: seven growth habits x 8 stages, fruit trees measured off painted sheets, health variants, an after-harvest stage | [Growing crops and fruit trees](#growing-crops-and-fruit-trees) |
 
 ![vanilla couch vs the two-tile fabric recreation](docs/sofa_compare.png)
 
@@ -551,6 +552,87 @@ which is what its reference measures too.
   alpha, so the engine's bilinear sampling cannot drag a dark halo inward.
 
 The silhouette is never altered: a changed alpha channel is a changed footprint.
+
+## Growing crops and fruit trees
+
+`examples/ff_crop.py` draws the 18 crops of the Fruit Farming mod, each as one sheet of
+32 sprites: the 8 growth stages in a row, rendered in one Blender run as isolated tiles,
+and `--health-variants` appending the unhealthy, dying and dead rows from the measured
+vanilla hue transform. That is the layout `farming_vegetableconf` indexes with
+`nbOfGrow`. `examples/ff_build.py` runs every crop through the same path (render, build
+with the crop's flags, extract, compare, review sheets) and `examples/ff_wire_mod.py`
+installs the sheets into the mod.
+
+**Habits.** Seven growth habits share the stage table. Six have a vanilla twin whose
+sprite each stage is shaded like (`--shade-like`): bush (BellPepper), grain (Barley),
+broadleaf (Corn), rosette (Cabbages), trellis (Greenpeas) and clump (SweetPotato).
+The tree has none, because vanilla grows no fruit tree, so it is measured off the mod
+user's painted sheets (11 trees, 8 cells each): crown width, height and skirt per
+stage, trunk form (single, vase, twin, multi), trunk radius and root flare, bark and
+crown colour, fruit size, count and colour, and the share of the crown in bloom. The
+whole tree is drawn at 0.92 of the painted height, which puts its trunk foot on the
+game's floor anchor. `ff_build.py measure` and `fruitcal` close the loop: crown outlines
+land within 6 px of the painted ones and crown medians within 3 levels.
+
+**Trees, part by part.**
+
+- *Trunk and limbs*: the `bark` and `bark_birch` material classes. A cylinder lit from
+  the left with no rim, and 1 px low-contrast streaks laid along each limb through UVs
+  (`_sweep` writes world-unit UVs, and the `UV` projection now honours
+  `texture_scale`). World box projection seamed the tube and blotched it.
+- *Crown*: leaf tufts on the twig tips plus an outer shell of leaves, toned by position
+  (lit upper left, dark lower right), so the crown reads as one rounded mass; the style
+  pass lights it as one body (`--canopy-ramp`).
+- *Fruit*: a lathed silhouette per crop with a drawn rim behind it and a small pale chip
+  for the highlight. A gloss lobe tints with the paint and cannot draw white on red.
+  Fruit sits on front-facing leaf anchors spread evenly in screen space, kept off the
+  tile edge so the packer's cut never leaves half a fruit.
+- *Bloom*: crops that flower all over turn their leaves to blossom (cherry, peach,
+  apple); the white-flowering ones (pear, citrus, olive) get small flower dots instead.
+- *Shadow*: `--ground-shadow-shape ellipse` pools a flat black ellipse under the trunk,
+  0.42 of the sprite's opaque width, as the painted trees and vanilla's ornamental
+  trees do.
+- *No `--shade-like`*: the hawthorn stand-in grafted its leaf shading onto the trunks
+  (a one-cell A/B with everything else equal).
+
+**Cells and stray pixels.** Each part carries `part["pz_tile"]`, the stage cell it
+belongs to, and `render_cells` uses it instead of guessing from the part's bounding-box
+centre, which handed a leaning leaf to the neighbouring stage as a floating fragment.
+`--despeckle 2` clears what render residue is left: islands of at most 2 px. Vanilla
+crops keep a few single-pixel dots of their own, so it stays small.
+
+**What the game needs from a crop sheet.**
+
+- `--plant-geometry`. Vanilla draws growing crops as translucent billboards: every
+  `vegetation_farming_*` tileset in `tileGeometry.txt` is properties-only
+  (`Translucent = true`) and their cells in the depth maps are empty. Crop sheets are
+  written the same way, with no boxes and no depth map. Geometry from successive builds
+  now merges into the mod's one `tileGeometry.txt`, and the derived health rows share
+  their source cell's geometry.
+- No `SpriteGridPos` on isolated cells: a crop's stages are independent single-tile
+  sprites, as vanilla's farming tiles are.
+- The stage after harvest. Vanilla's `harvest()` puts a perennial (`growBack`) back to
+  an early stage, so a fruit tree would shrink to its young tree every time it was
+  picked. A perennial's last column is therefore its fruiting plant with only the fruit
+  removed (same seed, same geometry), and `ff_wire_mod.py` writes a `getSpriteName`
+  wrapper that shows it while a plant that has fruited regrows. Bloom and fruit follow
+  as before and the harvest timing is unchanged. With the mod's settings the healthy
+  last column was never shown in play otherwise: a ripe crop left on the plant rots
+  before it gets there.
+
+**Verified in the engine** with `harness/pzh` tests that live with the mod: all 576
+sprites resolve with textures and vanilla's crop-tile properties, and vanilla's own
+farming code (seed, growth, harvest, regrowth, rot, death) picks the right sprite on a
+real client and on a dedicated server.
+
+```bash
+uv run --python 3.12 --with pillow python examples/ff_build.py all apple pear -j 2    # render + build
+uv run --python 3.12 --with pillow python examples/ff_build.py measure cherry         # vs the painted sheet
+uv run --python 3.12 --with pillow python examples/ff_wire_mod.py --version 0.3.0    # into the mod
+```
+
+`$BLENDER`, `$FF_PAINTED` (the painted reference sheets, not in this repository) and
+`$FF_MOD` point the scripts at your own installs.
 
 ## File formats
 
